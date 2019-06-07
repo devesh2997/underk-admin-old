@@ -1,0 +1,118 @@
+.admn_pnl-container {
+	padding: 25px 5%;
+}
+
+
+
+.admn_pnl-primary_heading {
+	font-size: 28px;
+	margin: 0 0 5px;
+}
+
+.admn_pnl-secondary_heading {
+	margin: 30px 0 10px;
+}
+
+.admn_pnl-secondary_heading h2 {
+	display: inline-block;
+	margin: 0 25px 0 0;
+	color: #444;
+}
+
+.admn_pnl-secondary_heading button {
+	margin-right: 25px;
+}
+
+
+
+.admn_pnl-nav_tabs {
+	display: inline-block;
+	padding: 0 10px;
+	margin-right: 10px;
+	text-decoration: none;
+	color: #0f52ba;
+}
+
+.admn_pnl-nav_tabs:not(:first-of-type).active {
+	background-color: #008ecc;
+	color: white;
+}
+
+
+
+.admn_pnl-table {
+	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.admn_pnl-table td, .admn_pnl-table th {
+	border: 1px solid #ddd;
+	padding: 8px 16px;
+}
+
+.admn_pnl-table tr:nth-child(even) {
+	background-color: #f2f2f2;
+}
+
+.admn_pnl-table tr:hover {
+	background-color: #ddd;
+}
+
+.admn_pnl-table th {
+	padding-top: 12px;
+	padding-bottom: 12px;
+	text-align: left;
+	background-color: #888;
+	color: white;
+}
+
+
+
+.admn_pnl-form {
+	background-color: #f2f2f2;
+	padding: 15px 30px;
+}
+
+.admn_pnl-form label {
+	color: #444;
+	margin-right: 5px;
+}
+
+.admn_pnl-form input[type=text],
+.admn_pnl-form input[type=email],
+.admn_pnl-form input[type=password],
+.admn_pnl-form input[type=number],
+.admn_pnl-form input[type=tel],
+.admn_pnl-form input[type=date],
+.admn_pnl-form select {
+	font-size: 14px;
+	width: 100%;
+	padding: 10px 16px;
+	margin: 0 0 10px;
+	display: inline-block;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	box-sizing: border-box;
+}
+
+.admn_pnl-form input[type=submit],
+.admn_pnl-button {
+	font-size: 14px;
+	background-color: #008ecc;
+	color: white;
+	padding: 10px 16px;
+	margin: 8px 15px;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.admn_pnl-form input[type=submit]:hover,
+.admn_pnl-button:hover {
+	background-color: #0f52ba;
+}
+
+.admn_pnl-button:disabled {
+	background-color: #bbb;
+}
