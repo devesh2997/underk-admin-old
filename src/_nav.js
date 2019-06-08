@@ -18,7 +18,7 @@ export default {
 					icon: 'fa fa-list-alt',
 				},
 				{
-					name: 'Add administrator',
+					name: 'Add Administrator',
 					url: ROUTES.ADD_ADMINISTRATOR.path,
 					icon: 'fa fa-user-plus',
 				},
@@ -28,6 +28,23 @@ export default {
 			name: 'Users',
 			url: ROUTES.USER_LIST.path,
 			icon: 'fa fa-users',
+		},
+		{
+			name: 'Categories',
+			url: ROUTES.CATEGORY_LIST.path,
+			icon: 'fa fa-th-large',
+			children: [
+				{
+					name: 'Category List',
+					url: ROUTES.CATEGORY_LIST.path,
+					icon: 'fa fa-list-alt',
+				},
+				{
+					name: 'Add Category',
+					url: ROUTES.ADD_CATEGORY.path,
+					icon: 'fa fa-plus',
+				},
+			],
 		},
 	],
 };

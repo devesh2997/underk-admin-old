@@ -6,6 +6,9 @@ const AddAdminItem = React.lazy(() => import('./components/administrators/add-ad
 const AdminItem = React.lazy(() => import('./components/administrators/administrator-item'));
 const UserList = React.lazy(() => import('./components/users/user-list'));
 const UserItem = React.lazy(() => import('./components/users/user-item'));
+const CategoryList = React.lazy(() => import('./components/categories/category-list'));
+const AddCategoryItem = React.lazy(() => import('./components/categories/add-category'));
+const CategoryItem = React.lazy(() => import('./components/categories/category-item'));
 
 // https://github.com/ReactTraining/react-router/tree/master/packages/react-router-config
 const routes = {
@@ -53,19 +56,19 @@ const routes = {
 		path: '/categories',
 		exact: true,
 		name: 'Categories',
-		// component: CategoryList,
+		component: CategoryList,
 	},
-	ADD_CATEGORY_ITEM: {
+	ADD_CATEGORY: {
 		path: '/categories/add',
 		exact: true,
-		name: 'Add Category item',
-		// component: AddCategoryItem,
+		name: 'Add Category',
+		component: AddCategoryItem,
 	},
-	CATEGORY_ITEM: {
+	CATEGORY_DETAILS: {
 		path: '/categories/:cid',
 		exact: true,
-		name: 'Category item',
-		// component: CategoryItem,
+		name: 'Category Details',
+		component: CategoryItem,
 	},
 	SUPPLIER_LIST: {
 		path: '/suppliers',
