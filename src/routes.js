@@ -1,6 +1,9 @@
 import React from 'react';
 
 const Dashboard = React.lazy(() => import('./views/Dashboard'));
+const AdminList = React.lazy(() => import('./components/administrators/administrator-list'));
+const AddAdminItem = React.lazy(() => import('./components/administrators/add-administrator'));
+const AdminItem = React.lazy(() => import('./components/administrators/administrator-item'));
 
 // https://github.com/ReactTraining/react-router/tree/master/packages/react-router-config
 const routes = {
@@ -18,19 +21,19 @@ const routes = {
 		path: '/administrators',
 		exact: true,
 		name: 'Administrators',
-		// component: AdminList,
+		component: AdminList,
 	},
 	ADD_ADMINISTRATOR: {
 		path: '/administrators/add',
 		exact: true,
 		name: 'Add Administrator',
-		// component: AddAdminItem,
+		component: AddAdminItem,
 	},
 	ADMINISTRATOR_DETAILS: {
 		path: '/administrators/:id',
 		exact: true,
 		name: 'Administrator Details',
-		// component: AdminItem,
+		component: AdminItem,
 	},
 	USER_LIST: {
 		path: '/users',

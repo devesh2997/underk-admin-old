@@ -1,9 +1,28 @@
+import ROUTES from './routes';
+
 export default {
 	items: [
 		{
 			name: 'Dashboard',
-			url: '/dashboard',
+			url: ROUTES.DASHBOARD.path,
 			icon: 'icon-speedometer',
+		},
+		{
+			name: 'Administrators',
+			url: ROUTES.ADMINISTRATOR_LIST.path,
+			icon: 'fa fa-user-secret',
+			children: [
+				{
+					name: 'Administrator List',
+					url: ROUTES.ADMINISTRATOR_LIST.path,
+					icon: 'fa fa-list-alt',
+				},
+				{
+					name: 'Add administrator',
+					url: ROUTES.ADD_ADMINISTRATOR.path,
+					icon: 'fa fa-user-plus',
+				},
+			],
 		},
 	],
 };
