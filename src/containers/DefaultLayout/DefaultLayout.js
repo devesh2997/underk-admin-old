@@ -30,11 +30,11 @@ const DefaultHeader = React.lazy(() => import('./DefaultHeader'));
 
 class DefaultLayout extends Component {
 
-	loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>
+	loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>;
 
 	signOut(e) {
-		e.preventDefault()
-		this.props.history.push('/login')
+		e.preventDefault();
+		this.props.firebase.doSignOut();
 	}
 
 	render() {
@@ -61,16 +61,19 @@ class DefaultLayout extends Component {
 						<Suspense fallback={this.loading()}>
 							<Switch>
 								{Object.values(routes).map((route, idx) => {
-									return route.component ? (
-									<Route
-										key={idx}
-										path={route.path}
-										exact={route.exact}
-										name={route.name}
-										render={props => (
-										<route.component {...props} />
-										)} />
-									) : (null);
+									return route.component
+										? (
+											<Route
+												key={idx}
+												path={route.path}
+												exact={route.exact}
+												name={route.name}
+												render={props => (
+													<route.component {...props} />
+												)}
+											/>
+										)
+										: (null);
 								})}
 								<Redirect from="/" to="/dashboard" />
 							</Switch>
