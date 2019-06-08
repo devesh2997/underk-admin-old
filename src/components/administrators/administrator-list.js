@@ -63,7 +63,7 @@ class AdminListBase extends Component {
 									<td>{administrator.uid}</td>
 									<td>{administrator.email}</td>
 									<td>{administrator.username}</td>
-									<td>{Object.keys(administrator.roles).join(', ')}</td>
+									<td>{Object.values(administrator.roles).join(', ')}</td>
 									<td>
 										<Link to={{
 											pathname: `${ROUTES.ADMINISTRATOR_LIST.path}/${administrator.uid}`,

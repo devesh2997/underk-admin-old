@@ -46,6 +46,23 @@ export default {
 				},
 			],
 		},
+		{
+			name: 'Suppliers',
+			url: ROUTES.SUPPLIER_LIST.path,
+			icon: 'fa fa-truck',
+			children: [
+				{
+					name: 'Supplier List',
+					url: ROUTES.SUPPLIER_LIST.path,
+					icon: 'fa fa-list-alt',
+				},
+				{
+					name: 'Add Supplier',
+					url: ROUTES.ADD_SUPPLIER.path,
+					icon: 'fa fa-plus',
+				},
+			],
+		},
 	],
 };
 

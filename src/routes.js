@@ -9,6 +9,9 @@ const UserItem = React.lazy(() => import('./components/users/user-item'));
 const CategoryList = React.lazy(() => import('./components/categories/category-list'));
 const AddCategoryItem = React.lazy(() => import('./components/categories/add-category'));
 const CategoryItem = React.lazy(() => import('./components/categories/category-item'));
+const SupplierList = React.lazy(() => import('./components/suppliers/supplier-list'));
+const AddSupplierItem = React.lazy(() => import('./components/suppliers/add-supplier'));
+const SupplierItem = React.lazy(() => import('./components/suppliers/supplier-item'));
 
 // https://github.com/ReactTraining/react-router/tree/master/packages/react-router-config
 const routes = {
@@ -74,19 +77,19 @@ const routes = {
 		path: '/suppliers',
 		exact: true,
 		name: 'Suppliers',
-		// component: SupplierList,
+		component: SupplierList,
 	},
 	ADD_SUPPLIER: {
 		path: '/suppliers/add',
 		exact: true,
 		name: 'Add Supplier',
-		// component: AddSupplierItem,
+		component: AddSupplierItem,
 	},
-	SUPPLIER_ITEM: {
+	SUPPLIER_DETAILS: {
 		path: '/suppliers/:sid',
 		exact: true,
-		name: 'Category item',
-		// component: SupplierItem,
+		name: 'Supplier Details',
+		component: SupplierItem,
 	},
 	PRODUCT_LIST: {
 		path: '/products',

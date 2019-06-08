@@ -88,7 +88,7 @@ class AddCategoryItemBase extends Component {
 	render() {
 		const { cid, name, parent, slug, sku, error, loading, categories } = this.state;
 
-		const isInvalid = cid === "" || name === "" || parent === cid || sku === "";
+		const isInvalid = cid === '' || name === '' || parent === cid || sku === '';
 
 		return (
 			<Card>
