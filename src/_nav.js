@@ -24,6 +24,11 @@ export default {
 				},
 			],
 		},
+		{
+			name: 'Users',
+			url: ROUTES.USER_LIST.path,
+			icon: 'fa fa-users',
+		},
 	],
 };
 
