@@ -1,5 +1,3 @@
-import { AddProductItem, addProduct } from './add-product';
-import { EditProductItem } from './edit-product';
-import { ProductList } from './product-list';
-
-export { ProductList, AddProductItem, addProduct, EditProductItem };
+export { default as ProductList } from './product-list';
+export { default as AddProductItem } from './add-product';
+export { default as EditProductItem } from './edit-product';

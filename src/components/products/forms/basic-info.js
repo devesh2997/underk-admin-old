@@ -1,50 +1,49 @@
 import React from 'react';
+import { Form, FormGroup, Input, Label } from 'reactstrap';
 
 const BasicInfoForm = ({ product, categories, suppliers, onChange, onCategoryChange, onCheckboxChange }) => {
 	return (
-		<form onSubmit={e => e.preventDefault()} className="admn_pnl-form">
-			<div>
-				<label>Name / Title</label>
-				<input
+		<Form onSubmit={e => e.preventDefault()}>
+			<FormGroup>
+				<Label>Name / Title</Label>
+				<Input type="text"
 					name="title"
 					value={product.title}
 					onChange={onChange}
-					type="text"
-					placeholder="Name / Title"
+					placeholder="Enter name / title"
 				/>
-			</div>
-			<div>
-				<label>Description</label>
-				<input
+			</FormGroup>
+			<FormGroup>
+				<Label>Description</Label>
+				<Input type="text"
 					name="description"
 					value={product.description}
 					onChange={onChange}
-					type="text"
-					placeholder="Description"
+					placeholder="Enter description"
 				/>
-			</div>
-			<div>
-				<label>Slug / URL</label>
-				<input
+			</FormGroup>
+			<FormGroup>
+				<Label>Slug / URL</Label>
+				<Input type="text"
 					name="slug"
 					value={product.slug}
 					onChange={onChange}
-					type="text"
-					placeholder="Slug / URL"
+					placeholder="Enter slug / URL"
 				/>
-			</div>
-			<div>
-				<label>Active</label>
-				<input
-					name="isActive"
-					type="checkbox"
-					checked={product.isActive}
-					onChange={onCheckboxChange}
-				/>
-			</div>
-			<div>
-				<label>Gender</label>
-				<select name="gender" value={product.gender} onChange={onChange}>
+			</FormGroup>
+			<FormGroup check>
+				<Label check>
+					<Input type="checkbox"
+						name="isActive"
+						checked={product.isActive}
+						onChange={onCheckboxChange}
+					/>
+					 Active
+				</Label>
+			</FormGroup>
+			<FormGroup>
+				<Label>Gender</Label>
+				<Input type="select" name="gender" value={product.gender} onChange={onChange}>
 					<option value="">
 						Select gender
 					</option>
@@ -57,11 +56,11 @@ const BasicInfoForm = ({ product, categories, suppliers, onChange, onCategoryCha
 					<option value="U">
 						Unisex
 					</option>
-				</select>
-			</div>
-			<div>
-				<label>Category</label>
-				<select name="category" value={product.category} onChange={onCategoryChange}>
+				</Input>
+			</FormGroup>
+			<FormGroup>
+				<Label>Category</Label>
+				<Input type="select" name="category" value={product.category} onChange={onCategoryChange}>
 					<option value="">
 						Select category
 					</option>
@@ -72,12 +71,12 @@ const BasicInfoForm = ({ product, categories, suppliers, onChange, onCategoryCha
 							</option>
 						))
 					}
-				</select>
-			</div>
-			<div>
-				<label>Supplier</label>
-				<select name="supplier" value={product.supplier} onChange={onChange} type="text">
-					<option value="" defaultValue>
+				</Input>
+			</FormGroup>
+			<FormGroup>
+				<Label>Supplier</Label>
+				<Input type="select" name="supplier" value={product.supplier} onChange={onChange}>
+					<option value="">
 						Select supplier
 					</option>
 					{
@@ -87,50 +86,47 @@ const BasicInfoForm = ({ product, categories, suppliers, onChange, onCategoryCha
 							</option>
 						))
 					}
-				</select>
-			</div>
-			<div>
-				<label>List Price</label>
-				<input
+				</Input>
+			</FormGroup>
+			<FormGroup>
+				<Label>List Price</Label>
+				<Input type="number"
 					name="listPrice"
 					value={product.listPrice}
 					onChange={onChange}
-					type="number"
-					placeholder="List Price"
+					placeholder="Enter list price"
 				/>
-			</div>
-			<div>
-				<label>Sale Price</label>
-				<input
+			</FormGroup>
+			<FormGroup>
+				<Label>Sale Price</Label>
+				<Input type="number"
 					name="salePrice"
 					value={product.salePrice}
 					onChange={onChange}
-					type="number"
-					placeholder="Sale Price"
+					placeholder="Enter sale price"
 				/>
-			</div>
-			<div>
-				<label>Sale End Date</label>
-				<input
+			</FormGroup>
+			<FormGroup>
+				<Label>Sale End Date</Label>
+				<Input type="date"
 					name="saleEndDate"
 					value={product.saleEndDate}
 					onChange={onChange}
-					type="date"
-					placeholder="Sale End Date"
+					placeholder="Enter sale end date"
 				/>
-			</div>
-			<div>
-				<label>Type</label>
-				<select name="type" value={product.type} onChange={onChange} type="text">
-					<option value="" defaultValue>
+			</FormGroup>
+			<FormGroup>
+				<Label>Type</Label>
+				<Input type="select" name="type" value={product.type} onChange={onChange}>
+					<option value="">
 						Select type
 					</option>
 					<option value="clothing">
 						Clothing
 					</option>
-				</select>
-			</div>
-		</form>
+				</Input>
+			</FormGroup>
+		</Form>
 	);
 };
 

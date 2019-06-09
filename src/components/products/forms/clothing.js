@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { withFirebase } from '../../../firebase';
-import { addProduct } from './index';
-import { adminRoutes as ROUTES } from '../../../constants/routes';
+import { Button, Card, CardBody, Form, FormGroup, Input, Label } from 'reactstrap';
+import { addProduct } from '../add-product';
+import ROUTES from '../../../routes';
 import { compose } from 'recompose';
 import { withRouter } from 'react-router-dom';
+import { withFirebase } from '../../../firebase';
 
 const INITIAL_STATE = {
 	color: '',
@@ -16,45 +17,55 @@ const INITIAL_STATE = {
 	styles: [],
 	designs: [],
 	sizeOptions: [],
-	addingSize: false,
 	loadingColors: false,
 	loadingStyles: false,
 	loadingDesigns: false,
 	loadingSizes: false
 }
 
-const AddSize = (props) => {
+const SizeCard = ({ action, sizeOptions, size, quantity, onSizeChange, onQuantityChange, onAction, isActionBtnDisabled }) => {
 	return (
-		<div>
-			<div>
-				<label>Size</label>
-				<select name="size" value={props.currentSize} onChange={props.onSizeSelectionChange}>
-					<option value="">
-						Select sizes
-					</option>
-					{
-						props.sizeOptions.map(size => (
-							<option key={size.id} value={size.id}>
-								{size.name}
+		<Card style={{ margin: '1rem' }}>
+			<CardBody>
+				<FormGroup>
+					<Label>Size</Label>
+					{action==='delete'
+						? <Input type="text" name="size" value={size} disabled />
+						: <Input type="select" name="size" value={size} onChange={onSizeChange}>
+							<option value="">
+								Select sizes
 							</option>
-						))
+							{
+								sizeOptions.map(s => (
+									<option key={s.id} value={s.id}>
+										{s.name}
+									</option>
+								))
+							}
+						</Input>
 					}
-				</select>
-			</div>
-			<div>
-				<label>Quantity</label>
-				<input
-					name="currentQuantity"
-					value={props.currentQuantity}
-					onChange={props.onCurrentQuantityChange}
-					type="number"
-					placeholder="Enter quantity"
-				/>
-			</div>
-			<button disabled={props.isSizeSelectionInvalid} onClick={props.onSizeSubmit} type="button" className="admn_pnl-button">
-				Submit size
-			</button>
-		</div>
+				</FormGroup>
+				<FormGroup>
+					<Label>Quantity</Label>
+					<Input type="number"
+						name="currentQuantity"
+						value={quantity}
+						onChange={onQuantityChange}
+						placeholder="Enter quantity"
+					/>
+				</FormGroup>
+				<FormGroup className="text-center">
+					{action === 'delete'
+						? <Button type="button" color="danger" onClick={onAction}>
+							<i className="fa fa-trash"></i>
+						</Button>
+						: <Button type="button" color="secondary" onClick={onAction} disabled={isActionBtnDisabled}>
+							<i className="fa fa-plus"></i>
+						</Button>
+					}
+				</FormGroup>
+			</CardBody>
+		</Card>
 	);
 };
 
@@ -136,20 +147,20 @@ class ClothingForm extends Component {
 		this.setState({ sizes });
 	};
 
+	onCurrentSizeChange = event => {
+		this.setState({ currentSize: event.target.value });
+	}
+
 	onCurrentQuantityChange = event => {
 		this.setState({ currentQuantity: event.target.value });
 	}
 
-	onSizeSelectionChange = event => {
-		this.setState({ currentSize: event.target.value });
+	onPreviousQuantityChange = (event, size) => {
+		let sizes = this.state.sizes;
+		sizes[size].quantity = event.target.value;
+		this.setState({ sizes });
 	}
 
-	addSizeButtonClicked = () => {
-		this.setState({
-			addingSize: true,
-		});
-	}
-	
 	generateSKU = (product) => {
 		let sku = '';
 		sku += product.supplier.sku;
@@ -172,8 +183,8 @@ class ClothingForm extends Component {
 
 		return product;
 	}
-	
-	onSizeSubmit = event => {
+
+	onSizeAdd = event => {
 		event.preventDefault();
 		let sizes = this.state.sizes;
 
@@ -188,10 +199,16 @@ class ClothingForm extends Component {
 
 		this.setState({
 			sizes,
-			addingSize: false,
 			currentQuantity: '',
 			currentSize: '',
 		});
+	}
+
+	onSizeDelete = (event, size) => {
+		event.preventDefault();
+		let sizes = this.state.sizes;
+		delete sizes[size];
+		this.setState({ sizes });
 	}
 
 
@@ -228,24 +245,24 @@ class ClothingForm extends Component {
 
 	render() {
 		const { color, style, design, colors, styles, designs, sizes, sizeOptions } = this.state;
-		const { addingSize, loadingColors, loadingDesigns, loadingSizes, loadingStyles } = this.state;
+		const { loadingColors, loadingDesigns, loadingSizes, loadingStyles } = this.state;
 		const { currentSize, currentQuantity } = this.state;
 		const { isProductInvalid } = this.props;
 
-		const isInvalidForAddingSize = color === "" || style === "" || design === "" || isProductInvalid;
+		const isInvalidForAddingSize = color === '' || style === '' || design === '' || isProductInvalid;
 
-		const isInvalid = color === "" || style === "" || design === "" || Object.keys(sizes).length === 0 || isProductInvalid;
+		const isInvalid = color === '' || style === '' || design === '' || Object.keys(sizes).length === 0 || isProductInvalid;
 
-		const isSizeSelectionInvalid = currentQuantity === "" || currentSize === "";
+		const isSizeSelectionInvalid = currentQuantity === '' || currentSize === '';
 
 		return (
 			<div>
 				{(loadingColors || loadingSizes || loadingStyles || loadingDesigns)
-					? <div>Loading ...</div>
-					: <form onSubmit={this.onSubmit} className="admn_pnl-form">
-						<div>
-							<label>Color</label>
-							<select name="color" value={color} onChange={this.onChange}>
+					? <div className="animated fadeIn pt-3 text-center">Loading...</div>
+					: <Form onSubmit={this.onSubmit}>
+						<FormGroup>
+							<Label>Color</Label>
+							<Input type="select" name="color" value={color} onChange={this.onChange}>
 								<option value="">
 									Select color
 								</option>
@@ -256,14 +273,14 @@ class ClothingForm extends Component {
 										</option>
 									))
 								}
-							</select>
-						</div>
-						<div>
-							<label>Style</label>
-							<select name="style" value={style} onChange={this.onChange}>
+							</Input>
+						</FormGroup>
+						<FormGroup>
+							<Label>Style</Label>
+							<Input type="select" name="style" value={style} onChange={this.onChange}>
 								<option value="">
 									Select style
-							</option>
+								</option>
 								{
 									styles.map(style => (
 										<option key={style.id} value={style.id}>
@@ -271,14 +288,14 @@ class ClothingForm extends Component {
 										</option>
 									))
 								}
-							</select>
-						</div>
-						<div>
-							<label>Design</label>
-							<select name="design" value={design} onChange={this.onChange}>
+							</Input>
+						</FormGroup>
+						<FormGroup>
+							<Label>Design</Label>
+							<Input type="select" name="design" value={design} onChange={this.onChange}>
 								<option value="">
 									Select design
-							</option>
+								</option>
 								{
 									designs.map(design => (
 										<option key={design.id} value={design.id}>
@@ -286,30 +303,34 @@ class ClothingForm extends Component {
 										</option>
 									))
 								}
-							</select>
+							</Input>
+						</FormGroup>
+
+						<div className="flex-card_container">
+							{Object.keys(sizes).map(size =>
+								<SizeCard key={size}
+									action="delete"
+									size={size}
+									quantity={sizes[size].quantity}
+									onQuantityChange={event => this.onPreviousQuantityChange(event, size)}
+									onAction={event => this.onSizeDelete(event, size)}
+								/>
+							)}
+							<SizeCard action="add"
+								sizeOptions={sizeOptions}
+								size={currentSize}
+								quantity={currentQuantity}
+								onSizeChange={this.onCurrentSizeChange}
+								onQuantityChange={this.onCurrentQuantityChange}
+								onAction={this.onSizeAdd}
+								isActionBtnDisabled={isSizeSelectionInvalid || isInvalidForAddingSize}
+							/>
 						</div>
 
-						{addingSize
-							? <AddSize
-								currentQuantity={currentQuantity}
-								currentSize={currentSize}
-								sizeOptions={sizeOptions}
-								isSizeSelectionInvalid={isSizeSelectionInvalid}
-								onCurrentQuantityChange={this.onCurrentQuantityChange}
-								onSizeSelectionChange={this.onSizeSelectionChange}
-								onSizeSubmit={this.onSizeSubmit}
-							/>
-							: <button disabled={isInvalidForAddingSize} onClick={this.addSizeButtonClicked} type="button" className="admn_pnl-button">
-								Add Size
-							</button>
-						}
-
-						{!addingSize &&
-							<button disabled={isInvalid} type="submit" className="admn_pnl-button">
-								Submit
-							</button>
-						}
-					</form>
+						<Button type="submit" color="primary" disabled={isInvalid}>
+							Submit
+						</Button>
+					</Form>
 				}
 			</div>
 		)

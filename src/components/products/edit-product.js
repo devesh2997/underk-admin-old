@@ -3,7 +3,7 @@ import { withFirebase } from '../../firebase';
 
 const INITIAL_STATE = {
 	product: {
-		
+
 	}
 };
 
@@ -18,11 +18,9 @@ class EditProductBase extends Component {
 
 	render() {
 		return (
-			<div>
-			hello
-			</div>
+			<div />
 		);
 	}
 }
 
-export const EditProductItem = withFirebase(EditProductBase);
+export default withFirebase(EditProductBase);

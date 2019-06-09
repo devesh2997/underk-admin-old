@@ -1,9 +1,10 @@
 //TODO add logic for checking if slug entered is unique or not.
 //TODO isInvalid check not working
 import React, { Component } from 'react';
-import { withFirebase } from '../../firebase';
+import { Card, CardBody, CardHeader } from 'reactstrap';
 import BasicInfoForm from './forms/basic-info';
 import ClothingForm from './forms/clothing';
+import { withFirebase } from '../../firebase';
 
 const INITIAL_STATE = {
 	product: {
@@ -24,10 +25,9 @@ const INITIAL_STATE = {
 	suppliers: [],
 	loadingCategories: false,
 	loadingSuppliers: false,
-	error: ''
 };
 
-const addProduct = (product, firebase) => {
+export const addProduct = (product, firebase) => {
 	return firebase.products().add(product);
 }
 
@@ -78,29 +78,23 @@ class AddProductBase extends Component {
 	}
 
 	onChange = event => {
-		this.setState(prevState => {
-			let product = prevState.product;
-			product[event.target.name] = event.target.value;
-			return { product };
-		});
+		let { product } = this.state;
+		product[event.target.name] = event.target.value;
+		this.setState({ product });
 	}
 
 	onCategoryChange = event => {
 		let cat = this.state.categories.find(category => category.cid === event.target.value);
-		this.setState(prevState => {
-			let product = prevState.product;
-			product['category'] = cat.cid;
-			product['category_sku'] = cat.sku;
-			return { product };
-		});
+		let { product } = this.state;
+		product['category'] = cat.cid;
+		product['category_sku'] = cat.sku;
+		this.setState({ product });
 	}
 
 	onCheckboxChange = event => {
-		this.setState(prevState => {
-			let product = prevState.product;
-			product[event.target.name] = event.target.checked;
-			return { product };
-		});
+		let { product } = this.state;
+		product[event.target.name] = event.target.checked;
+		this.setState({ product });
 	}
 
 	getForm = (isProductInvalid) => {
@@ -116,36 +110,36 @@ class AddProductBase extends Component {
 
 
 	render() {
-		const { loadingCategories, loadingSuppliers, error } = this.state;
+		const { loadingCategories, loadingSuppliers } = this.state;
 		const { product, categories, suppliers } = this.state;
 
 		const isInvalid = product.type === '' || product.title === '' || product.category === '' || product.supplier === '' || product.slug === '' || product.listPrice === '' || product.sku === '' || product.gender === '';
 
 		return (
-			<div>
-				<div className="admn_pnl-secondary_heading">
-					<h2>Add product</h2>
-				</div>
-				{(loadingCategories || loadingSuppliers)
-					? <div>Loading ...</div>
-					: <div>
-						<BasicInfoForm
-							product={{ ...product, isInvalid }}
-							categories={categories}
-							suppliers={suppliers}
-							onChange={this.onChange}
-							onCategoryChange={this.onCategoryChange}
-							onCheckboxChange={this.onCheckboxChange}
-						/>
-						{this.getForm(isInvalid)}	
-					</div>
-				}
-			</div>
+			<Card>
+				<CardHeader>
+					<h4>Add product</h4>
+				</CardHeader>
+				<CardBody>
+					{(loadingCategories || loadingSuppliers)
+						? <div className="animated fadeIn pt-3 text-center">Loading...</div>
+						: <div>
+							<BasicInfoForm
+								product={{ ...product, isInvalid }}
+								categories={categories}
+								suppliers={suppliers}
+								onChange={this.onChange}
+								onCategoryChange={this.onCategoryChange}
+								onCheckboxChange={this.onCheckboxChange}
+							/>
+							{this.getForm(isInvalid)}
+						</div>
+					}
+				</CardBody>
+			</Card>
 		)
 
 	}
 }
 
-const AddProductItem = withFirebase(AddProductBase);
-
-export { AddProductItem, addProduct };
+export default withFirebase(AddProductBase);

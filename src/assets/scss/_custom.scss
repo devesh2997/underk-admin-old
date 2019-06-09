@@ -4,3 +4,11 @@
 		margin: 0;
 	}
 }
+
+.flex-card_container {
+	margin: 1rem -1.25rem;
+	display: flex;
+	flex-flow: row nowrap;
+	overflow-x: auto;
+	background-color: #e4e5e6;
+}

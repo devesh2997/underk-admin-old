@@ -5,7 +5,7 @@ export default {
 		{
 			name: 'Dashboard',
 			url: ROUTES.DASHBOARD.path,
-			icon: 'icon-speedometer',
+			icon: 'fa fa-tachometer',
 		},
 		{
 			name: 'Administrators',
@@ -59,6 +59,23 @@ export default {
 				{
 					name: 'Add Supplier',
 					url: ROUTES.ADD_SUPPLIER.path,
+					icon: 'fa fa-plus',
+				},
+			],
+		},
+		{
+			name: 'Products',
+			url: ROUTES.PRODUCT_LIST.path,
+			icon: 'fa fa-cubes',
+			children: [
+				{
+					name: 'Product List',
+					url: ROUTES.PRODUCT_LIST.path,
+					icon: 'fa fa-list-alt',
+				},
+				{
+					name: 'Add Product',
+					url: ROUTES.ADD_PRODUCT.path,
 					icon: 'fa fa-plus',
 				},
 			],
