@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, FormGroup, Input, Label } from 'reactstrap';
 
-const BasicInfoForm = ({ product, categories, suppliers, onChange, onCategoryChange, onCheckboxChange }) => {
+const BasicInfoForm = ({ product, categories, suppliers, onChange, onCheckboxChange }) => {
 	return (
 		<Form onSubmit={e => e.preventDefault()}>
 			<FormGroup>
@@ -60,7 +60,7 @@ const BasicInfoForm = ({ product, categories, suppliers, onChange, onCategoryCha
 			</FormGroup>
 			<FormGroup>
 				<Label>Category</Label>
-				<Input type="select" name="category" value={product.category} onChange={onCategoryChange}>
+				<Input type="select" name="category" value={product.category} onChange={onChange}>
 					<option value="">
 						Select category
 					</option>

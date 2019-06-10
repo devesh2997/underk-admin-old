@@ -1,16 +1,15 @@
 import React, { Component } from 'react';
 import { Button, Card, CardBody, Form, FormGroup, Input, Label } from 'reactstrap';
-import { addProduct } from '../add-product';
 import ROUTES from '../../../routes';
 import { compose } from 'recompose';
 import { withRouter } from 'react-router-dom';
 import { withFirebase } from '../../../firebase';
 
-const INITIAL_STATE = {
-	color: '',
-	style: '',
-	design: '',
-	sizes: {},
+const INITIAL_STATE = (props) => ({
+	color: props.product.attributes ? props.product.attributes.color.id : '',
+	style: props.product.attributes ? props.product.attributes.style.id : '',
+	design: props.product.attributes ? props.product.attributes.design.id : '',
+	sizes: props.product.attributes ? props.product.attributes.sizes : {},
 	currentSize: '',
 	currentQuantity: '',
 	colors: [],
@@ -21,7 +20,7 @@ const INITIAL_STATE = {
 	loadingStyles: false,
 	loadingDesigns: false,
 	loadingSizes: false
-}
+});
 
 const SizeCard = ({ action, sizeOptions, size, quantity, onSizeChange, onQuantityChange, onAction, isActionBtnDisabled }) => {
 	return (
@@ -73,7 +72,7 @@ class ClothingForm extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = { ...INITIAL_STATE };
+		this.state = { ...INITIAL_STATE(props) };
 	}
 
 	componentDidMount() {
@@ -123,9 +122,18 @@ class ClothingForm extends Component {
 				let sizeOptions = [];
 
 				snapshot.forEach(doc =>
-					sizeOptions.push({ ...doc.data(), id: doc.id }));
+					sizeOptions.push({ ...doc.data(), id: doc.id })
+				);
+
+				let { sizes } = this.state;
+				if(Object.keys(sizes).length > 0) {
+					Object.keys(sizes).forEach(size => {
+						sizes[size].sku = sizeOptions.find(s => s.name === size).sku;
+					});
+				}
 
 				this.setState({
+					sizes,
 					sizeOptions,
 					loadingSizes: false,
 				})
@@ -215,9 +223,11 @@ class ClothingForm extends Component {
 	onSubmit = event => {
 		event.preventDefault();
 		let product = this.props.product;
-		const sid = product.supplier;
 
-		let supp = this.props.suppliers.find(sup => sup.sid === sid);
+		let cat = this.props.categories.find(cat => cat.cid === product.category);
+		product['category_sku'] = cat.sku;
+
+		let supp = this.props.suppliers.find(sup => sup.sid === product.supplier);
 		let supplier = {};
 		supplier['sid'] = supp.sid;
 		supplier['sku'] = supp.sku;
@@ -229,12 +239,10 @@ class ClothingForm extends Component {
 		design = designs.find(d => d.id === design);
 
 		product['attributes'] = { color, style, design, sizes };
-
 		product = this.generateSKU(product);
 
-		addProduct(product, this.props.firebase)
+		this.props.handleSubmit(product, this.props.firebase)
 			.then(() => {
-				this.setState({ ...INITIAL_STATE });
 				this.props.history.push(ROUTES.PRODUCT_LIST.path);
 			})
 			.catch(error => {

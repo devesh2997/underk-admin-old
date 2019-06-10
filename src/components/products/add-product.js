@@ -12,7 +12,6 @@ const INITIAL_STATE = {
 		gender: '',
 		description: '',
 		category: '',
-		category_sku: '',
 		slug: '',
 		supplier: '',
 		listPrice: '',
@@ -26,10 +25,6 @@ const INITIAL_STATE = {
 	loadingCategories: false,
 	loadingSuppliers: false,
 };
-
-export const addProduct = (product, firebase) => {
-	return firebase.products().add(product);
-}
 
 class AddProductBase extends Component {
 	constructor(props) {
@@ -77,17 +72,13 @@ class AddProductBase extends Component {
 		this.getSuppliers();
 	}
 
+	addProduct = (product, firebase) => {
+		return firebase.products().add(product);
+	}
+
 	onChange = event => {
 		let { product } = this.state;
 		product[event.target.name] = event.target.value;
-		this.setState({ product });
-	}
-
-	onCategoryChange = event => {
-		let cat = this.state.categories.find(category => category.cid === event.target.value);
-		let { product } = this.state;
-		product['category'] = cat.cid;
-		product['category_sku'] = cat.sku;
 		this.setState({ product });
 	}
 
@@ -98,11 +89,17 @@ class AddProductBase extends Component {
 	}
 
 	getForm = (isProductInvalid) => {
-		const { product, suppliers } = this.state;
+		const { product, categories, suppliers } = this.state;
 
 		switch (product.type) {
 			case 'clothing':
-				return <ClothingForm product={product} isProductInvalid={isProductInvalid} suppliers={suppliers} />;
+				return <ClothingForm
+					product={product}
+					isProductInvalid={isProductInvalid}
+					categories={categories}
+					suppliers={suppliers}
+					handleSubmit={this.addProduct}
+				/>;
 			default:
 				return null;
 		}
@@ -125,11 +122,10 @@ class AddProductBase extends Component {
 						? <div className="animated fadeIn pt-3 text-center">Loading...</div>
 						: <div>
 							<BasicInfoForm
-								product={{ ...product, isInvalid }}
+								product={product}
 								categories={categories}
 								suppliers={suppliers}
 								onChange={this.onChange}
-								onCategoryChange={this.onCategoryChange}
 								onCheckboxChange={this.onCheckboxChange}
 							/>
 							{this.getForm(isInvalid)}
