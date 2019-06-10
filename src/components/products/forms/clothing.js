@@ -6,6 +6,7 @@ import { withRouter } from 'react-router-dom';
 import { withFirebase } from '../../../firebase';
 
 const INITIAL_STATE = (props) => ({
+	subtype: props.product.attributes ? props.product.attributes.subtype : '',
 	color: props.product.attributes ? props.product.attributes.color.id : '',
 	style: props.product.attributes ? props.product.attributes.style.id : '',
 	design: props.product.attributes ? props.product.attributes.design.id : '',
@@ -28,7 +29,7 @@ const SizeCard = ({ action, sizeOptions, size, quantity, onSizeChange, onQuantit
 			<CardBody>
 				<FormGroup>
 					<Label>Size</Label>
-					{action==='delete'
+					{action === 'delete'
 						? <Input type="text" name="size" value={size} disabled />
 						: <Input type="select" name="size" value={size} onChange={onSizeChange}>
 							<option value="">
@@ -126,7 +127,7 @@ class ClothingForm extends Component {
 				);
 
 				let { sizes } = this.state;
-				if(Object.keys(sizes).length > 0) {
+				if (Object.keys(sizes).length > 0) {
 					Object.keys(sizes).forEach(size => {
 						sizes[size].sku = sizeOptions.find(s => s.name === size).sku;
 					});
@@ -175,6 +176,8 @@ class ClothingForm extends Component {
 		product['supplier_id'] = product.supplier.sid;
 		delete product.supplier;
 		sku += product.gender;
+		sku += "CLTH"; // CLOTHING TYPE SKU
+		sku += product.attributes.subtype;
 		sku += product.category_sku;
 		delete product.category_sku;
 		sku += product.attributes.style.sku;
@@ -234,12 +237,12 @@ class ClothingForm extends Component {
 		supplier['sku'] = supp.sku;
 		product['supplier'] = supplier;
 
-		let { color, style, sizes, design, colors, styles, designs } = this.state;
+		let { subtype, color, style, sizes, design, colors, styles, designs } = this.state;
 		color = colors.find(c => c.id === color);
 		style = styles.find(s => s.id === style);
 		design = designs.find(d => d.id === design);
 
-		product['attributes'] = { color, style, design, sizes };
+		product['attributes'] = { subtype, color, style, design, sizes };
 		product = this.generateSKU(product);
 
 		this.props.handleSubmit(product, this.props.firebase)
@@ -253,14 +256,14 @@ class ClothingForm extends Component {
 	}
 
 	render() {
-		const { color, style, design, colors, styles, designs, sizes, sizeOptions } = this.state;
+		const { subtype, color, style, design, colors, styles, designs, sizes, sizeOptions } = this.state;
 		const { loadingColors, loadingDesigns, loadingSizes, loadingStyles } = this.state;
 		const { currentSize, currentQuantity } = this.state;
 		const { isProductInvalid } = this.props;
 
 		const isInvalidForAddingSize = color === '' || style === '' || design === '' || isProductInvalid;
 
-		const isInvalid = color === '' || style === '' || design === '' || Object.keys(sizes).length === 0 || isProductInvalid;
+		const isInvalid = subtype === '' || color === '' || style === '' || design === '' || Object.keys(sizes).length === 0 || isProductInvalid;
 
 		const isSizeSelectionInvalid = currentQuantity === '' || currentSize === '';
 
@@ -270,6 +273,21 @@ class ClothingForm extends Component {
 					? <div className="animated fadeIn pt-3 text-center">Loading...</div>
 					: <Form onSubmit={this.onSubmit}>
 						<FormGroup>
+							<Label>Sub type</Label>
+							<Input type="select" name="subtype" value={subtype} onChange={this.onChange}>
+								<option value="">
+									Select subtype
+								</option>
+								<option value="TP">
+									Topwear
+								</option>
+								<option value="BW">
+									Bottomwear
+								</option>
+								<option value="AC">
+									Accessory
+								</option>
+							</Input>
 							<Label>Color</Label>
 							<Input type="select" name="color" value={color} onChange={this.onChange}>
 								<option value="">
