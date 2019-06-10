@@ -75,7 +75,7 @@ const BasicInfoForm = ({ product, categories, suppliers, onChange, onCheckboxCha
 			</FormGroup>
 			<FormGroup>
 				<Label>Supplier</Label>
-				<Input type="select" name="supplier" value={product.supplier} onChange={onChange}>
+				<Input type="select" name="supplier_id" value={product.supplier_id} onChange={onChange}>
 					<option value="">
 						Select supplier
 					</option>

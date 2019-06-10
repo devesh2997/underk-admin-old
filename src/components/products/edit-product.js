@@ -11,7 +11,7 @@ const INITIAL_STATE = {
 		description: '',
 		category: '',
 		slug: '',
-		supplier: '',
+		supplier_id: '',
 		listPrice: '',
 		salePrice: '',
 		saleEndDate: '',
@@ -32,7 +32,6 @@ class EditProductBase extends Component {
 		let mappedState = {};
 		if(props.location.state) {
 			mappedState = { ...props.location.state };
-			mappedState.product.supplier = mappedState.product.supplier.sid;
 			delete mappedState.product.pid;
 		}
 
@@ -51,10 +50,8 @@ class EditProductBase extends Component {
 			.product(this.props.match.params.pid)
 			.get()
 			.then(doc => {
-				let product = doc.data();
-				product.supplier = product.supplier.sid;
 				this.setState({
-					product,
+					product: doc.data(),
 					loadingProductDetails: false,
 				});
 			});
@@ -134,7 +131,7 @@ class EditProductBase extends Component {
 		const { loadingProductDetails, loadingCategories, loadingSuppliers } = this.state;
 		const { product, categories, suppliers } = this.state;
 
-		const isInvalid = product.type === '' || product.title === '' || product.category === '' || product.supplier === '' || product.slug === '' || product.listPrice === '' || product.sku === '' || product.gender === '';
+		const isInvalid = product.type === '' || product.title === '' || product.category === '' || product.supplier_id === '' || product.slug === '' || product.listPrice === '' || product.sku === '' || product.gender === '';
 
 		return (
 			<Card>

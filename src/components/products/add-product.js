@@ -12,7 +12,7 @@ const INITIAL_STATE = {
 		description: '',
 		category: '',
 		slug: '',
-		supplier: '',
+		supplier_id: '',
 		listPrice: '',
 		salePrice: '',
 		saleEndDate: '',
@@ -109,7 +109,7 @@ class AddProductBase extends Component {
 		const { loadingCategories, loadingSuppliers } = this.state;
 		const { product, categories, suppliers } = this.state;
 
-		const isInvalid = product.type === '' || product.title === '' || product.category === '' || product.supplier === '' || product.slug === '' || product.listPrice === '' || product.sku === '' || product.gender === '';
+		const isInvalid = product.type === '' || product.title === '' || product.category === '' || product.supplier_id === '' || product.slug === '' || product.listPrice === '' || product.sku === '' || product.gender === '';
 
 		return (
 			<Card>

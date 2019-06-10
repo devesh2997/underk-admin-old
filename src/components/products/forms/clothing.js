@@ -5,6 +5,31 @@ import { compose } from 'recompose';
 import { withRouter } from 'react-router-dom';
 import { withFirebase } from '../../../firebase';
 
+const generateSKU = (product, sizeOptions) => {
+	let sku = '';
+	sku += product.supplier_sku;
+	delete product.supplier_sku;
+	sku += product.gender;
+	sku += "CLTH"; // CLOTHING TYPE SKU
+	sku += product.attributes.subtype;
+	sku += product.category_sku;
+	delete product.category_sku;
+	sku += product.attributes.style.sku;
+	delete product.attributes.style.sku;
+	sku += product.attributes.color.sku;
+	delete product.attributes.color.sku;
+	sku += product.attributes.design.sku;
+	delete product.attributes.design.sku;
+
+	Object.keys(product.attributes.sizes).forEach(size => {
+		let sizeSku = sizeOptions.find(s => s.name === size).sku;
+		sizeSku = sku + sizeSku;
+		product.attributes.sizes[size].sku = sizeSku;
+	});
+
+	return product;
+}
+
 const INITIAL_STATE = (props) => ({
 	subtype: props.product.attributes ? props.product.attributes.subtype : '',
 	color: props.product.attributes ? props.product.attributes.color.id : '',
@@ -126,15 +151,7 @@ class ClothingForm extends Component {
 					sizeOptions.push({ ...doc.data(), id: doc.id })
 				);
 
-				let { sizes } = this.state;
-				if (Object.keys(sizes).length > 0) {
-					Object.keys(sizes).forEach(size => {
-						sizes[size].sku = sizeOptions.find(s => s.name === size).sku;
-					});
-				}
-
 				this.setState({
-					sizes,
 					sizeOptions,
 					loadingSizes: false,
 				})
@@ -168,32 +185,6 @@ class ClothingForm extends Component {
 		let sizes = this.state.sizes;
 		sizes[size].quantity = event.target.value;
 		this.setState({ sizes });
-	}
-
-	generateSKU = (product) => {
-		let sku = '';
-		sku += product.supplier.sku;
-		product['supplier_id'] = product.supplier.sid;
-		delete product.supplier;
-		sku += product.gender;
-		sku += "CLTH"; // CLOTHING TYPE SKU
-		sku += product.attributes.subtype;
-		sku += product.category_sku;
-		delete product.category_sku;
-		sku += product.attributes.style.sku;
-		delete product.attributes.style.sku;
-		sku += product.attributes.color.sku;
-		delete product.attributes.color.sku;
-		sku += product.attributes.design.sku;
-		delete product.attributes.design.sku;
-
-		Object.keys(product.attributes.sizes).forEach(size => {
-			let sizeSku = product.attributes.sizes[size].sku;
-			sizeSku = sku + sizeSku;
-			product.attributes.sizes[size].sku = sizeSku;
-		});
-
-		return product;
 	}
 
 	onSizeAdd = event => {
@@ -231,19 +222,16 @@ class ClothingForm extends Component {
 		let cat = this.props.categories.find(cat => cat.cid === product.category);
 		product['category_sku'] = cat.sku;
 
-		let supp = this.props.suppliers.find(sup => sup.sid === product.supplier);
-		let supplier = {};
-		supplier['sid'] = supp.sid;
-		supplier['sku'] = supp.sku;
-		product['supplier'] = supplier;
+		let supp = this.props.suppliers.find(supp => supp.sid === product.supplier_id);
+		product['supplier_sku'] = supp.sku;
 
-		let { subtype, color, style, sizes, design, colors, styles, designs } = this.state;
+		let { subtype, color, style, sizes, design, colors, styles, designs, sizeOptions } = this.state;
 		color = colors.find(c => c.id === color);
 		style = styles.find(s => s.id === style);
 		design = designs.find(d => d.id === design);
 
 		product['attributes'] = { subtype, color, style, design, sizes };
-		product = this.generateSKU(product);
+		product = generateSKU(product, sizeOptions);
 
 		this.props.handleSubmit(product, this.props.firebase)
 			.then(() => {
