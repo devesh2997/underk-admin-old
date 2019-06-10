@@ -21,7 +21,7 @@ const withEmailVerification = Component => {
 				<AuthUserContext.Consumer>
 					{authUser =>
 						needsEmailVerification(authUser) ? (
-							<div>
+							<div className="text-center">
 								{this.state.isSent ? (
 									<Alert color="success">
 										Confirmation email sent: Check you Emails (Spam folder included) for a confirmation Email. Refresh this page once you confirmed your Email.
@@ -31,8 +31,18 @@ const withEmailVerification = Component => {
 										Verify your Email: Check you Emails (Spam folder included) for a confirmation Email or send another confirmation Email.
 									</Alert>
 								)}
-								<Button onClick={this.onSendEmailVerification} disabled={this.state.isSent} >
+								<Button
+									onClick={this.onSendEmailVerification}
+									style={{ margin: '5px 10px' }}
+									disabled={this.state.isSent}
+								>
 									Send Confirmation Email
+								</Button>
+								<Button color="danger"
+									onClick={() => this.props.firebase.doSignOut()}
+									style={{ margin: '5px 10px' }}
+								>
+									Logout
 								</Button>
 							</div>
 						) : (
