@@ -16,6 +16,10 @@ const ProductList = React.lazy(() => import('./components/products/product-list'
 const AddProductItem = React.lazy(() => import('./components/products/add-product'));
 const EditProductItem = React.lazy(() => import('./components/products/edit-product'));
 
+const TempDashboard = () => {
+	return <span>Dashboard</span>;
+}
+
 // https://github.com/ReactTraining/react-router/tree/master/packages/react-router-config
 const routes = {
 	HOME: {
@@ -26,7 +30,7 @@ const routes = {
 	DASHBOARD: {
 		path: '/dashboard',
 		name: 'Dashboard',
-		component: Dashboard
+		component: TempDashboard
 	},
 	ADMINISTRATOR_LIST: {
 		path: '/administrators',
