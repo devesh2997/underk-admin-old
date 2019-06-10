@@ -1,5 +1,4 @@
 //TODO add logic for checking if slug entered is unique or not.
-//TODO isInvalid check not working
 import React, { Component } from 'react';
 import { Card, CardBody, CardHeader } from 'reactstrap';
 import BasicInfoForm from './forms/basic-info';

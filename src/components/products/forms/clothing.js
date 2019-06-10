@@ -172,7 +172,8 @@ class ClothingForm extends Component {
 	generateSKU = (product) => {
 		let sku = '';
 		sku += product.supplier.sku;
-		delete product.supplier.sku;
+		product['supplier_id'] = product.supplier.sid;
+		delete product.supplier;
 		sku += product.gender;
 		sku += product.category_sku;
 		delete product.category_sku;

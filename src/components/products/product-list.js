@@ -68,7 +68,7 @@ class ProductListBase extends Component {
 								<th>Gender</th>
 								<th>Description</th>
 								<th>Category</th>
-								<th>Supplier</th>
+								<th>Supplier ID</th>
 								<th>Slug</th>
 								<th>Attributes</th>
 								<th>isActive</th>
@@ -90,7 +90,7 @@ class ProductListBase extends Component {
 									<td>{product.category}</td>
 									<td
 										dangerouslySetInnerHTML={{
-											__html: '<pre>' + JSON.stringify(product.supplier, null, 2) + '</pre>'
+											__html: '<pre>' + JSON.stringify(product.supplier_id, null, 2) + '</pre>'
 										}}
 									/>
 									<td>{product.slug}</td>
