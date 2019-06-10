@@ -136,6 +136,6 @@ class Login extends Component {
 const condition = authUser => !(authUser && !!authUser.roles[ROLES.ADMIN]);
 
 export default compose(
-	// withAuthorization(condition),
+	withAuthorization(condition, '/'),
 	withFirebase
 )(Login);

@@ -4,14 +4,18 @@ import { compose } from 'recompose';
 import AuthUserContext from './context';
 import { withFirebase } from '../firebase';
 
-const withAuthorization = condition => Component => {
+const withAuthorization = (condition, locationOnFailure, locationOnFallback) => Component => {
 	class WithAuthorization extends React.Component {
 		componentDidMount() {
 			this.listener = this.props.firebase.onAuthUserListener(authUser => {
 				if (!condition(authUser)) {
-					this.props.history.push('/login');
+					this.props.history.replace(locationOnFailure);
 				}
-			}, () => this.props.history.push('/login'));
+			}, () => {
+				if(locationOnFallback){
+					this.props.history.replace(locationOnFallback);
+				}
+			});
 		}
 
 		componentWillUnmount() {
