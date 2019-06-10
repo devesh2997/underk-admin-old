@@ -20,7 +20,7 @@ class AdminItemBase extends Component {
 		this.setState({ loading: true });
 
 		this.unsubscribe = this.props.firebase
-			.user(this.props.match.params.id)
+			.admin(this.props.match.params.id)
 			.onSnapshot(snapshot => {
 				this.setState({
 					administrator: snapshot.data(),

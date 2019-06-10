@@ -16,7 +16,7 @@ class UserListBase extends Component {
 		this.setState({ loading: true });
 
 		this.unsubscribe = this.props.firebase
-			.users().where("roles", "==", {})
+			.users()
 			.onSnapshot(snapshot => {
 				let users = [];
 

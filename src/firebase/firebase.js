@@ -49,21 +49,21 @@ class Firebase {
 	doPasswordUpdate = password =>
 		this.auth.currentUser.updatePassword(password);
 
-	doSendEmailVerification = () => 
+	doSendEmailVerification = () =>
 		this.auth.currentUser.sendEmailVerification({ url: "http://localhost:3000", });
 
 	// *** Merge Auth and DB User API *** //
 	onAuthUserListener = (next, fallback) => this.auth.onAuthStateChanged(authUser => {
 		if (authUser) {
-			this.user(authUser.uid).get().then(snapshot => {
+			this.admin(authUser.uid).get().then(snapshot => {
 				const dbUser = snapshot.data();
-				// default empty roles 
+				// default empty roles
 				if (!dbUser.roles) { dbUser.roles = {}; }
-				// merge auth and db user 
-				authUser = { 
-					uid: authUser.uid, 
+				// merge auth and db user
+				authUser = {
+					uid: authUser.uid,
 					email: authUser.email,
-					emailVerified: authUser.emailVerified, 
+					emailVerified: authUser.emailVerified,
 					providerData: authUser.providerData,
 					...dbUser, };
 				next(authUser);
@@ -75,7 +75,8 @@ class Firebase {
 	// *** User API ***
 	user = uid => this.db.doc(`users/${uid}`);
 	users = () => this.db.collection('users');
-	admins = () => this.db.collection('users').where("roles.ADMIN", "==", "ADMIN");
+	admin = uid => this.db.doc(`admins/${uid}`);
+	admins = () => this.db.collection('admins');
 
 	// *** Category API ***
 	category = category_id => this.db.doc(`categories/${category_id}`);

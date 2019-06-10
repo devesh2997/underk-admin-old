@@ -37,7 +37,7 @@ class AddAdminItemBase extends Component {
 			.doCreateUserWithEmailAndPassword(email, password)
 			.then(authUser => { // Create a user in your Firebase realtime database
 				return this.props.firebase
-					.user(authUser.user.uid)
+					.admin(authUser.user.uid)
 					.set(
 					{
 						username,
