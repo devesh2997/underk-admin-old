@@ -4,6 +4,7 @@ import { Card, CardBody, CardHeader } from 'reactstrap';
 import BasicInfoForm from './forms/basic-info';
 import ClothingForm from './forms/clothing';
 import { withFirebase } from '../../firebase';
+import AssetsUploader from './add-assets';
 
 const INITIAL_STATE = {
 	product: {
@@ -128,6 +129,7 @@ class AddProductBase extends Component {
 								onCheckboxChange={this.onCheckboxChange}
 							/>
 							{this.getForm(isInvalid)}
+							<AssetsUploader />
 						</div>
 					}
 				</CardBody>

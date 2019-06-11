@@ -3,6 +3,7 @@
 import app from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
+import 'firebase/storage';
 
 const config = {
 	apiKey: "AIzaSyBORS5EyMukyl6xO7MCaG1pJNAXw3J0EFc",
@@ -21,6 +22,7 @@ class Firebase {
 
 		this.auth = app.auth();
 		this.db = app.firestore();
+		this.storage = app.storage();
 
 		this.googleProvider = new app.auth.GoogleAuthProvider();
 
