@@ -19,12 +19,28 @@ const INITIAL_STATE = {
 		saleEndDate: '',
 		isActive: true,
 		type: '',
+		assets: []
 	},
 	categories: [],
 	suppliers: [],
 	loadingCategories: false,
 	loadingSuppliers: false,
 };
+
+const AssetView = (props) => {
+	const { name, contentType, size, downloadURL, fullPath } = props.asset;
+	return (
+		<Card key={name + size}>
+			<CardBody>
+				<div>Name : {name}</div>
+				<span>Size : {Math.round(size / 1024)} KB </span>&nbsp;
+				<span>Type : {contentType}</span>&nbsp;
+				<div>FullPath : {fullPath}</div>
+				<div>Download URL : {downloadURL}</div>
+			</CardBody>
+		</Card>
+	);
+}
 
 class AddProductBase extends Component {
 	constructor(props) {
@@ -105,12 +121,24 @@ class AddProductBase extends Component {
 		}
 	}
 
+	getUploadedAssets = () => {
+		let views = this.state.product.assets.map(asset => (<AssetView key={asset.name + asset.size} asset={asset} />));
+		if (this.state.product.assets.length > 0) views = [<h4 key="header">Uploaded Assets</h4>, ...views];
+		return views;
+	}
+
+	onComplete = (assets) => {
+		let { product } = this.state;
+		product['assets'] = assets;
+		this.setState({ product });
+	}
+
 
 	render() {
 		const { loadingCategories, loadingSuppliers } = this.state;
 		const { product, categories, suppliers } = this.state;
 
-		const isInvalid = product.type === '' || product.title === '' || product.category === '' || product.supplier_id === '' || product.slug === '' || product.listPrice === '' || product.sku === '' || product.gender === '';
+		const isInvalid = product.assets.length === 0 || product.type === '' || product.title === '' || product.category === '' || product.supplier_id === '' || product.slug === '' || product.listPrice === '' || product.sku === '' || product.gender === '';
 
 		return (
 			<Card>
@@ -129,7 +157,8 @@ class AddProductBase extends Component {
 								onCheckboxChange={this.onCheckboxChange}
 							/>
 							{this.getForm(isInvalid)}
-							<AssetsUploader />
+							{this.getUploadedAssets()}
+							<AssetsUploader product_slug={product.slug} onComplete={this.onComplete} />
 						</div>
 					}
 				</CardBody>

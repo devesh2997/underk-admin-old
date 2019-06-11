@@ -73,6 +73,9 @@ class Firebase {
 		} else { fallback(); }
 	});
 
+	// *** Storage API ***
+	productAssetsRef = () => this.storage.ref().child('assets_products');
+
 
 	// *** User API ***
 	user = uid => this.db.doc(`users/${uid}`);
