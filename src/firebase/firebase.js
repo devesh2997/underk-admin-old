@@ -6,6 +6,16 @@ import 'firebase/firestore';
 import 'firebase/storage';
 
 const config = {
+    apiKey: "AIzaSyCwZVRP8KffgtY5mEkMwxDiQkWpmiDZd4U",
+    authDomain: "underk-firebase.firebaseapp.com",
+    databaseURL: "https://underk-firebase.firebaseio.com",
+    projectId: "underk-firebase",
+    storageBucket: "underk-firebase.appspot.com",
+    messagingSenderId: "1009026349608",
+    appId: "1:1009026349608:web:80d6c62a082a28c4"
+  };
+
+const config_old = {
 	apiKey: "AIzaSyBORS5EyMukyl6xO7MCaG1pJNAXw3J0EFc",
 	authDomain: "underk-81232.firebaseapp.com",
 	databaseURL: "https://underk-81232.firebaseio.com",

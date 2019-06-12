@@ -19,7 +19,7 @@ const INITIAL_STATE = {
 		saleEndDate: '',
 		isActive: true,
 		type: '',
-		assets: []
+		assets: {}
 	},
 	categories: [],
 	suppliers: [],
@@ -122,8 +122,9 @@ class AddProductBase extends Component {
 	}
 
 	getUploadedAssets = () => {
-		let views = this.state.product.assets.map(asset => (<AssetView key={asset.name + asset.size} asset={asset} />));
-		if (this.state.product.assets.length > 0) views = [<h4 key="header">Uploaded Assets</h4>, ...views];
+		let assets = this.state.product.assets;
+		let views = Object.keys(assets).map(asset => (<AssetView key={assets[asset].name + asset.size} asset={assets[asset]} />));
+		if (Object.keys(this.state.product.assets).length > 0) views = [<h4 key="header">Uploaded Assets</h4>, ...views];
 		return views;
 	}
 
@@ -138,7 +139,7 @@ class AddProductBase extends Component {
 		const { loadingCategories, loadingSuppliers } = this.state;
 		const { product, categories, suppliers } = this.state;
 
-		const isInvalid = product.assets.length === 0 || product.type === '' || product.title === '' || product.category === '' || product.supplier_id === '' || product.slug === '' || product.listPrice === '' || product.sku === '' || product.gender === '';
+		const isInvalid = Object.keys(product.assets).length === 0 || product.type === '' || product.title === '' || product.category === '' || product.supplier_id === '' || product.slug === '' || product.listPrice === '' || product.sku === '' || product.gender === '';
 
 		return (
 			<Card>

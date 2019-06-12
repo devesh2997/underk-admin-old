@@ -43,7 +43,7 @@ class AssetsUploader extends React.Component {
 		super(props);
 		this.state = {
 			selectedFiles: [],
-			assets: [],
+			assets: {},
 			isUploading: false,
 			numOfFiles: 0,
 			numOfFilesUploaded: 0,
@@ -68,7 +68,9 @@ class AssetsUploader extends React.Component {
 				const metadata = uploadTask.snapshot.metadata;
 				const {name, contentType, fullPath, size, bucket} = metadata;
 				uploadTask.snapshot.ref.getDownloadURL().then((downloadURL)=>{
-					let assets = [...this.state.assets, {name, contentType, fullPath,size,bucket,downloadURL}];
+					let newAsset = {name, contentType,fullPath,size,bucket,downloadURL};
+					let assets = this.state.assets;
+					assets[name] = newAsset;
 					this.setState({ numOfFilesUploaded: this.state.numOfFilesUploaded + 1, assets });
 					if (this.state.numOfFiles === this.state.numOfFilesUploaded) {
 						this.setState({ isUploading: false, numOfFilesUploaded:0 });
