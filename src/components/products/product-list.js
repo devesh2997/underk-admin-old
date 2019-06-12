@@ -88,7 +88,11 @@ class ProductListBase extends Component {
 									<td>{product.title}</td>
 									<td>{product.gender}</td>
 									<td>{product.description}</td>
-									<td>{product.category}</td>
+									<td
+										dangerouslySetInnerHTML={{
+											__html: '<pre>' + JSON.stringify(product.category, null, 2) + '</pre>'
+										}}
+									/>
 									<td>{product.supplier_id}</td>
 									<td>{product.slug}</td>
 									<td

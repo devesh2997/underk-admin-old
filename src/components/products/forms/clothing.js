@@ -12,8 +12,7 @@ const generateSKU = (product, sizeOptions) => {
 	sku += product.gender;
 	sku += "CLTH"; // CLOTHING TYPE SKU
 	sku += product.attributes.subtype;
-	sku += product.category_sku;
-	delete product.category_sku;
+	sku += product.category.sku;
 	sku += product.attributes.style.sku;
 	delete product.attributes.style.sku;
 	sku += product.attributes.color.sku;
@@ -220,7 +219,7 @@ class ClothingForm extends Component {
 		let product = this.props.product;
 
 		let cat = this.props.categories.find(cat => cat.cid === product.category);
-		product['category_sku'] = cat.sku;
+		product['category'] = cat;
 
 		let supp = this.props.suppliers.find(supp => supp.sid === product.supplier_id);
 		product['supplier_sku'] = supp.sku;
