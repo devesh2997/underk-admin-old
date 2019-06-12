@@ -104,6 +104,7 @@ class Firebase {
 	// *** Product API ***
 	product = product_id => this.db.doc(`products/${product_id}`);
 	products = () => this.db.collection('products');
+	productVariants = product_id => this.db.doc(`products/${product_id}`).collection('variants');
 
 	// *** Attributes API ***
 	clothingAttributes = () => this.db.collection('attributes').doc('clothing');
