@@ -1,6 +1,6 @@
 //TODO add logic for checking if slug entered is unique or not.
 import React, { Component } from 'react';
-import { Card, CardBody, CardHeader } from 'reactstrap';
+import { Card, CardBody, CardHeader, FormGroup } from 'reactstrap';
 import BasicInfoForm from './forms/basic-info';
 import ClothingForm from './forms/clothing';
 import { withFirebase } from '../../firebase';
@@ -157,9 +157,11 @@ class AddProductBase extends Component {
 								onChange={this.onChange}
 								onCheckboxChange={this.onCheckboxChange}
 							/>
+							<FormGroup>
+								{this.getUploadedAssets()}
+								<AssetsUploader product_slug={product.slug} onComplete={this.onComplete} />
+							</FormGroup>
 							{this.getForm(isInvalid)}
-							{this.getUploadedAssets()}
-							<AssetsUploader product_slug={product.slug} onComplete={this.onComplete} />
 						</div>
 					}
 				</CardBody>
