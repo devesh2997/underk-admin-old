@@ -15,7 +15,7 @@ const DeleteProduct = ({ pid, firebase }) => (
 		}}
 	>
 		<i className="fa fa-trash"></i>
-  	</Button>
+	</Button>
 );
 
 class VariantModal extends React.Component {
@@ -29,7 +29,7 @@ class VariantModal extends React.Component {
 	}
 
 	componentDidUpdate(prevProps) {
-		if(prevProps.product_id !== this.props.product_id && this.props.product_id) {
+		if (prevProps.product_id !== this.props.product_id && this.props.product_id) {
 			this.setState({ loadingVariants: true });
 
 			this.unsubscribe = this.props.firebase
@@ -174,16 +174,34 @@ class ProductListBase extends Component {
 								<th>List Price</th>
 								<th>Sale Price</th>
 								<th>Sale End Date</th>
-								<th>Show Variants</th>
-								<th>Edit</th>
-								<th>Delete</th>
 							</tr>
 						</thead>
 						<tbody>
 							{products.map((product, idx) => (
 								<tr key={product.pid}>
 									<td>{idx + 1}</td>
-									<td>{product.pid}</td>
+									<td>{product.pid}
+										<div style={{margin:10}}>
+											<Button type="button"
+												color="primary"
+												onClick={() => {
+													this.setState({ selectedProductId: product.pid });
+													this.toggleVariantModal();
+												}}
+											>
+												<i className="fa fa-arrows"></i>
+											</Button>
+											<Link to={{
+												pathname: `${ROUTES.PRODUCT_LIST.path}/${product.pid}/edit`,
+												state: { product }
+											}}>
+												<Button type="button" color="secondary">
+													<i className="fa fa-pencil"></i>
+												</Button>
+											</Link>
+											<DeleteProduct pid={product.pid} firebase={this.props.firebase} />
+										</div>
+									</td>
 									<td>{product.title}</td>
 									<td>{product.gender}</td>
 									<td>{product.description}</td>
@@ -208,28 +226,6 @@ class ProductListBase extends Component {
 									<td>{product.listPrice}</td>
 									<td>{product.salePrice}</td>
 									<td>{product.saleEndDate}</td>
-									<td>
-										<Button type="button"
-											color="primary"
-											onClick={() => {
-												this.setState({ selectedProductId: product.pid });
-												this.toggleVariantModal();
-											}}
-										>
-											<i className="fa fa-arrows"></i>
-										</Button>
-									</td>
-									<td>
-										<Link to={{
-											pathname: `${ROUTES.PRODUCT_LIST.path}/${product.pid}/edit`,
-											state: { product }
-										}}>
-											<Button type="button" color="secondary">
-												<i className="fa fa-pencil"></i>
-											</Button>
-										</Link>
-									</td>
-									<td><DeleteProduct pid={product.pid} firebase={this.props.firebase} /></td>
 								</tr>
 							))}
 						</tbody>
