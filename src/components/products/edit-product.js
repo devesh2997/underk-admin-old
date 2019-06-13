@@ -32,6 +32,7 @@ class EditProductBase extends Component {
 		let mappedState = {};
 		if(props.location.state) {
 			mappedState = { ...props.location.state };
+			mappedState.product.category = mappedState.product.category.cid;
 			delete mappedState.product.pid;
 		}
 
@@ -50,8 +51,11 @@ class EditProductBase extends Component {
 			.product(this.props.match.params.pid)
 			.get()
 			.then(doc => {
+				let product = doc.data();
+				product.category = product.category.cid;
+
 				this.setState({
-					product: doc.data(),
+					product,
 					loadingProductDetails: false,
 				});
 			});
