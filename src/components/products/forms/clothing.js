@@ -20,10 +20,10 @@ const generateSKU = (product, sizeOptions) => {
 	sku += product.attributes.design.sku;
 	delete product.attributes.design.sku;
 
-	Object.keys(product.attributes.sizes).forEach(size => {
+	Object.keys(product.options.values).forEach(size => {
 		let sizeSku = sizeOptions.find(s => s.name === size).sku;
 		sizeSku = sku + sizeSku;
-		product.attributes.sizes[size].sku = sizeSku;
+		product.options.values[size].sku = sizeSku;
 	});
 
 	return product;
@@ -229,7 +229,12 @@ class ClothingForm extends Component {
 		style = styles.find(s => s.id === style);
 		design = designs.find(d => d.id === design);
 
-		product['attributes'] = { subtype, color, style, design, sizes };
+		product['attributes'] = { subtype, color, style, design };
+		product['options'] = {
+			type: 'multiple',
+			based_on : 'size',
+			values : sizes,
+		}
 		product = generateSKU(product, sizeOptions);
 
 		this.props.handleSubmit(product, this.props.firebase)

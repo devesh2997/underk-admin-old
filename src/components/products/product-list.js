@@ -169,6 +169,7 @@ class ProductListBase extends Component {
 								<th>Supplier ID</th>
 								<th>Slug</th>
 								<th>Attributes</th>
+								<th>Options</th>
 								<th>Assets</th>
 								<th>isActive</th>
 								<th>List Price</th>
@@ -215,6 +216,11 @@ class ProductListBase extends Component {
 									<td
 										dangerouslySetInnerHTML={{
 											__html: '<pre>' + JSON.stringify(product.attributes, null, 2) + '</pre>'
+										}}
+									/>
+									<td
+										dangerouslySetInnerHTML={{
+											__html: '<pre>' + JSON.stringify(product.options, null, 2) + '</pre>'
 										}}
 									/>
 									<td
