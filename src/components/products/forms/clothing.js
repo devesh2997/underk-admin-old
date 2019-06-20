@@ -20,11 +20,18 @@ const generateSKU = (product, sizeOptions) => {
 	sku += product.attributes.design.sku;
 	delete product.attributes.design.sku;
 
+	let newOptions = {};
+
 	Object.keys(product.options.values).forEach(size => {
 		let sizeSku = sizeOptions.find(s => s.name === size).sku;
 		sizeSku = sku + sizeSku;
+		newOptions[sizeSku] = {};
+		newOptions[sizeSku]['quantity'] = product.options.values[size].quantity;
+		newOptions[sizeSku]['name'] = size;
 		product.options.values[size].sku = sizeSku;
 	});
+	delete product.options.values;
+	product.options['skus'] = newOptions;
 
 	return product;
 }
