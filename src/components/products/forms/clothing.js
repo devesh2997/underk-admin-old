@@ -28,6 +28,7 @@ const generateSKU = (product, sizeOptions) => {
 		newOptions[sizeSku] = {};
 		newOptions[sizeSku]['quantity'] = product.options.values[size].quantity;
 		newOptions[sizeSku]['name'] = size;
+		newOptions[sizeSku]['exits'] = true;
 		product.options.values[size].sku = sizeSku;
 	});
 	delete product.options.values;
