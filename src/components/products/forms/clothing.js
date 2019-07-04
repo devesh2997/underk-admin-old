@@ -26,7 +26,7 @@ const generateSKU = (product, sizeOptions) => {
 		let sizeSku = sizeOptions.find(s => s.name === size).sku;
 		sizeSku = sku + sizeSku;
 		newOptions[sizeSku] = {};
-		newOptions[sizeSku]['quantity'] = product.options.values[size].quantity;
+		newOptions[sizeSku]['quantity'] = Number(product.options.values[size].quantity);
 		newOptions[sizeSku]['name'] = size;
 		newOptions[sizeSku]['exits'] = true;
 		product.options.values[size].sku = sizeSku;
@@ -37,23 +37,35 @@ const generateSKU = (product, sizeOptions) => {
 	return product;
 }
 
-const INITIAL_STATE = (props) => ({
-	subtype: props.product.attributes ? props.product.attributes.subtype : '',
-	color: props.product.attributes ? props.product.attributes.color.id : '',
-	style: props.product.attributes ? props.product.attributes.style.id : '',
-	design: props.product.attributes ? props.product.attributes.design.id : '',
-	sizes: props.product.attributes ? props.product.attributes.sizes : {},
-	currentSize: '',
-	currentQuantity: '',
-	colors: [],
-	styles: [],
-	designs: [],
-	sizeOptions: [],
-	loadingColors: false,
-	loadingStyles: false,
-	loadingDesigns: false,
-	loadingSizes: false
-});
+const INITIAL_STATE = ({ product }) => {
+	let sizes = {};
+
+	if(product.options) {
+		Object.values(product.options.skus).forEach(sku => {
+			sizes[sku.name] = {
+				quantity: sku.quantity
+			}
+		});
+	}
+
+	return {
+		subtype: product.attributes ? product.attributes.subtype : '',
+		color: product.attributes ? product.attributes.color.id : '',
+		style: product.attributes ? product.attributes.style.id : '',
+		design: product.attributes ? product.attributes.design.id : '',
+		sizes,
+		currentSize: '',
+		currentQuantity: '',
+		colors: [],
+		styles: [],
+		designs: [],
+		sizeOptions: [],
+		loadingColors: false,
+		loadingStyles: false,
+		loadingDesigns: false,
+		loadingSizes: false
+	}
+};
 
 const SizeCard = ({ action, sizeOptions, size, quantity, onSizeChange, onQuantityChange, onAction, isActionBtnDisabled }) => {
 	return (
@@ -200,10 +212,10 @@ class ClothingForm extends Component {
 
 		let selectedSize = this.state.sizeOptions.find(option => option.id === this.state.currentSize);
 
-		const sku = selectedSize.sku;
+		// const sku = selectedSize.sku;
 		const quantity = this.state.currentQuantity;
 		sizes[selectedSize.name] = {
-			sku,
+			// sku,
 			quantity,
 		}
 
@@ -244,6 +256,9 @@ class ClothingForm extends Component {
 			values : sizes,
 		}
 		product = generateSKU(product, sizeOptions);
+
+		product.listPrice = Number(product.listPrice);
+		product.salePrice = Number(product.salePrice);
 
 		this.props.handleSubmit(product, this.props.firebase)
 			.then(() => {
