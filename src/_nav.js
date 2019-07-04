@@ -74,6 +74,16 @@ export default {
 					icon: 'fa fa-list-alt',
 				},
 				{
+					name: 'Attribute List',
+					url: ROUTES.ATTRIBUTE_LIST.path,
+					icon: 'fa fa-list-alt',
+				},
+				{
+					name: 'Add Attribute',
+					url: ROUTES.ADD_ATTRIBUTE.path,
+					icon: 'fa fa-plus',
+				},
+				{
 					name: 'Add Product',
 					url: ROUTES.ADD_PRODUCT.path,
 					icon: 'fa fa-plus',
