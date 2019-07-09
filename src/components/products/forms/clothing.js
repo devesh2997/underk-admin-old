@@ -28,7 +28,7 @@ const generateSKU = (product, sizeOptions) => {
 		newOptions[sizeSku] = {};
 		newOptions[sizeSku]['quantity'] = Number(product.options.values[size].quantity);
 		newOptions[sizeSku]['name'] = size;
-		newOptions[sizeSku]['exits'] = true;
+		newOptions[sizeSku]['exists'] = true;
 		product.options.values[size].sku = sizeSku;
 	});
 	delete product.options.values;
@@ -258,7 +258,7 @@ class ClothingForm extends Component {
 		product = generateSKU(product, sizeOptions);
 
 		product.listPrice = Number(product.listPrice);
-		product.salePrice = Number(product.salePrice);
+		product.salePrice = Number(product.salePrice) ? Number(product.salePrice) : product.listPrice;
 
 		this.props.handleSubmit(product, this.props.firebase)
 			.then(() => {
