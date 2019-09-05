@@ -1,6 +1,7 @@
 import React from 'react';
 
 const Dashboard = React.lazy(() => import('./views/Dashboard'));
+const OrdersList = React.lazy(() => import('./components/orders/orders-list'));
 const AdminList = React.lazy(() => import('./components/administrators/administrator-list'));
 const AddAdminItem = React.lazy(() => import('./components/administrators/add-administrator'));
 const AdminItem = React.lazy(() => import('./components/administrators/administrator-item'));
@@ -33,6 +34,12 @@ const routes = {
 		path: '/dashboard',
 		name: 'Dashboard',
 		component: TempDashboard
+	},
+	ORDERS: {
+		path: '/orders',
+		exact: true,
+		name: 'Orders',
+		component: OrdersList
 	},
 	ADMINISTRATOR_LIST: {
 		path: '/administrators',

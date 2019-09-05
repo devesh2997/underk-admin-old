@@ -109,6 +109,9 @@ class Firebase {
 	// *** Attributes API ***
 	clothingAttributes = () => this.db.collection('attributes').doc('clothing');
 
+	// *** Orders API ***
+	orders = () => this.db.collection('orders');
+
 }
 
 export default Firebase;

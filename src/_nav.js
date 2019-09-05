@@ -8,6 +8,18 @@ export default {
 			icon: 'fa fa-tachometer',
 		},
 		{
+			name: 'Orders',
+			url: ROUTES.ORDERS.path,
+			icon: 'fa fa-user-secret',
+			children: [
+				{
+					name: 'Orders List',
+					url: ROUTES.ORDERS.path,
+					icon: 'fa fa-list-alt',
+				},
+			],
+		},
+		{
 			name: 'Administrators',
 			url: ROUTES.ADMINISTRATOR_LIST.path,
 			icon: 'fa fa-user-secret',

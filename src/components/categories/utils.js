@@ -51,6 +51,7 @@ export const insertDemoCategories = (firebase) => {
 	if(isConfirmed) {
 		categories.forEach(({ cid, name, slug, sku, parent }, idx) => {
 			let ancestors = [];
+			let ancestorSlugs = [];
 			let parent_category = categories.find(category => category.cid === parent);
 			if (parent_category) {
 				ancestors = parent_category.ancestors;
@@ -60,15 +61,18 @@ export const insertDemoCategories = (firebase) => {
 					name,
 					slug
 				});
+				ancestorSlugs.push(slug);
 			}
 			categories[idx].ancestors = ancestors;
+			categories[idx].ancestorSlugs = ancestorSlugs;
 			
 			return firebase.category(cid).set({
 				name,
 				parent,
 				slug,
 				sku,
-				ancestors
+				ancestors,
+				ancestorSlugs
 			});
 		});
 	}
