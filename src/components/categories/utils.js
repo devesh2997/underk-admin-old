@@ -51,20 +51,21 @@ export const insertDemoCategories = (firebase) => {
 	if(isConfirmed) {
 		categories.forEach(({ cid, name, slug, sku, parent }, idx) => {
 			let ancestors = [];
-			let ancestorSlugs = [];
+			let slugFamily = [];
 			let parent_category = categories.find(category => category.cid === parent);
 			if (parent_category) {
 				ancestors = parent_category.ancestors;
+				slugFamily = parent_category.slugFamily;
 				const { cid, slug, name } = parent_category;
 				ancestors.push({
 					cid,
 					name,
 					slug
 				});
-				ancestorSlugs.push(slug);
 			}
+			slugFamily.push(slug);
 			categories[idx].ancestors = ancestors;
-			categories[idx].ancestorSlugs = ancestorSlugs;
+			categories[idx].slugFamily = slugFamily;
 			
 			return firebase.category(cid).set({
 				name,
@@ -72,7 +73,7 @@ export const insertDemoCategories = (firebase) => {
 				slug,
 				sku,
 				ancestors,
-				ancestorSlugs
+				slugFamily
 			});
 		});
 	}

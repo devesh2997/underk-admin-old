@@ -17,7 +17,7 @@ const INITIAL_STATE = {
 
 const addCategory = (cid, name, parent, slug, sku, categories, firebase) => {
 	let ancestors = [];
-	let ancestorSlugs = [];
+	let slugFamily = [];
 	let parent_category = categories.find(category => category.cid === parent);
 	if (parent_category) {
 		ancestors = parent_category.ancestors;
@@ -27,8 +27,9 @@ const addCategory = (cid, name, parent, slug, sku, categories, firebase) => {
 			name,
 			slug
 		});
-		ancestorSlugs.push(slug);
+		slugFamily.push(slug);
 	}
+	slugFamily.push(slug);
 
 	return firebase.category(cid).set({
 		name,
@@ -36,7 +37,7 @@ const addCategory = (cid, name, parent, slug, sku, categories, firebase) => {
 		slug,
 		sku,
 		ancestors,
-		ancestorSlugs
+		slugFamily
 	});
 }
 

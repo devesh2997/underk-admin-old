@@ -114,6 +114,7 @@ class CategoryListBase extends Component {
 								<th>SKU</th>
 								<th>Parent</th>
 								<th>Ancestors</th>
+								<th>Slug Family</th>
 								<th>Action</th>
 							</tr>
 						</thead>
@@ -129,6 +130,11 @@ class CategoryListBase extends Component {
 									<td>
 										{category.ancestors.map(ancestor => (
 											<span key={ancestor.cid}>{" > " + ancestor.name}</span>
+										))}
+									</td>
+									<td>
+									{category.slugFamily.map(slug => (
+											<span key={slug}>{" , " + slug}</span>
 										))}
 									</td>
 									<td>
