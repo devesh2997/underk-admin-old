@@ -12,6 +12,7 @@ const INITIAL_STATE = {
 		gender: '',
 		description: '',
 		category: '',
+		collections: [],
 		slug: '',
 		supplier_id: '',
 		listPrice: '',
@@ -23,8 +24,10 @@ const INITIAL_STATE = {
 	},
 	categories: [],
 	suppliers: [],
+	collectionsAll:[],
 	loadingCategories: false,
 	loadingSuppliers: false,
+	loadingCollections:false,
 };
 
 const AssetView = (props) => {
@@ -50,7 +53,7 @@ class AddProductBase extends Component {
 	}
 
 	componentDidMount() {
-		this.setState({ loadingCategories: true, loadingSuppliers: true });
+		this.setState({ loadingCategories: true, loadingSuppliers: true,loadingCollections: true });
 
 		this.getCategories = this.props.firebase
 			.categories()
@@ -64,6 +67,21 @@ class AddProductBase extends Component {
 				this.setState({
 					categories,
 					loadingCategories: false,
+				});
+			});
+
+			this.getCollections = this.props.firebase
+			.collections()
+			.onSnapshot(snapshot => {
+				let collectionsAll = [];
+
+				snapshot.forEach(doc =>
+					collectionsAll.push({ ...doc.data(), id: doc.id }),
+				);
+
+				this.setState({
+					collectionsAll,
+					loadingCollections: false,
 				});
 			});
 
@@ -85,10 +103,14 @@ class AddProductBase extends Component {
 
 	componentWillUnmount() {
 		this.getCategories();
+		this.getCollections();
 		this.getSuppliers();
 	}
 
 	addProduct = (product, firebase) => {
+		var collections = [];
+		product.collections.forEach(collection=>collections.push(collection.id));
+		product.collections = collections;
 		return firebase.products().add(product);
 	}
 
@@ -96,6 +118,13 @@ class AddProductBase extends Component {
 		let { product } = this.state;
 		product[event.target.name] = event.target.value;
 		this.setState({ product });
+	}
+
+	onChangeCollections = selectedCollections => {
+		let {product} = this.state;
+		product.collections = selectedCollections;
+		this.setState({product, selectedCollections});
+		
 	}
 
 	onCheckboxChange = event => {
@@ -136,8 +165,8 @@ class AddProductBase extends Component {
 
 
 	render() {
-		const { loadingCategories, loadingSuppliers } = this.state;
-		const { product, categories, suppliers } = this.state;
+		const { loadingCategories, loadingSuppliers, loadingCollections } = this.state;
+		const { product, categories, suppliers,collectionsAll } = this.state;
 
 		const isInvalid = Object.keys(product.assets).length === 0 || product.type === '' || product.title === '' || product.category === '' || product.supplier_id === '' || product.slug === '' || product.listPrice === '' || product.sku === '' || product.gender === '';
 
@@ -147,14 +176,16 @@ class AddProductBase extends Component {
 					<h4>Add product</h4>
 				</CardHeader>
 				<CardBody>
-					{(loadingCategories || loadingSuppliers)
+					{(loadingCategories || loadingSuppliers || loadingCollections)
 						? <div className="animated fadeIn pt-3 text-center">Loading...</div>
 						: <div>
 							<BasicInfoForm
 								product={product}
 								categories={categories}
+								collectionsAll = {collectionsAll}
 								suppliers={suppliers}
 								onChange={this.onChange}
+								onChangeCollections={this.onChangeCollections}
 								onCheckboxChange={this.onCheckboxChange}
 							/>
 							<FormGroup>

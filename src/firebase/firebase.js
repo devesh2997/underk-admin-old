@@ -97,6 +97,10 @@ class Firebase {
 	category = category_id => this.db.doc(`categories/${category_id}`);
 	categories = () => this.db.collection('categories');
 
+	// *** Collection API ***
+	collection = collection_id => this.db.doc(`collections/${collection_id}`);
+	collections = () => this.db.collection('collections');
+
 	// *** Supplier API ***
 	supplier = supplier_id => this.db.doc(`suppliers/${supplier_id}`);
 	suppliers = () => this.db.collection('suppliers');

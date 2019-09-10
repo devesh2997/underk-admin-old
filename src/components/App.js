@@ -3,7 +3,7 @@ import { Route, Switch } from 'react-router-dom';
 import { HashRouter } from 'react-router-dom';
 import { withAuthentication } from '../session';
 // import { renderRoutes } from 'react-router-config';
-
+import "@kenshooui/react-multi-select/dist/style.css"
 import './App.scss';
 
 const loading = () => <div className="animated fadeIn pt-3 text-center">Loading...</div>;

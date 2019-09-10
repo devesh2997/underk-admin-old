@@ -86,6 +86,11 @@ export default {
 					icon: 'fa fa-list-alt',
 				},
 				{
+					name: 'Add Product',
+					url: ROUTES.ADD_PRODUCT.path,
+					icon: 'fa fa-plus',
+				},
+				{
 					name: 'Attribute List',
 					url: ROUTES.ATTRIBUTE_LIST.path,
 					icon: 'fa fa-list-alt',
@@ -96,10 +101,16 @@ export default {
 					icon: 'fa fa-plus',
 				},
 				{
-					name: 'Add Product',
-					url: ROUTES.ADD_PRODUCT.path,
+					name: 'Collection List',
+					url: ROUTES.COLLECTION_LIST.path,
+					icon: 'fa fa-list-alt',
+				},
+				{
+					name: 'Add Collection',
+					url: ROUTES.ADD_COLLECTION.path,
 					icon: 'fa fa-plus',
 				},
+				
 			],
 		},
 	],

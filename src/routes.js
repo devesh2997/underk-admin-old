@@ -18,6 +18,8 @@ const AddProductItem = React.lazy(() => import('./components/products/add-produc
 const EditProductItem = React.lazy(() => import('./components/products/edit-product'));
 const AttributeList = React.lazy(() => import('./components/products/attributes/attribute-list'));
 const AddAttribute = React.lazy(() => import('./components/products/attributes/add-attribute'));
+const CollectionList = React.lazy(() => import('./components/products/collections/collection-list'));
+const AddCollection = React.lazy(() => import('./components/products/collections/add-collection'));
 
 const TempDashboard = () => {
 	return <span>Dashboard</span>;
@@ -122,8 +124,20 @@ const routes = {
 	ADD_ATTRIBUTE: {
 		path: '/products/attributes/add',
 		exact: true,
-		name: 'Add Attribute',
+		name: 'Add Collection',
 		component: AddAttribute,
+	},
+	COLLECTION_LIST: {
+		path: '/products/collections',
+		exact: true,
+		name: 'Collections',
+		component: CollectionList,
+	},
+	ADD_COLLECTION: {
+		path: '/products/collections/add',
+		exact: true,
+		name: 'Add Collection',
+		component: AddCollection,
 	},
 	ADD_PRODUCT: {
 		path: '/products/add',
