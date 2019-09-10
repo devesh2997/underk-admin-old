@@ -6,6 +6,7 @@ const BasicInfoForm = ({
   product,
   categories,
   collectionsAll,
+  selectedCollections,
   suppliers,
   onChange,
   onChangeCollections,
@@ -92,7 +93,7 @@ const BasicInfoForm = ({
         <Label>Collections</Label>
         <MultiSelect
           items={collectionOptions}
-          selectedItems={product.collections}
+          selectedItems={selectedCollections}
           onChange={onChangeCollections}
         />
       </FormGroup>
@@ -123,24 +124,35 @@ const BasicInfoForm = ({
         />
       </FormGroup>
       <FormGroup>
-        <Label>Sale Price</Label>
+        <Label>Discount</Label>
         <Input
-          type='number'
-          name='salePrice'
-          value={product.salePrice}
+          type='text'
+          name='discount'
+          value={product.discount}
           onChange={onChange}
-          placeholder='Enter sale price'
+          placeholder='Enter discount (either in rupee or %)'
         />
       </FormGroup>
       <FormGroup>
-        <Label>Sale End Date</Label>
+        <Label>Tax Percent</Label>
         <Input
-          type='date'
-          name='saleEndDate'
-          value={product.saleEndDate}
+          type='number'
+          name='taxPercent'
+          value={product.taxPercent}
           onChange={onChange}
-          placeholder='Enter sale end date'
+          placeholder='Enter tax %'
         />
+      </FormGroup>
+      <FormGroup>
+        <Label check>
+          <Input
+            type='checkbox'
+            name='isInclusiveTax'
+            checked={product.isInclusiveTax}
+            onChange={onCheckboxChange}
+          />
+          is inclusive tax
+        </Label>
       </FormGroup>
       <FormGroup>
         <Label>Type</Label>

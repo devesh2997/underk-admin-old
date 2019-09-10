@@ -163,6 +163,7 @@ class ProductListBase extends Component {
 								<th>#</th>
 								<th>Product ID</th>
 								<th>Title</th>
+								<th>Pricing</th>
 								<th>Gender</th>
 								<th>Description</th>
 								<th>Category</th>
@@ -173,9 +174,6 @@ class ProductListBase extends Component {
 								<th>Options</th>
 								<th>Assets</th>
 								<th>isActive</th>
-								<th>List Price</th>
-								<th>Sale Price</th>
-								<th>Sale End Date</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -205,6 +203,7 @@ class ProductListBase extends Component {
 										</div>
 									</td>
 									<td>{product.title}</td>
+									<td>List Price : {product.listPrice}  Discount : {product.discount} Tax Percent: {product.taxPercent} isInclusiveTax:{product.isInclusiveTax.toString()}</td>
 									<td>{product.gender}</td>
 									<td>{product.description}</td>
 									<td
@@ -235,9 +234,6 @@ class ProductListBase extends Component {
 										}}
 									/>
 									<td>{product.isActive ? 'Yes' : 'No'}</td>
-									<td>{product.listPrice}</td>
-									<td>{product.salePrice}</td>
-									<td>{product.saleEndDate}</td>
 								</tr>
 							))}
 						</tbody>
