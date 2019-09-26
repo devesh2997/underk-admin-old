@@ -258,7 +258,7 @@ class ClothingForm extends Component {
 		product = generateSKU(product, sizeOptions);
 
 		product.listPrice = Number(product.listPrice);
-		product.salePrice = Number(product.salePrice) ? Number(product.salePrice) : product.listPrice;
+		// product.salePrice = Number(product.salePrice) ? Number(product.salePrice) : product.listPrice;
 
 		this.props.handleSubmit(product, this.props.firebase)
 			.then(() => {

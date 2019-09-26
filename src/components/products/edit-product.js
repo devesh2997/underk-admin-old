@@ -14,7 +14,7 @@ const INITIAL_STATE = {
     slug: '',
     supplier_id: '',
     listPrice: '',
-    salePrice: '',
+    discount: '',
     saleEndDate: '',
     isActive: true,
     type: ''
