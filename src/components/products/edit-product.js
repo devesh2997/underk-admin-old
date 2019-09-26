@@ -15,7 +15,6 @@ const INITIAL_STATE = {
     supplier_id: '',
     listPrice: '',
     discount: '',
-    saleEndDate: '',
     isActive: true,
     type: ''
   },
