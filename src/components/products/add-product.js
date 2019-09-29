@@ -19,7 +19,6 @@ const INITIAL_STATE = {
     discount: '0',
     taxPercent: 5,
     isInclusiveTax: true,
-    saleEndDate: '',
     isActive: true,
     type: '',
     assets: {}
