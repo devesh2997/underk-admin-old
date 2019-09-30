@@ -7,16 +7,28 @@ import {
   Modal,
   ModalHeader,
   ModalBody,
+  ModalFooter,
   Table
 } from 'reactstrap'
+import {
+  Badge,
+  Col,
+  Nav,
+  NavItem,
+  NavLink,
+  Row,
+  TabContent,
+  TabPane
+} from 'reactstrap'
+import classnames from 'classnames'
 import { withFirebase } from '../../firebase'
-import ROUTES from '../../routes'
-import { Link } from 'react-router-dom'
+import {OrderItem} from './order-item'
 
 class OrderListBase extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      activeTab: '1',
       loading: false,
       orders: []
     }
@@ -41,97 +53,149 @@ class OrderListBase extends Component {
     this.unsubscribe()
   }
 
+  toggle = tab => {
+    if (this.state.activeTab !== tab) {
+      this.unsubscribe()
+      this.setState({
+        activeTab: tab,
+        loading: true
+      })
+      let status = ''
+      switch (tab) {
+        case '1':
+          status = 'all'
+          break
+        case '2':
+          status = 'placed'
+          break
+        case '3':
+          status = 'created'
+        default:
+          break
+      }
+      if (status !== 'all') {
+        this.unsubscribe = this.props.firebase
+          .ordersByStatus(status)
+          .onSnapshot(snapshot => {
+            let orders = []
+
+            snapshot.forEach(doc => orders.push({ ...doc.data(), oid: doc.id }))
+
+            this.setState({
+              orders,
+              loading: false
+            })
+          })
+      } else {
+        this.unsubscribe = this.props.firebase.orders().onSnapshot(snapshot => {
+          let orders = []
+
+          snapshot.forEach(doc => orders.push({ ...doc.data(), oid: doc.id }))
+
+          this.setState({
+            orders,
+            loading: false
+          })
+        })
+      }
+    }
+  }
+
+  tabPane (orders) {
+    return (
+      <>
+        <TabPane tabId='1'>
+          <OrdersList orders={orders} />
+        </TabPane>
+        <TabPane tabId='2'>
+          <OrdersList orders={orders} />
+        </TabPane>
+        <TabPane tabId='3'>
+          <OrdersList orders={orders} />
+        </TabPane>
+      </>
+    )
+  }
+
   render () {
     const { loading, orders } = this.state
-
     return (
       <Card>
         <CardHeader>
           <h4>Orders</h4>
         </CardHeader>
+
         <CardBody>
           {loading && (
             <div className='animated fadeIn pt-3 text-center'>Loading...</div>
           )}
-          <Table striped responsive>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Order ID</th>
-                <th>UID</th>
-                <th>Cart</th>
-                <th>Address</th>
-                <th>Delivery Status</th>
-                <th>Payment Mode</th>
-                <th>Payment Status</th>
-                <th>Status</th>
-                <th>Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order, idx) => (
-                <tr key={order.oid}>
-                  <td>{idx + 1}</td>
-                  <td>
-                    {order.oid}
-                    {/* <div style={{margin:10}}>
-											<Button type="button"
-												color="primary"
-												onClick={() => {
-													this.setState({ selectedProductId: product.pid });
-													this.toggleVariantModal();
-												}}
-											>
-												<i className="fa fa-arrows"></i>
-											</Button>
-											<Link to={{
-												pathname: `${ROUTES.PRODUCT_LIST.path}/${product.pid}/edit`,
-												state: { product }
-											}}>
-												<Button type="button" color="secondary">
-													<i className="fa fa-pencil"></i>
-												</Button>
-											</Link>
-											<DeleteProduct pid={product.pid} firebase={this.props.firebase} />
-										</div> */}
-                  </td>
-                  <td>{order.uid}</td>
-                  <td
-                    dangerouslySetInnerHTML={{
-                      __html:
-                        '<pre>' +
-                        JSON.stringify(order.cart, null, 2) +
-                        '</pre>'
-                    }}
-                  />
-                  <td
-                    dangerouslySetInnerHTML={{
-                      __html:
-                        '<pre>' +
-                        JSON.stringify(order.address, null, 2) +
-                        '</pre>'
-                    }}
-                  />
-                  <td>{order.deliveryStatus}</td>
-                  <td>{order.paymentMode}</td>
-                  <td>{order.paymentStatus}</td>
-                  <td>{order.status}</td>
-                  <td
-                    dangerouslySetInnerHTML={{
-                      __html:
-                        '<pre>' +
-                        JSON.stringify(order.time, null, 2) +
-                        '</pre>'
-                    }}
-                  />
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+          <Nav tabs>
+            <NavItem>
+              <NavLink
+                active={this.state.activeTab[0] === '1'}
+                onClick={() => {
+                  this.toggle('1')
+                }}
+              >
+                All
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                active={this.state.activeTab[0] === '2'}
+                onClick={() => {
+                  this.toggle('2')
+                }}
+              >
+                Placed
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink
+                active={this.state.activeTab[0] === '3'}
+                onClick={() => {
+                  this.toggle('3')
+                }}
+              >
+                Created
+              </NavLink>
+            </NavItem>
+          </Nav>
+          {!loading && (
+            <TabContent activeTab={this.state.activeTab[0]}>
+              {this.tabPane(orders)}
+            </TabContent>
+          )}
         </CardBody>
       </Card>
     )
   }
 }
+
+const OrdersList = ({ orders }) => {
+  return (
+    <Table striped responsive>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Details</th>
+          <th>Location</th>
+          <th>Status</th>
+          <th>Bill</th>
+          <th>Payment</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        {orders.map((order, idx) => (
+          <OrderItem order={order} idx={idx} key={idx} />
+        ))}
+      </tbody>
+    </Table>
+  )
+}
+
+
+
 
 export default withFirebase(OrderListBase)
