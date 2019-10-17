@@ -15,6 +15,7 @@ const AddSupplierItem = React.lazy(() => import('./components/suppliers/add-supp
 const SupplierItem = React.lazy(() => import('./components/suppliers/supplier-item'));
 const ProductList = React.lazy(() => import('./components/products/product-list'));
 const AddProductItem = React.lazy(() => import('./components/products/add-product'));
+const BulkUpload = React.lazy(()=>import('./components/products/bulk-upload/index'));
 const EditProductItem = React.lazy(() => import('./components/products/edit-product'));
 const AttributeList = React.lazy(() => import('./components/products/attributes/attribute-list'));
 const AddAttribute = React.lazy(() => import('./components/products/attributes/add-attribute'));
@@ -144,6 +145,12 @@ const routes = {
 		exact: true,
 		name: 'Add Product',
 		component: AddProductItem,
+	},
+	BULK_UPLOAD: {
+		path: '/products/bulk',
+		exact: true,
+		name: 'Bulk Upload Products',
+		component: BulkUpload,
 	},
 	EDIT_PRODUCT: {
 		path: '/products/:pid/edit',

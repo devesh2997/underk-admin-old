@@ -1,26 +1,17 @@
 import React, { Component } from 'react'
 import {
-  Button,
   Card,
   CardBody,
   CardHeader,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Table
 } from 'reactstrap'
 import {
-  Badge,
-  Col,
   Nav,
   NavItem,
   NavLink,
-  Row,
   TabContent,
   TabPane
 } from 'reactstrap'
-import classnames from 'classnames'
 import { withFirebase } from '../../firebase'
 import {OrderItem} from './order-item'
 
@@ -70,6 +61,7 @@ class OrderListBase extends Component {
           break
         case '3':
           status = 'created'
+          break
         default:
           break
       }

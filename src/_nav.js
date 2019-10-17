@@ -91,6 +91,11 @@ export default {
 					icon: 'fa fa-plus',
 				},
 				{
+					name: 'Bulk Upload',
+					url: ROUTES.BULK_UPLOAD.path,
+					icon: 'fa fa-plus',
+				},
+				{
 					name: 'Attribute List',
 					url: ROUTES.ATTRIBUTE_LIST.path,
 					icon: 'fa fa-list-alt',
