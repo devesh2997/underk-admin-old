@@ -21,6 +21,7 @@ const addCategory = (cid, name, parent, slug, sku, categories, firebase) => {
 	let parent_category = categories.find(category => category.cid === parent);
 	if (parent_category) {
 		ancestors = parent_category.ancestors;
+		slugFamily = parent_category.slugFamily;
 		const { cid, slug, name } = parent_category;
 		ancestors.push({
 			cid,
