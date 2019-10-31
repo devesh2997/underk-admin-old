@@ -359,25 +359,26 @@ class BulkUpload extends Component {
       let row = csvdata[i]
       if (row.length === 18) {
         let product = {}
-        try {
-          let collections = JSON.parse(row[6])
-          let options = JSON.parse(row[17])
+        try {    
+          
           let title = row[0]
-          let description = row[1]
-          let slug = row[2]
-          let isActive = row[3] === 'TRUE'
-          let gender = row[4]
-          let category = row[5]
-          let supplier_id = row[7]
-          let listPrice = Number(row[8])
-          let discount = row[9]
-          let taxPercent = Number(row[10])
-          let isInclusiveTax = row[11] === 'TRUE'
-          let type = row[12]
-          let subtype = row[13]
-          let color = row[14]
-          let style = row[15]
-          let design = row[16]
+          let slug = row[1]
+          let isActive = row[2] === 'TRUE'
+          let gender = row[3]
+          let category = row[4]
+          let collections = JSON.parse(row[5])
+          let supplier_id = row[6]
+          let listPrice = Number(row[7])
+          let discount = row[8]
+          let taxPercent = Number(row[9])
+          let isInclusiveTax = row[10] === 'TRUE'
+          let type = row[11]
+          let subtype = row[12]
+          let color = row[13]
+          let style = row[14]
+          let design = row[15]
+          let options = JSON.parse(row[16])          
+          let description = JSON.parse(row[17])   
 
           if (
             title &&
