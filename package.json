@@ -32,6 +32,7 @@
     "react-dropzone": "^10.1.5",
     "react-router-config": "^5.0.0",
     "react-router-dom": "^5.0.0",
+    "react-switch": "^5.0.1",
     "react-test-renderer": "^16.8.6",
     "reactstrap": "^7.1.0",
     "recompose": "^0.30.0",

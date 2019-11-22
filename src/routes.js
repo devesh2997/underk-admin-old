@@ -21,6 +21,7 @@ const AttributeList = React.lazy(() => import('./components/products/attributes/
 const AddAttribute = React.lazy(() => import('./components/products/attributes/add-attribute'));
 const CollectionList = React.lazy(() => import('./components/products/collections/collection-list'));
 const AddCollection = React.lazy(() => import('./components/products/collections/add-collection'));
+const Strategies = React.lazy(()=>import('./components/strategies'));
 
 const TempDashboard = () => {
 	return <span>Dashboard</span>;
@@ -37,6 +38,11 @@ const routes = {
 		path: '/dashboard',
 		name: 'Dashboard',
 		component: TempDashboard
+	},
+	STRATEGIES: {
+		path: '/strategies',
+		name: 'Strategies',
+		component: Strategies
 	},
 	ORDERS: {
 		path: '/orders',

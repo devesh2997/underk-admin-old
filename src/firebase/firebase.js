@@ -140,6 +140,9 @@ class Firebase {
       .collections('orders')
       .where('status', '==', 'created')
       .orderBy('time', 'desc')
+
+  //* ** Strategies API */
+  strategies = () => this.db.collection('strategies').doc('strategies')
 }
 
 export default Firebase

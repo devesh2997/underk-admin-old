@@ -1,3 +1,12 @@
+const paiseToRupeeString=(paise) =>{
+	paise = Number(paise)
+	if (paise % 100 === 0) {
+		return '\u20B9' + Math.round(paise / 100).toString();
+	  } else {
+		return '\u20B9' + (paise / 100).toString();
+	  }
+}
+
 const beautifyAddress = (address)=> {
   let addressString = ''
   addressString +=
@@ -50,4 +59,4 @@ const generateSKU = (product, sizeOptions) => {
 	return product;
 }
 
-export { beautifyAddress, timeStampToLocaleString, generateSKU}
+export { beautifyAddress, timeStampToLocaleString, generateSKU, paiseToRupeeString}

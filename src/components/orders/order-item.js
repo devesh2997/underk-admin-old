@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { paiseToRupeeString } from '../../utils'
 import {
   Button,
   Card,
@@ -35,7 +36,7 @@ class OrderItem extends Component {
     }
   }
   toggleModal = () => {
-    this.setState({ modal: !this.state.modal })
+    if (this.props.order.status === 'placed') { this.setState({ modal: !this.state.modal }) }
   }
   render () {
     let { order, idx } = this.props
@@ -73,8 +74,9 @@ class OrderItem extends Component {
           <StatusBadge status={order.status} />
         </td>
         <td>
-          mrp : {order.mrp} <br /> discount : {order.discount} <br /> total :{' '}
-          {order.total}
+          mrp : {paiseToRupeeString(order.mrp)} <br /> discount :{' '}
+          {paiseToRupeeString(order.discount)} <br /> total :{' '}
+          {paiseToRupeeString(order.total)}
         </td>
         <td>
           mode : {order.payment.mode} <br /> status : {order.payment.status}{' '}
@@ -101,7 +103,7 @@ class OrderItem extends Component {
           {order.payment.created_at && (
             <span>
               <br />
-              time : {timeStampToLocaleString(order.payment.created_at*1000)}
+              time : {timeStampToLocaleString(order.payment.created_at * 1000)}
             </span>
           )}
         </td>
