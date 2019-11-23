@@ -9,7 +9,8 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Table
+  Table,
+  Spinner
 } from 'reactstrap'
 import {
   Badge,
@@ -27,16 +28,51 @@ import { OrderProductsInfo } from './order-products'
 
 import { beautifyAddress, timeStampToLocaleString } from '../../utils'
 import { StatusBadge } from '../../widgets'
+import { initDelivery } from '../../services/order.service'
+import { to } from '../../services/util.service'
 
 class OrderItem extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      modal: false
+      modal: false,
+      creatingManifest: false,
+      manifestingError: null,
+      skus: {}
     }
   }
   toggleModal = () => {
-    if (this.props.order.status === 'placed') { this.setState({ modal: !this.state.modal }) }
+    if (this.props.order.status === 'placed') {
+      this.setState({ modal: !this.state.modal })
+    }
+  }
+
+  onChange = skus => {
+    this.setState({ skus })
+  }
+  createManifest = async () => {
+    this.setState({ creatingManifest: true, manifestingError: null })
+    let skus = []
+    let skusArray = Object.keys(this.state.skus)
+    for (let i = 0; i < skusArray.length; i++) {
+      if (this.state.skus[skusArray[i]] === true) {
+        skus.push(skusArray[i])
+      }
+    }
+    if (skus.length < 1) {
+      console.log('no product selected')
+      this.setState({
+        creatingManifest: false,
+        manifestingError: 'No product selected.'
+      })
+      return
+    }
+    let err, _r
+    ;[err, _r] = await to(initDelivery(this.props.order.oid, skus, 'ahmedabad'))
+    this.setState({ creatingManifest: false, manifestingError: err })
+    if (!err) {
+      this.toggleModal()
+    }
   }
   render () {
     let { order, idx } = this.props
@@ -50,15 +86,23 @@ class OrderItem extends Component {
         >
           <ModalHeader toggle={this.toggleModal}>Products</ModalHeader>
           <ModalBody>
-            <OrderProductsInfo products={products} />
+            <OrderProductsInfo products={products} onChange={this.onChange} />
+            {this.state.manifestingError !== null && (
+              <div>Error : {this.state.manifestingError}</div>
+            )}
           </ModalBody>
           <ModalFooter>
-            <Button color='primary' onClick={this.submitWriteRequest}>
-              Write
-            </Button>{' '}
-            <Button color='secondary' onClick={this.toggleModal}>
-              Cancel
-            </Button>
+            {this.state.creatingManifest && <Spinner color='info' />}
+            {!this.state.creatingManifest && (
+              <div>
+                <Button color='primary' onClick={this.createManifest}>
+                  Create Manifest
+                </Button>
+                <Button color='secondary' onClick={this.toggleModal}>
+                  Cancel
+                </Button>
+              </div>
+            )}
           </ModalFooter>
         </Modal>
         <td>{idx + 1}</td>
@@ -106,6 +150,27 @@ class OrderItem extends Component {
               time : {timeStampToLocaleString(order.payment.created_at * 1000)}
             </span>
           )}
+        </td>
+        <td>
+          <ul>
+            {Object.keys(order.products).map(sku => {
+              let orderProduct = products[sku].product
+              let productQuantity = products[sku].quantity
+              return (
+                <li key={sku}>
+                  <div>
+                    {orderProduct.title}
+                    <br />
+                    {orderProduct.category.name}
+                    <br />
+                    Qty: {productQuantity}
+                    <br />
+                    Delivery Status: {products[sku]['delivery']['status']}
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
         </td>
         <td>{timeStampToLocaleString(order.time)}</td>
       </tr>

@@ -37,7 +37,9 @@ class OrderProductsInfo extends Component {
     const target = event.target
     const value = target.type === 'checkbox' ? target.checked : target.value
     const name = target.name
-
+    let skus = this.state
+    skus[name] = value
+    this.props.onChange(skus)
     this.setState({
       [name]: value
     })
@@ -57,12 +59,14 @@ class OrderProductsInfo extends Component {
           <tr key={sku}>
             <td>{count}</td>
             <td>
-              <input
-                name={sku}
-                type='checkbox'
-                checked={this.state.sku}
-                onChange={this.handleInputChange}
-              />
+              {product['delivery']['status'] === 'init' && (
+                <input
+                  name={sku}
+                  type='checkbox'
+                  checked={this.state.sku}
+                  onChange={this.handleInputChange}
+                />
+              )}
             </td>
             <td>
               title : {orderProduct['title']} <br /> category :{' '}

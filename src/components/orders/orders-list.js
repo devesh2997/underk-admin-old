@@ -175,6 +175,7 @@ const OrdersList = ({ orders }) => {
           <th>Status</th>
           <th>Bill</th>
           <th>Payment</th>
+          <th>Products</th>
           <th>Time</th>
         </tr>
       </thead>
