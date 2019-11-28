@@ -5,6 +5,7 @@ import { Form, FormGroup, Input, Label, Button } from 'reactstrap'
 import CSVReader from 'react-csv-reader'
 import { generateSKU } from '../../../utils'
 import productList from '../product-list'
+import { async } from '@firebase/util'
 
 class BulkUpload extends Component {
   constructor (props) {
@@ -192,25 +193,56 @@ class BulkUpload extends Component {
     let { validProducts } = this.state
 
     for (let i = 0; i < validProducts.length; i++) {
-      let product = validProducts[i]
-
-      let prevProduct = await this.props.firebase
+      let product = validProducts[i].product
+      let inventory = validProducts[i].inventory
+      let prevProductRef = this.props.firebase
         .products()
         .where('slug', '==', product.slug)
-        .get()
+      let productsRef = this.props.firebase.products()
+      let newProductRef = productsRef.doc()
+      let inventoryRef = this.props.firebase.inventory()
+      let prevProduct = await prevProductRef.get()
       if (prevProduct.empty) {
-        let newProduct = await this.props.firebase.products().add(product)
-        console.log(newProduct)
-        this.setState({
-          numOfCreatedProducts: this.state.numOfCreatedProducts + 1
-        })
+        let batch = this.props.firebase.db.batch()
+        batch.set(newProductRef, product)
+        batch.set(inventoryRef.doc(newProductRef.id), inventory)
+        try {
+          await batch.commit()
+          console.log('Uploaded product with id' + newProductRef.id)
+          this.setState({
+            numOfCreatedProducts: this.state.numOfCreatedProducts + 1
+          })
+        } catch (e) {
+          console.error(e)
+        }
       } else {
-        let updatedProduct = await this.props.firebase
-          .product(prevProduct.docs[0].id)
-          .set(product, { merge: true })
-        this.setState({
-          numOfUpdatedProducts: this.state.numOfUpdatedProducts + 1
-        })
+        try {
+          let prevProductDoc = prevProduct.docs[0]
+          let prevInventory = await this.props.firebase.inventoryOfProduct(
+            prevProductDoc.id
+          ).get()
+          prevInventory = prevInventory.data()
+          Object.keys(product.options.skus).forEach((sku, i) => {
+            prevInventory[sku].stock += Number(inventory[sku].stock)
+            product.options.skus[sku]['inStock'] = prevInventory[sku].stock > 0
+            product.options.skus[sku]['lessThanTen'] =
+              prevInventory[sku].stock <= 10 ? prevInventory[sku].stock : 10
+          })
+
+          let batch = this.props.firebase.db.batch()
+          batch.set(this.props.firebase.product(prevProductDoc.id), product)
+          batch.set(
+            this.props.firebase.inventoryOfProduct(prevProductDoc.id),
+            prevInventory
+          )
+          await batch.commit()
+          console.log('Updated product with id' + prevProductDoc.id)
+          this.setState({
+            numOfUpdatedProducts: this.state.numOfUpdatedProducts + 1
+          })
+        } catch (e) {
+          console.error(e)
+        }
       }
     }
     this.setState({ isUploadingProducts: false })
@@ -222,7 +254,7 @@ class BulkUpload extends Component {
     this.setState({ isUploadingAssets: true })
     for (let i = 0; i < validProducts.length; i++) {
       let assets = {}
-      let product = validProducts[i]
+      let product = validProducts[i].product
       for (let j = 0; j < product.assets.length; j++) {
         let asset = product.assets[j]
         let newAsset = await this.uploadTaskPromise(
@@ -240,7 +272,8 @@ class BulkUpload extends Component {
         }
       }
       product['assets'] = assets
-      validProducts[i] = product
+      validProducts[i].product = product
+      console.log(validProducts[i])
     }
     if (this.state.numOfAssetsUploaded === assetFiles.length) {
       this.setState({ successfullyUploadedAllAssets: true })
@@ -255,7 +288,7 @@ class BulkUpload extends Component {
     let totalProductsWithAssets = 0
 
     for (let i = 0; i < validProducts.length; i++) {
-      let product = validProducts[i]
+      let product = validProducts[i].product
 
       const slug = product.slug
 
@@ -263,7 +296,7 @@ class BulkUpload extends Component {
         asset => asset.name.substring(0, slug.length) === slug
       )
 
-      validProducts[i]['assets'] = productAssets
+      validProducts[i].product['assets'] = productAssets
       totalProductsWithAssets++
       console.log(productAssets)
     }
@@ -359,8 +392,7 @@ class BulkUpload extends Component {
       let row = csvdata[i]
       if (row.length === 18) {
         let product = {}
-        try {    
-          
+        try {
           let title = row[0]
           let slug = row[1]
           let isActive = row[2] === 'TRUE'
@@ -377,8 +409,8 @@ class BulkUpload extends Component {
           let color = row[13]
           let style = row[14]
           let design = row[15]
-          let options = JSON.parse(row[16])          
-          let description = JSON.parse(row[17])   
+          let options = JSON.parse(row[16])
+          let description = JSON.parse(row[17])
 
           if (
             title &&
@@ -497,20 +529,36 @@ class BulkUpload extends Component {
                 pr.title
             }
 
-            product = generateSKU(product, sizes)
+            let productAndInventoryObject = {}
+            productAndInventoryObject = generateSKU(product, sizes)
+            if (
+              productAndInventoryObject.product === null ||
+              productAndInventoryObject.product === undefined
+            ) {
+              throw 'Product object not returned when generating SKU.'
+            }
+            if (
+              productAndInventoryObject.inventory === null ||
+              productAndInventoryObject.inventory === undefined
+            ) {
+              throw 'Inventory object not returned when generating SKU.'
+            }
+            let product = productAndInventoryObject.product
 
             Object.keys(product.options.skus).forEach(sku => {
               for (let i = 0; i < validProducts.length; i++) {
-                Object.keys(validProducts[i].options.skus).forEach(s => {
-                  if (s === sku) {
-                    throw 'SKU matches with another product in the sheet, Other product title : ' +
-                      validProducts[i].title
+                Object.keys(validProducts[i].product.options.skus).forEach(
+                  s => {
+                    if (s === sku) {
+                      throw 'SKU matches with another product in the sheet, Other product title : ' +
+                        validProducts[i].product.title
+                    }
                   }
-                })
+                )
               }
             })
-
-            validProducts.push(product)
+            // console.log(productAndInventoryObject)
+            validProducts.push(productAndInventoryObject)
           } else {
             throw 'All the fields are not filled or invalid type is given at row '
           }

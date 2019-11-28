@@ -93,6 +93,7 @@ class Firebase {
       }
     })
 
+
   // *** Storage API ***
   productAssetsRef = () => this.storage.ref().child('assets_products')
 
@@ -119,6 +120,11 @@ class Firebase {
   products = () => this.db.collection('products')
   productVariants = product_id =>
     this.db.doc(`products/${product_id}`).collection('variants')
+
+  // *** Inventory API ***
+  inventory = () => this.db.collection('inventory')
+  inventoryOfProduct = product_id =>
+    this.db.collection('inventory').doc(product_id)
 
   // *** Attributes API ***
   clothingAttributes = () => this.db.collection('attributes').doc('clothing')
