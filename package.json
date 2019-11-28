@@ -38,7 +38,8 @@
     "react-test-renderer": "^16.8.6",
     "reactstrap": "^7.1.0",
     "recompose": "^0.30.0",
-    "simple-line-icons": "^2.4.1"
+    "simple-line-icons": "^2.4.1",
+    "underk-types": "github:devesh2997/underk-types#master"
   },
   "devDependencies": {
     "react-scripts": "^3.0.1"
