@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const URL_INIT_DELIVERY =
-  'https://us-central1-underk-firebase.cloudfunctions.net/app/initDelivery'
+  'https://us-central1-underk-firebase.cloudfunctions.net/adminApp/initDelivery'
 
 const initDelivery = async (order_id, skus, warehouse) => {
   let body = { order_id, skus, warehouse }

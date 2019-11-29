@@ -226,7 +226,7 @@ class BulkUpload extends Component {
             prevInventory[sku].stock += Number(inventory[sku].stock)
             product.options.skus[sku]['inStock'] = prevInventory[sku].stock > 0
             product.options.skus[sku]['lessThanTen'] =
-              prevInventory[sku].stock <= 10 ? prevInventory[sku].stock : 10
+              prevInventory[sku].stock-prevInventory[sku].reserved <= 10 ? prevInventory[sku].stock-prevInventory[sku].reserved : 10
           })
 
           let batch = this.props.firebase.db.batch()
