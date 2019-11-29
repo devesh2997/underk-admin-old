@@ -56,7 +56,7 @@ const BasicInfoForm = ({
             checked={product.isActive}
             onChange={onCheckboxChange}
           />
-          Active
+          is Active
         </Label>
       </FormGroup>
       <FormGroup>
@@ -143,7 +143,7 @@ const BasicInfoForm = ({
           placeholder='Enter tax %'
         />
       </FormGroup>
-      <FormGroup>
+      <FormGroup check>
         <Label check>
           <Input
             type='checkbox'
@@ -151,7 +151,7 @@ const BasicInfoForm = ({
             checked={product.isInclusiveTax}
             onChange={onCheckboxChange}
           />
-          is inclusive tax
+          is Inclusive Tax
         </Label>
       </FormGroup>
       <FormGroup>

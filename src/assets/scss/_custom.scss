@@ -12,3 +12,26 @@
 	overflow-x: auto;
 	background-color: #e4e5e6;
 }
+
+.prd-card {
+	margin: 0.5rem;
+	border: 1px solid #c8ced3;
+	border-radius: 3px;
+	background-color: #f0f3f5;
+
+	& .thumb {
+		padding: 0.5rem;
+		padding-left: 1rem;
+		width: 7.5rem;
+		height: auto;
+	}
+
+	& .content {
+		padding: 0.5rem;
+		padding-right: 1rem;
+	}
+}
+
+.row {
+	margin: 0;
+}
