@@ -22,6 +22,7 @@ const AddAttribute = React.lazy(() => import('./components/products/attributes/a
 const CollectionList = React.lazy(() => import('./components/products/collections/collection-list'));
 const AddCollection = React.lazy(() => import('./components/products/collections/add-collection'));
 const Strategies = React.lazy(()=>import('./components/strategies'));
+const ProductItem = React.lazy(()=>import('./components/products/product-item'));
 
 const TempDashboard = () => {
 	return <span>Dashboard</span>;
@@ -157,6 +158,12 @@ const routes = {
 		exact: true,
 		name: 'Bulk Upload Products',
 		component: BulkUpload,
+	},
+	PRODUCT_DETAILS: {
+		path: '/products/:pid',
+		exact: true,
+		name: 'Product Details',
+		component: ProductItem,
 	},
 	EDIT_PRODUCT: {
 		path: '/products/:pid/edit',
