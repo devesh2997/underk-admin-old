@@ -47,17 +47,19 @@ const generateSKU = (product, sizeOptions) => {
 
   Object.keys(product.options.values).forEach(size => {
     const quantity = Number(product.options.values[size].quantity)
+    const order = Number(product.options.values[size].order)
     let sizeSku = sizeOptions.find(s => s.name === size).sku
     sizeSku = sku + sizeSku
-	newOptions[sizeSku] = {}
-	inventory[sizeSku] = {}
+    newOptions[sizeSku] = {}
+    inventory[sizeSku] = {}
     inventory[sizeSku]['stock'] = quantity
-	inventory[sizeSku]['reserved'] = 0
-	inventory[sizeSku]['name'] = size
+    inventory[sizeSku]['reserved'] = 0
+    inventory[sizeSku]['name'] = size
     // newOptions[sizeSku]['quantity'] = Number(product.options.values[size].quantity);
     newOptions[sizeSku]['inStock'] = quantity > 0
     newOptions[sizeSku]['lessThanTen'] = quantity <= 10 ? quantity : 10
     newOptions[sizeSku]['name'] = size
+    newOptions[sizeSku]['order'] = order
     newOptions[sizeSku]['exists'] = true
     product.options.values[size].sku = sizeSku
   })

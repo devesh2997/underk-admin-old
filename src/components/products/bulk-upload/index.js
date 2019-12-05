@@ -296,6 +296,10 @@ class BulkUpload extends Component {
         asset => asset.name.substring(0, slug.length) === slug
       )
 
+      let productAssetsGrouped = {}
+
+      console.log(productAssets)
+
       validProducts[i].product['assets'] = productAssets
       totalProductsWithAssets++
       console.log(productAssets)
@@ -491,11 +495,15 @@ class BulkUpload extends Component {
               if (!size) {
                 throw 'Invalid size name'
               }
-              let quantity = options[sizeName]
+              let quantity = options[sizeName]['qty']
+              let order = options[sizeName]['order']
               if (isNaN(quantity)) {
                 throw 'Invalid quantity given for size ' + sizeName
               }
-              sizeValues[sizeName] = { quantity }
+              if (isNaN(order)) {
+                throw 'Invalid order given for size ' + sizeName
+              }
+              sizeValues[sizeName] = { quantity, order }
             })
 
             let attributes = { subtype, color, style, design }
