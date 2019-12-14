@@ -1,15 +1,27 @@
 from PIL import Image
 import glob, os
 
-previewSize = 540, 720
-thumbnailSize = 270, 360
+previewSize = 960, 1280
+thumbnailSize = 540, 720
 
-for infile in glob.glob("./scripts/*.jpg"):
+for infile in glob.glob("**", recursive=True):
     file, ext = os.path.splitext(infile)
-    im = Image.open(infile)
-    im.thumbnail(thumbnailSize)
-    im.save(file + ".thumbnail.jpg", "JPEG")
-    im = Image.open(infile)
-    im.thumbnail(previewSize)
-    im.save(file + ".preview.jpg", "JPEG")
+    if(ext == '.jpg' or ext=='.png' or ext=='.webp'):
+        print(file)        
+        if('thumbnail' not in file and 'preview' not in file):
+            format = ''
+            if(ext == '.jpg'):
+                format = 'jpeg'
+            elif(ext == '.png'):
+                format = 'png'
+            elif(ext == '.webp'):
+                format = 'webp'
+            else: 
+                print('Invalid file type for file'+file)
+            im = Image.open(infile)
+            im.thumbnail(thumbnailSize)
+            im.save(file + ".thumbnail"+ext, format)
+            im = Image.open(infile)
+            im.thumbnail(previewSize)
+            im.save(file + ".preview"+ext, format)
     

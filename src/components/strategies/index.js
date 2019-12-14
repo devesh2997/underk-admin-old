@@ -19,7 +19,7 @@ class StrategiesBase extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      loading: false,
+      loading: true,
       strategies: {}
     }
   }
@@ -29,9 +29,11 @@ class StrategiesBase extends Component {
 
     this.unsubscribe = this.props.firebase.strategies().onSnapshot(snapshot => {
       let strategies = {}
+      console.log(snapshot)
       if (snapshot.exists) {
         strategies = snapshot.data()
       }
+      console.log('stra', strategies)
 
       this.setState({
         loading: false,
@@ -44,12 +46,42 @@ class StrategiesBase extends Component {
     this.unsubscribe()
   }
 
-  handleChange = checked => {
-    this.props.firebase.strategies().set({ search_enabled: checked }, { merge: true })
+  handleSearchEnabledChange = checked => {
+    this.props.firebase.strategies().set(
+      {
+        search: {
+          enabled: checked
+        }
+      },
+      { merge: true }
+    )
+  }
+
+  handleFreeDeliveryIfOnlineChange = checked => {
+    this.props.firebase.strategies().set(
+      {
+        delivery_charge: {
+          free_if_online: checked
+        }
+      },
+      { merge: true }
+    )
+  }
+
+  handleFreeDeliveryIfCODChange = checked => {
+    this.props.firebase.strategies().set(
+      {
+        delivery_charge: {
+          free_if_cod: checked
+        }
+      },
+      { merge: true }
+    )
   }
 
   render () {
     let { loading, strategies } = this.state
+    console.log(strategies)
     return (
       <Card>
         <CardHeader>Strategies</CardHeader>
@@ -59,11 +91,34 @@ class StrategiesBase extends Component {
             <div>
               Search Enabled :{' '}
               <Switch
-                onChange={this.handleChange}
-                checked={strategies.search_enabled}
+                onChange={this.handleSearchEnabledChange}
+                checked={strategies.search.enabled}
                 height={20}
                 width={40}
               />
+            </div>
+          )}
+          {!loading && (
+            <div>
+              <div>Delivery Charge :{strategies.delivery_charge.charge}</div>
+              <div>
+                Free If Online :{' '}
+                <Switch
+                  onChange={this.handleFreeDeliveryIfOnlineChange}
+                  checked={strategies.delivery_charge.free_if_online}
+                  height={20}
+                  width={40}
+                />
+              </div>
+              <div>
+                Free If COD :{' '}
+                <Switch
+                  onChange={this.handleFreeDeliveryIfCODChange}
+                  checked={strategies.delivery_charge.free_if_cod}
+                  height={20}
+                  width={40}
+                />
+              </div>
             </div>
           )}
         </CardBody>

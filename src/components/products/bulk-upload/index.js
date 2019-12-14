@@ -4,8 +4,6 @@ import { Card, CardBody, CardHeader } from 'reactstrap'
 import { Form, FormGroup, Input, Label, Button } from 'reactstrap'
 import CSVReader from 'react-csv-reader'
 import { generateSKU } from '../../../utils'
-import productList from '../product-list'
-import { async } from '@firebase/util'
 
 class BulkUpload extends Component {
   constructor (props) {
