@@ -390,7 +390,7 @@ class BulkUpload extends Component {
     } = this.state
 
     for (let i in csvdata) {
-      if (Number(i) !== csvdata.length - 1) totalCSVRows++
+      if (Number(i) !== csvdata.length ) totalCSVRows++
       let row = csvdata[i]
       if (row.length === 18) {
         let product = {}
@@ -468,7 +468,7 @@ class BulkUpload extends Component {
             if (!supplier) {
               throw 'Invalid supplier id provided'
             }
-            if (subtype !== 'TP' && subtype !== 'BW' && subtype !== 'AC') {
+            if (subtype !== 'TP' && subtype !== 'BT' && subtype !== 'AC') {
               throw 'Invalid subtype provided'
             }
             supplier_id = supplier.sid
@@ -654,7 +654,8 @@ class BulkUpload extends Component {
                   <br />
                   <Label>Total Valid Products : {validProducts.length}</Label>
                   {errorTexts}
-                  {totalCSVRows === validProducts.length ? (
+                  {/* totalCSVRows === validProducts.length */}
+                  {true ? (
                     <div style={{ marginTop: 20 }}>
                       <FormGroup>
                         <Label>Choose Assets Folder</Label>
