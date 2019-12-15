@@ -3,6 +3,7 @@ import glob, os
 
 previewSize = 960, 1280
 thumbnailSize = 540, 720
+placeholderSize = 48, 64
 
 for infile in glob.glob("**", recursive=True):
     file, ext = os.path.splitext(infile)
@@ -24,4 +25,7 @@ for infile in glob.glob("**", recursive=True):
             im = Image.open(infile)
             im.thumbnail(previewSize)
             im.save(file + ".preview"+ext, format)
+            im = Image.open(infile)
+            im.thumbnail(placeholderSize)
+            im.save(file + ".placeholder"+ext, format)
     
