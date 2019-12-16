@@ -312,9 +312,12 @@ class BulkUpload extends Component {
         asset => asset.name.substring(0, slug.length) === slug
       )
       // console.log(productAssets)
-      totalAssets += productAssets.length
-      validProducts[i].product['assets'] = productAssets
-      totalProductsWithAssets++
+      
+      if (productAssets.length > 0){
+        totalAssets += productAssets.length
+        validProducts[i].product['assets'] = productAssets
+        totalProductsWithAssets++
+      } 
       // console.log(productAssets)
     }
 
