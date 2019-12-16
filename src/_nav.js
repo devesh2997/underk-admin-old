@@ -81,15 +81,20 @@ export default {
 			icon: 'fa fa-cubes',
 			children: [
 				{
+					name: 'Home',
+					url: ROUTES.PRODUCTS_HOME.path,
+					icon: 'fa fa-list-alt',
+				},
+				{
 					name: 'Product List',
 					url: ROUTES.PRODUCT_LIST.path,
 					icon: 'fa fa-list-alt',
 				},
-				{
-					name: 'Add Product',
-					url: ROUTES.ADD_PRODUCT.path,
-					icon: 'fa fa-plus',
-				},
+				// {
+				// 	name: 'Add Product',
+				// 	url: ROUTES.ADD_PRODUCT.path,
+				// 	icon: 'fa fa-plus',
+				// },
 				{
 					name: 'Bulk Upload',
 					url: ROUTES.BULK_UPLOAD.path,

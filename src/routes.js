@@ -13,6 +13,7 @@ const CategoryItem = React.lazy(() => import('./components/categories/category-i
 const SupplierList = React.lazy(() => import('./components/suppliers/supplier-list'));
 const AddSupplierItem = React.lazy(() => import('./components/suppliers/add-supplier'));
 const SupplierItem = React.lazy(() => import('./components/suppliers/supplier-item'));
+const ProductsHome = React.lazy(() => import('./components/products/products-home'));
 const ProductList = React.lazy(() => import('./components/products/product-list'));
 const AddProductItem = React.lazy(() => import('./components/products/add-product'));
 const BulkUpload = React.lazy(()=>import('./components/products/bulk-upload/index'));
@@ -117,8 +118,14 @@ const routes = {
 		name: 'Supplier Details',
 		component: SupplierItem,
 	},
-	PRODUCT_LIST: {
+	PRODUCTS_HOME: {
 		path: '/products',
+		exact: true,
+		name: 'Products',
+		component: ProductsHome,
+	},
+	PRODUCT_LIST: {
+		path: '/products/list',
 		exact: true,
 		name: 'Products',
 		component: ProductList,
