@@ -5,6 +5,19 @@ import { Form, FormGroup, Input, Label, Button } from 'reactstrap'
 import CSVReader from 'react-csv-reader'
 import { generateSKU } from '../../../utils'
 
+import {
+  Container,
+  ListGroup,
+  ListGroupItem,
+  ListGroupItemHeading,
+  ListGroupItemText,
+  Badge,
+  Row,
+  Col,
+  Spinner
+} from 'reactstrap'
+import { async } from '@firebase/util'
+
 class BulkUpload extends Component {
   constructor (props) {
     super(props)
@@ -33,6 +46,7 @@ class BulkUpload extends Component {
       numOfCreatedProducts: 0,
       numOfUpdatedProducts: 0,
       numOfAssetsUploaded: 0,
+      totalAssets: 0,
       isUploadingAssets: false,
       isUploadingProducts: false,
       successfullyUploadedAllAssets: false
@@ -165,6 +179,7 @@ class BulkUpload extends Component {
         'state_changed',
         snapshot => {},
         error => {
+          console.log(error)
           reject()
         },
         () => {
@@ -216,15 +231,17 @@ class BulkUpload extends Component {
       } else {
         try {
           let prevProductDoc = prevProduct.docs[0]
-          let prevInventory = await this.props.firebase.inventoryOfProduct(
-            prevProductDoc.id
-          ).get()
+          let prevInventory = await this.props.firebase
+            .inventoryOfProduct(prevProductDoc.id)
+            .get()
           prevInventory = prevInventory.data()
           Object.keys(product.options.skus).forEach((sku, i) => {
             prevInventory[sku].stock += Number(inventory[sku].stock)
             product.options.skus[sku]['inStock'] = prevInventory[sku].stock > 0
             product.options.skus[sku]['lessThanTen'] =
-              prevInventory[sku].stock-prevInventory[sku].reserved <= 10 ? prevInventory[sku].stock-prevInventory[sku].reserved : 10
+              prevInventory[sku].stock - prevInventory[sku].reserved <= 10
+                ? prevInventory[sku].stock - prevInventory[sku].reserved
+                : 10
           })
 
           let batch = this.props.firebase.db.batch()
@@ -284,6 +301,7 @@ class BulkUpload extends Component {
     assetFiles = Array.from(assetFiles)
     let { validProducts } = this.state
     let totalProductsWithAssets = 0
+    let totalAssets = 0
 
     for (let i = 0; i < validProducts.length; i++) {
       let product = validProducts[i].product
@@ -293,18 +311,20 @@ class BulkUpload extends Component {
       let productAssets = assetFiles.filter(
         asset => asset.name.substring(0, slug.length) === slug
       )
-
-      let productAssetsGrouped = {}
-
-      console.log(productAssets)
-
+      // console.log(productAssets)
+      totalAssets += productAssets.length
       validProducts[i].product['assets'] = productAssets
       totalProductsWithAssets++
-      console.log(productAssets)
+      // console.log(productAssets)
     }
 
-    console.log(validProducts)
-    this.setState({ assetFiles, validProducts, totalProductsWithAssets })
+    // console.log(validProducts)
+    this.setState({
+      assetFiles,
+      validProducts,
+      totalProductsWithAssets,
+      totalAssets
+    })
   }
 
   onChangeType = event => {
@@ -390,7 +410,7 @@ class BulkUpload extends Component {
     } = this.state
 
     for (let i in csvdata) {
-      if (Number(i) !== csvdata.length ) totalCSVRows++
+      if (Number(i) !== csvdata.length) totalCSVRows++
       let row = csvdata[i]
       if (row.length === 18) {
         let product = {}
@@ -650,9 +670,6 @@ class BulkUpload extends Component {
               </FormGroup>
               {totalCSVRows > 0 ? (
                 <div>
-                  <Label>Total Number of Rows in CSV : {totalCSVRows}</Label>
-                  <br />
-                  <Label>Total Valid Products : {validProducts.length}</Label>
                   {errorTexts}
                   {/* totalCSVRows === validProducts.length */}
                   {true ? (
@@ -667,10 +684,6 @@ class BulkUpload extends Component {
                           onChange={this.onAssetsFolderChanged}
                         />
                       </FormGroup>
-                      <Label>
-                        Total Products for which assets were found :{' '}
-                        {totalProductsWithAssets}
-                      </Label>
                       {totalProductsWithAssets === validProducts.length ? (
                         <div>
                           <Label>
@@ -680,12 +693,12 @@ class BulkUpload extends Component {
                           {!successfullyUploadedAllAssets ? (
                             !isUploadingAssets ? (
                               <div>
-                                <Button
+                                {/* <Button
                                   onClick={this.jaiSriRam}
                                   color={'primary'}
                                 >
                                   Upload Assets #JaiSriRam
-                                </Button>
+                                </Button> */}
                               </div>
                             ) : (
                               <div>Uploading Assets ...</div>
@@ -715,10 +728,7 @@ class BulkUpload extends Component {
                           )}
                         </div>
                       ) : (
-                        <div>
-                          Sahi se name karo Assets ka .. Developer ko aake mat
-                          bolna ..
-                        </div>
+                        <div />
                       )}
                     </div>
                   ) : (
@@ -737,6 +747,333 @@ class BulkUpload extends Component {
     )
   }
 
+  uploadNewProducts = async () => {
+    let { validProducts, errors } = this.state
+    this.setState({ uploading: true })
+    for (let i = 0; i < validProducts.length; i++) {
+      if (validProducts[i]['indb']) continue
+      validProducts[i]['queued'] = true
+      this.setState({ validProducts })
+    }
+    for (let i = 0; i < validProducts.length; i++) {
+      if (validProducts[i]['indb']) continue
+      let assets = {}
+      validProducts[i]['uploading'] = true
+      this.setState({ validProducts })
+      let product = validProducts[i].product
+      let synced = validProducts[i].synced
+      let syncing = validProducts[i].syncing
+      if (!syncing && synced) {
+        for (let j = 0; j < product.assets.length; j++) {
+          let asset = product.assets[j]
+          let newAsset = await this.uploadTaskPromise(
+            product.slug,
+            asset,
+            this.props.firebase
+          )
+          if (newAsset === undefined) {
+            errors.push('Error in uploading asset with name : ' + asset.name)
+          } else {
+            assets[asset.name] = newAsset
+            this.setState({
+              numOfAssetsUploaded: this.state.numOfAssetsUploaded + 1
+            })
+          }
+        }
+        product['assets'] = assets
+        let inventory = validProducts[i].inventory
+        let prevProductRef = this.props.firebase
+          .products()
+          .where('slug', '==', product.slug)
+        let productsRef = this.props.firebase.products()
+        let newProductRef = productsRef.doc()
+        let inventoryRef = this.props.firebase.inventory()
+        let prevProduct = await prevProductRef.get()
+        if (prevProduct.empty) {
+          let batch = this.props.firebase.db.batch()
+          batch.set(newProductRef, product)
+          batch.set(inventoryRef.doc(newProductRef.id), inventory)
+          try {
+            await batch.commit()
+            console.log('Uploaded product with id' + newProductRef.id)
+            validProducts[i]['queued'] = false
+            validProducts[i]['uploading'] = false
+            this.setState({
+              numOfCreatedProducts: this.state.numOfCreatedProducts + 1,
+              validProducts
+            })
+          } catch (e) {
+            validProducts[i]['error'] = e
+            this.setState({ validProducts })
+            console.error(e)
+          }
+        }
+        // validProducts[i].product = product
+        // console.log(validProducts[i])
+      }
+    }
+    this.setState({ uploading: false })
+  }
+
+  sync = async () => {
+    let { validProducts } = this.state
+    this.setState({ synced: true, syncing: true })
+    let numOfNewProducts = 0
+    let numOfPrevProducts = 0
+    const results = validProducts.map(async (product, index) => {
+      validProducts[index]['syncing'] = true
+      this.setState({ validProducts })
+      const p = product.product
+      const i = product.inventory
+      let prevProductRef = this.props.firebase
+        .products()
+        .where('slug', '==', p.slug)
+      prevProductRef.onSnapshot(snapshot => {
+        validProducts[index]['synced'] = true
+        validProducts[index]['syncing'] = false
+        if (!snapshot.empty) {
+          validProducts[index]['indb'] = snapshot.docs[0]
+          numOfPrevProducts++
+        } else {
+          numOfNewProducts++
+        }
+        this.setState({
+          validProducts,
+          numOfPrevProducts,
+          numOfNewProducts
+        })
+        if (validProducts.length === numOfNewProducts + numOfPrevProducts) {
+          this.setState({ syncing: false })
+        }
+      })
+    })
+  }
+
+  getSummary = () => {
+    const {
+      synced,
+      syncing,
+      uploading,
+      validProducts,
+      totalCSVRows,
+      errors,
+      totalProductsWithAssets,
+      totalAssets,
+      isUploadingAssets,
+      numOfAssetsUploaded,
+      assetFiles,
+      successfullyUploadedAllAssets,
+      isUploadingProducts,
+      numOfCreatedProducts,
+      numOfUpdatedProducts,
+      numOfPrevProducts,
+      numOfNewProducts
+    } = this.state
+    if (totalCSVRows === 0) return <div />
+    let categories = {}
+    validProducts.map((product, index) => {
+      const p = product.product
+      const i = product.inventory
+      const syncing = product.syncing
+      const synced = product.synced
+      const indb = product.indb
+      const uploading = product.uploading
+      const queued = product.queued
+      // console.log(p)
+      // console.log(i)
+      if (!categories[p.category.slug]) {
+        categories[p.category.slug] = []
+      }
+      categories[p.category.slug].push(
+        <ListGroupItem key={index}>
+          <ListGroupItemHeading>
+            {index + 1 + '.  ' + p.title + '  '}
+            {syncing && (
+              <Spinner
+                color='primary'
+                style={{ width: '1rem', height: '1rem' }}
+                type='grow'
+              />
+            )}
+            {uploading && (
+              <span>
+                <Spinner
+                  color='success'
+                  style={{ width: '1rem', height: '1rem' }}
+                  type='grow'
+                />
+                {'   uploading...'}
+              </span>
+            )}
+            {queued && !uploading && (
+              <span>
+                <Spinner
+                  color='warning'
+                  style={{ width: '1rem', height: '1rem' }}
+                  type='grow'
+                />
+                {'   queued...'}
+              </span>
+            )}
+          </ListGroupItemHeading>
+          <Container>
+            {p.attributes.color && (
+              <Row>
+                <Col style={{ color: p.attributes.color.hexcode }}>
+                  {p.attributes.color.name}
+                </Col>
+                <Col>
+                  Inventory -{' '}
+                  {Object.keys(i).map((sku, index) => {
+                    return (
+                      <span key={index}>
+                        {i[sku]['name'] +
+                          ' : ' +
+                          i[sku]['stock'] +
+                          ' | ' +
+                          i[sku]['reserved'] +
+                          ',  '}
+                      </span>
+                    )
+                  })}
+                </Col>
+              </Row>
+            )}
+            {p.assets && (
+              <Row>
+                <Col>
+                  <Label>Assets </Label>
+                  <Badge pill>{p.assets.length}</Badge>
+                </Col>
+                <Col />
+              </Row>
+            )}
+            {synced && (
+              <Row>
+                {indb && <Col>Indb</Col>}
+                {!indb && (
+                  <Col>
+                    <Badge color='success'>New</Badge>
+                  </Col>
+                )}
+              </Row>
+            )}
+          </Container>
+        </ListGroupItem>
+      )
+    })
+    return (
+      <Container>
+        <Row>
+          <Col>Total Number of Rows in CSV : </Col>
+          <Col>{totalCSVRows}</Col>
+        </Row>
+        <Row>
+          <Col>Total Valid Products : </Col>
+          <Col>{validProducts.length}</Col>
+        </Row>
+        <Row>
+          <Col>Total Products for which assets were found : </Col>
+          <Col>{totalProductsWithAssets}</Col>
+        </Row>
+        <Row>
+          <Col>Total Assets : </Col>
+          <Col>{totalAssets}</Col>
+        </Row>
+        {synced && (
+          <div>
+            <Row>
+              <Col>Number of New Products : </Col>
+              <Col>{numOfNewProducts}</Col>
+            </Row>
+            <Row>
+              <Col>Number of Old Products : </Col>
+              <Col>{numOfPrevProducts}</Col>
+            </Row>
+            <Row>
+              <Col>Number of Created Products : </Col>
+              <Col>{numOfCreatedProducts}</Col>
+            </Row>
+            <Row>
+              <Col>Number of Updated Products : </Col>
+              <Col>{numOfUpdatedProducts}</Col>
+            </Row>
+          </div>
+        )}
+        <br />
+        <Row>
+          <Col>
+            <h3>Valid Products:</h3>
+          </Col>
+          {!uploading && (
+            <Row>
+              <Col>
+                {!syncing ? (
+                  <Button outline color='primary' onClick={this.sync}>
+                    Sync
+                  </Button>
+                ) : (
+                  <Spinner
+                    color='primary'
+                    style={{ width: '2rem', height: '2rem' }}
+                    type='grow'
+                  />
+                )}
+              </Col>
+              {!syncing &&
+                synced &&
+                totalProductsWithAssets > 0 &&
+                numOfNewProducts > 0 && (
+                <Col>
+                  <Button
+                    outline
+                    color='primary'
+                    onClick={this.uploadNewProducts}
+                  >
+                      Upload New Products
+                  </Button>
+                </Col>
+              )}
+              {!syncing &&
+                synced &&
+                totalProductsWithAssets > 0 &&
+                numOfPrevProducts > 0 && (
+                <Col>
+                  <Button outline color='primary' onClick={this.sync}>
+                      Update Old Products
+                  </Button>
+                </Col>
+              )}
+            </Row>
+          )}
+          {uploading && (
+            <Col>
+              <Spinner
+                color='primary'
+                style={{ width: '2rem', height: '2rem' }}
+                type='grow'
+              />
+            </Col>
+          )}
+        </Row>
+        <br />
+        <ListGroup>
+          {Object.keys(categories).map((slug, index) => {
+            return (
+              <ListGroup key={slug}>
+                <ListGroupItemHeading>
+                  {index + 1 + ') ' + slug + '    '}
+                  <Badge pill>{categories[slug].length}</Badge>
+                </ListGroupItemHeading>
+                {categories[slug]}
+                <br />
+              </ListGroup>
+            )
+          })}
+        </ListGroup>
+      </Container>
+    )
+  }
   render () {
     const {
       loadingCategories,
@@ -745,16 +1082,26 @@ class BulkUpload extends Component {
     } = this.state
     const { type } = this.state
     return (
-      <Card>
-        <CardHeader>Bulk Upload</CardHeader>
-        <CardBody>
-          {loadingCategories || loadingSuppliers || loadingCollections ? (
-            <div className='animated fadeIn pt-3 text-center'>Loading...</div>
-          ) : (
-            this.getForm()
-          )}
-        </CardBody>
-      </Card>
+      <div>
+        <Card>
+          <CardHeader>Bulk Upload</CardHeader>
+          <CardBody>
+            {loadingCategories || loadingSuppliers || loadingCollections ? (
+              <div className='animated fadeIn pt-3 text-center'>Loading...</div>
+            ) : (
+              this.getForm()
+            )}
+          </CardBody>
+        </Card>
+        {loadingCategories || loadingSuppliers || loadingCollections ? (
+          <div />
+        ) : (
+          <Card>
+            <CardHeader>Summary</CardHeader>
+            <CardBody>{this.getSummary()}</CardBody>
+          </Card>
+        )}
+      </div>
     )
   }
 }
