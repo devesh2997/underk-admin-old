@@ -196,7 +196,7 @@ class ProductCard extends React.Component {
 
 	render() {
 		const { product } = this.props;
-		const prdThumb = product.assets[Object.keys(product.assets)[0]];
+		const prdThumb = Object.keys(product.assets).length > 0 ? product.assets[Object.keys(product.assets)[0]] : {};
 
 		return (
 			<div className="prd-card">
@@ -207,17 +207,17 @@ class ProductCard extends React.Component {
 					<div className="content">
 						<div>
 							<strong>
-								<Link to={`${siteURL}/p/${product.slug}`}>
+								<a href={`${siteURL}/p/${product.slug}`} rel="noopener noreferrer" target="_blank">
 									{product.title}
-								</Link>
+								</a>
 								&nbsp; ({product.gender})
 							</strong>
 						</div>
 						<div>
 							<strong>
-								<Link to={`${siteURL}/${product.category.slug}`}>
+								<a href={`${siteURL}/${product.category.slug}`} rel="noopener noreferrer" target="_blank">
 									{product.category.name}
-								</Link>
+								</a>
 							</strong>
 						</div>
 						<div>
@@ -227,8 +227,8 @@ class ProductCard extends React.Component {
 							<div>
 								<Link to="#" onClick={this.toggleInventoryModal}><strong>Inventory</strong></Link>:
 								&nbsp;
-								{this.state.inventory.map(option => (
-									<Badge
+								{this.state.inventory.map((option, idx) => (
+									<Badge key={idx}
 										color={option.stock > 0 ? 'success' : 'danger'}
 										style={{ margin: '0 3px' }}
 									>
