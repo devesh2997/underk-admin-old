@@ -1,0 +1,25 @@
+div.show-image {
+	position: relative;
+	float: left;
+	margin: 5px;
+}
+div.show-image:hover img {
+	opacity: 0.5;
+}
+div.show-image:hover button {
+	display: block;
+	border: none;
+	color: white;
+}
+div.show-image button {
+	position: absolute;
+	display: none;
+}
+div.show-image button.update {
+	top: 0;
+	left: 0;
+}
+div.show-image button.delete {
+	top: 0;
+	left: 79%;
+}

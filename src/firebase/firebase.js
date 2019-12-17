@@ -154,6 +154,7 @@ class Firebase {
 	landingWidgets = () =>
 		this.db.collection('landing_widgets').orderBy('priority')
 	landingWidget = id => this.db.collection('landing_widgets').doc(id)
+	landingWidgetsAssetsRef = () => this.storage.ref().child('assets_landing')
 }
 
 export default Firebase
