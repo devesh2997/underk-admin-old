@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Dashboard = React.lazy(() => import('./views/Dashboard'));
-const OrdersList = React.lazy(() => import('./components/orders/orders-list'));
+const OrdersList = React.lazy(() => import('./components/orders'));
 const AdminList = React.lazy(() => import('./components/administrators/administrator-list'));
 const AddAdminItem = React.lazy(() => import('./components/administrators/add-administrator'));
 const AdminItem = React.lazy(() => import('./components/administrators/administrator-item'));

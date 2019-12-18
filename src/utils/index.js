@@ -27,6 +27,23 @@ const timeStampToLocaleString = timestamp => {
   return new Date(timestamp).toLocaleString()
 }
 
+const timeStampToDateLocaleString = timestamp =>{
+  return new Date(timestamp).toLocaleDateString()
+}
+
+const timeStampToTimeLocaleString = timestamp =>{
+  return new Date(timestamp).toLocaleTimeString()
+}
+
+const getDateTimeStampFromDate = date =>{
+  date = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  )
+  return date.getTime()
+}
+
 const generateSKU = (product, sizeOptions) => {
   let sku = ''
   sku += product.supplier_sku
@@ -76,5 +93,8 @@ export {
   beautifyAddress,
   timeStampToLocaleString,
   generateSKU,
-  paiseToRupeeString
+  paiseToRupeeString,
+  getDateTimeStampFromDate,
+  timeStampToDateLocaleString,
+  timeStampToTimeLocaleString
 }

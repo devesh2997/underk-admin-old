@@ -130,6 +130,47 @@ class Firebase {
 	clothingAttributes = () => this.db.collection('attributes').doc('clothing')
 
 	// *** Orders API ***
+	ordersByStatusAndDateAndPaymentMode = (
+		status,
+		startDate,
+		endDate,
+		paymentMode
+	) => {
+		try {
+			startDate = new Date(
+				startDate.getFullYear(),
+				startDate.getMonth(),
+				startDate.getDate()
+			)
+			let startMilliSecondsSinceEpoch = startDate.getTime()
+			endDate = new Date(
+				endDate.getFullYear(),
+				endDate.getMonth(),
+				endDate.getDate() + 1
+			)
+			let endMilliSecondsSinceEpoch = endDate.getTime()
+			console.log(
+				'with',
+				status,
+				startMilliSecondsSinceEpoch,
+				endMilliSecondsSinceEpoch
+			)
+			let query = this.db.collection('orders')
+			if (status !== 'all') {
+				query = query.where('status', '==', status)
+			}
+			if (paymentMode !== 'all') {
+				query = query.where('payment.mode', '==', paymentMode)
+			}
+			query = query
+				.where('time', '>=', startMilliSecondsSinceEpoch)
+				.where('time', '<=', endMilliSecondsSinceEpoch)
+			return query.orderBy('time', 'desc')
+		} catch (error) {
+			console.log(error)
+			return null
+		}
+	}
 	orders = () => this.db.collection('orders').orderBy('time', 'desc')
 	ordersByStatus = status =>
 		this.db
