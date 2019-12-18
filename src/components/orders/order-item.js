@@ -118,9 +118,9 @@ class OrderItem extends Component {
           <StatusBadge status={order.status} />
         </td>
         <td>
-          mrp : {paiseToRupeeString(order.mrp)} <br /> discount :{' '}
-          {paiseToRupeeString(order.discount)} <br /> total :{' '}
-          {paiseToRupeeString(order.total)}
+          mrp : {paiseToRupeeString(order.summary.mrp)} <br /> discount :{' '}
+          {paiseToRupeeString(order.summary.discount)} <br /> total :{' '}
+          {paiseToRupeeString(order.summary.total)}
         </td>
         <td>
           mode : {order.payment.mode} <br /> status : {order.payment.status}{' '}
