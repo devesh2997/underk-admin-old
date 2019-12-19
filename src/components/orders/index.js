@@ -7,10 +7,18 @@ import {
 	timeStampToLocaleString,
 	getDateTimeStampFromDate,
 	timeStampToDateLocaleString,
-	timeStampToTimeLocaleString
+	timeStampToTimeLocaleString,
+	beautifyAddress
 } from '../../utils/index'
 
 import DatePicker from 'react-datepicker'
+
+import types from 'underk-types'
+
+import { StatusBadge } from '../../widgets'
+
+import { initDelivery, cancelProduct } from '../../services/order.service'
+import { to } from '../../services/util.service'
 
 import './style.css'
 
@@ -41,8 +49,8 @@ class OrdersList extends Component {
 		this.state = {
 			loading: false,
 			orders: [],
-			withStatus: 'placed',
-			withStartDate: new Date(),
+			withStatus: 'all',
+			withStartDate: new Date(2019, 11, 17),
 			withEndDate: new Date(),
 			withPaymentMode: 'all'
 		}
@@ -208,13 +216,16 @@ class OrdersList extends Component {
 		let ordersTotalOnlineOrders = 0
 		for (let i = 0; i < orders.length; i++) {
 			let order = orders[i]
-			ordersTotalRevenue += order.summary.total
-			ordersTotalProductCount += order.product_count
-			if (order.payment.mode === 'cod') {
-				ordersTotalCodOrders++
-			} else {
-				ordersTotalOnlineOrders++
+			if (order.status === types.ORDER_STATUS_PLACED) {
+				ordersTotalRevenue += order.summary.total
+				ordersTotalProductCount += order.product_count
+				if (order.payment.mode === types.PAYMENT_MODE_COD) {
+					ordersTotalCodOrders++
+				} else {
+					ordersTotalOnlineOrders++
+				}
 			}
+
 			let orderDate = getDateTimeStampFromDate(
 				new Date(parseInt(order.time))
 			).toString()
@@ -271,8 +282,10 @@ class OrdersList extends Component {
 									value={withStatus}
 									onChange={this.onChange}
 								>
-									<option>placed</option>
-									<option>created</option>
+									<option>{types.ORDER_STATUS_PLACED}</option>
+									<option>
+										{types.ORDER_STATUS_CREATED}
+									</option>
 									<option>all</option>
 								</Input>
 							</InputGroup>
@@ -289,8 +302,10 @@ class OrdersList extends Component {
 									onChange={this.onChange}
 								>
 									<option>all</option>
-									<option>cod</option>
-									<option>rzp</option>
+									<option>{types.PAYMENT_MODE_COD}</option>
+									<option>
+										{types.PAYMENT_MODE_RAZORPAY}
+									</option>
 								</Input>
 							</InputGroup>
 						</Col>
@@ -441,7 +456,13 @@ class OrderItem extends Component {
 	constructor (props) {
 		super(props)
 		this.state = {
-			collapsed: true
+			collapsed: true,
+			selecting: false,
+			canManifest: false,
+			canCancel: false,
+			selectedSKUs: [],
+			loading: false,
+			errors: []
 		}
 	}
 
@@ -449,8 +470,91 @@ class OrderItem extends Component {
 		this.setState({ collapsed: !this.state.collapsed })
 	}
 
+	toggleSelecting = () => {
+		if (this.props.order.status !== types.ORDER_STATUS_PLACED) return
+		this.setState({ selecting: !this.state.selecting })
+	}
+
+	onManifest = async () => {
+		let selectedSKUs = this.state.selectedSKUs
+		let order = this.props.order
+		this.setState({ loading: true, errors: [] })
+		let err, _r
+		;[err, _r] = await to(
+			initDelivery(order.oid, selectedSKUs, 'ahmedabad')
+		)
+		console.log(_r)
+		this.setState({ loading: false, errors: [err] })
+	}
+
+	onCancel = async () => {
+		let selectedSKUs = this.state.selectedSKUs
+		let order = this.props.order
+		this.setState({ loading: true, errors: [] })
+		let errors = []
+		for (let i = 0; i < selectedSKUs.length; i++) {
+			let err, _r
+			;[err, _r] = await to(cancelProduct(order.oid, selectedSKUs))
+			console.log(_r)
+			if (err) errors.push(err)
+		}
+		this.setState({ loading: false, errors })
+	}
+
+	onChecked = event => {
+		let order = this.props.order
+		let selectedSKUs = this.state.selectedSKUs
+		let isPresentAt = -1
+		for (let i = 0; i < selectedSKUs.length; i++) {
+			if (selectedSKUs[i] === event.target.name) {
+				isPresentAt = i
+				break
+			}
+		}
+		if (isPresentAt > -1) {
+			selectedSKUs.splice(isPresentAt, 1)
+		} else {
+			selectedSKUs.push(event.target.name)
+		}
+		let canManifest = selectedSKUs.length > 0
+		let canCancel = selectedSKUs.length > 0
+		for (let i = 0; i < selectedSKUs.length; i++) {
+			let sku = selectedSKUs[i]
+			let product = order.products[sku]
+			let productStatus = product.status
+			let productDeliveryStatus = product.delivery.status
+			if (productStatus !== types.PRODUCT_STATUS_INIT) {
+				canCancel = false
+			}
+			if (
+				productDeliveryStatus !== types.DELIVERY_STATUS_INIT ||
+				productStatus === types.PRODUCT_STATUS_CANCELLED ||
+				productStatus === types.PRODUCT_STATUS_USER_CANCELLED
+			)
+				canManifest = false
+		}
+		this.setState({ selectedSKUs, canCancel, canManifest })
+	}
+
+	isChecked = sku => {
+		let selectedSKUs = this.state.selectedSKUs
+		let isPresent = selectedSKUs.find(s => s === sku)
+		return isPresent ? true : false
+	}
+
 	render () {
 		let { order, index } = this.props
+		let address = order.address
+		let summary = order.summary
+		let {
+			collapsed,
+			selecting,
+			canManifest,
+			canCancel,
+			selectedSKUs,
+			loading,
+			errors
+		} = this.state
 		return (
 			<ListGroupItem
 				style={{
@@ -459,43 +563,320 @@ class OrderItem extends Component {
 					borderRight: '0px'
 				}}
 			>
-				<ListGroupItemHeading
-					onClick={this.toggle}
-					style={{ cursor: 'pointer' }}
-				>
-					<Row>
-						<Col>{index + 1 + ') ' + order.oid}</Col>
-						<Col>
-							{order.product_count +
-								(order.product_count > 1
-									? ' items '
-									: ' item ')}
-						</Col>
-						<Col>{paiseToRupeeString(order.summary.total)}</Col>
-						<Col>{timeStampToTimeLocaleString(order.time)}</Col>
-						<Col>
+				<div onClick={this.toggle} style={{ cursor: 'pointer' }}>
+					<Row
+						style={{
+							fontWeight: 'bold',
+							color: collapsed ? '#000000' : '#20a8d8'
+						}}
+					>
+						<Col sm='3'>{index + 1 + ') ' + order.oid}</Col>
+						<Col sm='3'>
 							<Row>
 								<Col>
-									{order.payment.mode === 'cod' ? (
-										<i
-											className='fa fa-money'
-											aria-hidden='true'
-											style={{ color: '#00ff00' }}
-										></i>
-									) : (
-										<i
-											className='fa fa-credit-card-alt'
-											aria-hidden='true'
-											style={{ color: '#20a8d8' }}
-										></i>
-									)}
+									{order.product_count +
+										(order.product_count > 1
+											? ' items '
+											: ' item ')}
+								</Col>
+								<Col>
+									{paiseToRupeeString(order.summary.total)}
+								</Col>
+							</Row>
+						</Col>
+						<Col sm='6'>
+							<Row>
+								<Col>
+									{timeStampToTimeLocaleString(order.time)}
+								</Col>
+								<Col>
+									<Row>
+										<Col>
+											{order.payment.mode ===
+											types.PAYMENT_STATUS_COD ? (
+												<i
+													className='fa fa-money'
+													aria-hidden='true'
+													style={{ color: '#00ff00' }}
+												></i>
+											) : (
+												<i
+													className='fa fa-credit-card-alt'
+													aria-hidden='true'
+													style={{
+														color:
+															order.payment
+																.status ===
+															'paid'
+																? '#00ff00'
+																: '#ffc107'
+													}}
+												></i>
+											)}
+										</Col>
+										<Col>
+											<StatusBadge
+												status={order.status}
+											/>
+										</Col>
+									</Row>
 								</Col>
 							</Row>
 						</Col>
 					</Row>
-				</ListGroupItemHeading>
-				<Collapse isOpen={!this.state.collapsed}>
-					<ListGroupItemText>{order.time}</ListGroupItemText>
+					<Row style={{ marginLeft: '15px', marginTop: '5px' }}>
+						<Col sm='3'>{address.name}</Col>
+						<Col sm='3'>{address.mobile}</Col>
+						<Col sm='6'>{beautifyAddress(address)}</Col>
+					</Row>
+				</div>
+
+				<Collapse isOpen={!collapsed}>
+					<ListGroup style={{ marginTop: '20px' }}>
+						<ListGroupItem>
+							<Row>
+								<Col sm='1'>
+									<i
+										className='fa fa-list'
+										aria-hidden='true'
+										style={{
+											color: !selecting
+												? '#000000'
+												: '#20a8d8',
+											cursor: 'pointer'
+										}}
+										onClick={this.toggleSelecting}
+									></i>
+								</Col>
+								<Col>
+									<InputGroup>
+										<Label>MRP : </Label>
+										<Label>
+											{' ' +
+												paiseToRupeeString(summary.mrp)}
+										</Label>
+									</InputGroup>
+								</Col>
+								<Col>
+									<InputGroup>
+										<Label>Discount :</Label>
+										<Label>
+											{' ' +
+												paiseToRupeeString(
+													summary.discount
+												)}
+										</Label>
+									</InputGroup>
+								</Col>
+								<Col>
+									{summary && summary.deliveryChargeApplied && (
+										<InputGroup>
+											<Label>Delivery Charge :</Label>
+											<Label>
+												{' ' +
+													paiseToRupeeString(
+														summary.deliveryCharge
+													)}
+											</Label>
+										</InputGroup>
+									)}
+								</Col>
+								<Col>
+									<InputGroup>
+										<Label>Total : </Label>
+										<Label>
+											{' ' +
+												paiseToRupeeString(
+													summary.total
+												)}
+										</Label>
+									</InputGroup>
+								</Col>
+							</Row>
+						</ListGroupItem>
+						{loading && (
+							<i className='fa fa-refresh fa-spin fa-3x fa-fw' />
+						)}
+						{!loading &&
+							Object.keys(order.products).map((sku, index) => {
+								let orderProduct = order.products[sku]
+								let product = orderProduct['product']
+								let productStatus = orderProduct.status
+								let deliveryStatus =
+									orderProduct.delivery.status
+								let enabled =
+									productStatus !==
+										types.PRODUCT_STATUS_USER_CANCELLED &&
+									productStatus !==
+										types.PRODUCT_STATUS_CANCELLED
+								return (
+									<ListGroupItem key={index}>
+										<Row>
+											<Col>
+												<Row>
+													<Col sm='0.5'>
+														{selecting &&
+															enabled && (
+																<Input
+																	type='checkbox'
+																	name={sku}
+																	checked={this.isChecked(
+																		sku
+																	)}
+																	onChange={
+																		this
+																			.onChecked
+																	}
+																/>
+															)}
+													</Col>
+													<Col sm='2.5'>
+														<img
+															style={{
+																maxWidth:
+																	'75px',
+																maxHeight:
+																	'75px'
+															}}
+															src={
+																product.asset
+																	.url
+															}
+														/>
+													</Col>
+													<Col sm='4'>
+														<Row
+															style={{
+																fontSize:
+																	'1.5em'
+															}}
+														>
+															{product.title}
+														</Row>
+														<Row>
+															{
+																product.category
+																	.name
+															}
+														</Row>
+														<Row
+															style={{
+																fontSize:
+																	'1.2em'
+															}}
+														>
+															{product.option
+																.based_on +
+																': ' +
+																product.option
+																	.name +
+																', qty: ' +
+																orderProduct.quantity}
+														</Row>
+													</Col>
+													<Col sm='6'>
+														<Row>
+															<Col>
+																{'Price: ' +
+																	paiseToRupeeString(
+																		product.listPrice
+																	)}
+															</Col>
+															<Col>
+																{'Discount: ' +
+																	paiseToRupeeString(
+																		product.discount
+																	)}
+															</Col>
+															<Col>
+																{'Quantity: ' +
+																	orderProduct.quantity}
+															</Col>
+															<Col>
+																{'Total: ' +
+																	paiseToRupeeString(
+																		(product.listPrice -
+																			product.discount) *
+																			orderProduct.quantity
+																	)}
+															</Col>
+														</Row>
+														<Row
+															style={{
+																marginTop:
+																	'20px'
+															}}
+														>
+															<Col>
+																<Label
+																	style={{
+																		marginRight:
+																			'20px'
+																	}}
+																>
+																	Product
+																	Status :
+																</Label>
+
+																<StatusBadge
+																	status={
+																		productStatus
+																	}
+																/>
+															</Col>
+															<Col>
+																<Label
+																	style={{
+																		marginRight:
+																			'20px'
+																	}}
+																>
+																	Delivery
+																	Status :
+																</Label>
+
+																<StatusBadge
+																	status={
+																		deliveryStatus
+																	}
+																/>
+															</Col>
+														</Row>
+													</Col>
+												</Row>
+											</Col>
+										</Row>
+									</ListGroupItem>
+								)
+							})}
+						<ListGroupItem>
+							<Row>
+								<Col>
+									{canManifest && (
+										<Button
+											color='primary'
+											onClick={this.onManifest}
+										>
+											Manifest
+										</Button>
+									)}
+								</Col>
+								<Col>
+									{canCancel && (
+										<Button
+											color='danger'
+											onClick={this.onCancel}
+										>
+											Cancel
+										</Button>
+									)}
+								</Col>
+							</Row>
+						</ListGroupItem>
+						{errors.map((error, index) => {
+							return <ListGroupItem style={{color:'red'}} key={index}>{error.toString()}</ListGroupItem>
+						})}
+					</ListGroup>
 				</Collapse>
 			</ListGroupItem>
 		)
