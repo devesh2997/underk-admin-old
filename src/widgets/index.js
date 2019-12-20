@@ -4,12 +4,13 @@ import types from 'underk-types'
 const StatusBadge = ({ status }) => {
 	switch (status) {
 		case types.ORDER_STATUS_PLACED:
+		case 'success':
+			return <span className='badge badge-success'>{status}</span>
 		case types.PRODUCT_STATUS_CLOSED:
 		case types.PRODUCT_STATUS_FULFILLED:
 		case types.DELIVERY_STATUS_DELIVERED:
 		case types.DELIVERY_STATUS_RETURNED:
-		case 'success':
-			return <span className='badge badge-success'>{status}</span>
+			return <span className='badge badge-secondary'>{status}</span>
 		case 'error':
 		case types.PRODUCT_STATUS_USER_CANCELLED:
 		case types.PRODUCT_STATUS_CANCELLED:

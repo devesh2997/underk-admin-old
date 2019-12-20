@@ -387,6 +387,7 @@ class OrdersList extends Component {
 										key={index}
 										orders={order.orders}
 										date={order.date}
+										firebase={this.props.firebase}
 									/>
 								)
 							})}
@@ -441,6 +442,7 @@ class OrdersOnDate extends Component {
 										key={index}
 										order={order}
 										index={index}
+										firebase={this.props.firebase}
 									/>
 								)
 							})}
@@ -462,7 +464,8 @@ class OrderItem extends Component {
 			canCancel: false,
 			selectedSKUs: [],
 			loading: false,
-			errors: []
+			errors: [],
+			inventory: {}
 		}
 	}
 
@@ -542,6 +545,24 @@ class OrderItem extends Component {
 		return isPresent ? true : false
 	}
 
+	fetchInventory = pid => {
+		this.setState({ loading: true })
+		let snapshot = this.props.firebase
+			.inventoryOfProduct(pid)
+			.onSnapshot(snapshot => {
+				let inventory = this.state.inventory
+				if (snapshot.exists) {
+					snapshot = snapshot.data()
+					inventory[pid] = snapshot
+				}
+
+				this.setState({
+					inventory,
+					loading: false
+				})
+			})
+	}
+
 	render () {
 		let { order, index } = this.props
 		let address = order.address
@@ -553,7 +574,8 @@ class OrderItem extends Component {
 			canCancel,
 			selectedSKUs,
 			loading,
-			errors
+			errors,
+			inventory
 		} = this.state
 		return (
 			<ListGroupItem
@@ -841,6 +863,57 @@ class OrderItem extends Component {
 																	}
 																/>
 															</Col>
+															<Col>
+																<Label
+																	style={{
+																		marginRight:
+																			'20px',
+																		color:
+																			'#20a8d8',
+																		cursor:
+																			'pointer'
+																	}}
+																	onClick={() => {
+																		this.fetchInventory(
+																			product.pid
+																		)
+																	}}
+																>
+																	Check
+																	Inventory
+																</Label>
+																{inventory[
+																	product.pid
+																] &&
+																	Object.keys(
+																		inventory[
+																			product
+																				.pid
+																		]
+																	).map(
+																		(
+																			sku,
+																			index
+																		) => {
+                                                                            sku = inventory[product.pid][sku]
+																			return (
+																				<span
+                                                                                style={{marginRight:'10px'}}
+																					key={
+																						index
+																					}
+																					className='badge badge-primary'
+																				>
+																					{sku.name +
+																						' : ' +
+																						sku.reserved +
+																						'|' +
+																						sku.stock}
+																				</span>
+																			)
+																		}
+																	)}
+															</Col>
 														</Row>
 													</Col>
 												</Row>
@@ -874,7 +947,16 @@ class OrderItem extends Component {
 							</Row>
 						</ListGroupItem>
 						{errors.map((error, index) => {
-							return <ListGroupItem style={{color:'red'}} key={index}>{error.toString()}</ListGroupItem>
+							if (error !== null && typeof error !== 'undefined')
+								return (
+									<ListGroupItem
+										style={{ color: 'red' }}
+										key={index}
+									>
+										{error.toString()}
+									</ListGroupItem>
+								)
+							else return <div key={index}></div>
 						})}
 					</ListGroup>
 				</Collapse>
