@@ -110,21 +110,26 @@ export default {
 					url: ROUTES.ATTRIBUTE_LIST.path,
 					icon: 'fa fa-list-alt',
 				},
-				{
-					name: 'Add Attribute',
-					url: ROUTES.ADD_ATTRIBUTE.path,
-					icon: 'fa fa-plus',
-				},
+				// {
+				// 	name: 'Add Attribute',
+				// 	url: ROUTES.ADD_ATTRIBUTE.path,
+				// 	icon: 'fa fa-plus',
+				// },
 				{
 					name: 'Collection List',
 					url: ROUTES.COLLECTION_LIST.path,
 					icon: 'fa fa-list-alt',
 				},
 				{
-					name: 'Add Collection',
-					url: ROUTES.ADD_COLLECTION.path,
-					icon: 'fa fa-plus',
+					name: 'Bulk Upload Collections',
+					url: ROUTES.COLLECTIONS_BULK_UPLOAD.path,
+					icon: 'fa fa-list-alt',
 				},
+				// {
+				// 	name: 'Add Collection',
+				// 	url: ROUTES.ADD_COLLECTION.path,
+				// 	icon: 'fa fa-plus',
+				// },
 				
 			],
 		},
