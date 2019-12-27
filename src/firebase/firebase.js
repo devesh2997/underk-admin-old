@@ -103,6 +103,10 @@ class Firebase {
 	admin = uid => this.db.doc(`admins/${uid}`)
 	admins = () => this.db.collection('admins')
 
+	// *** type_subtypes API ***
+	typesSubtypes = () => this.db.collection('types_subtypes')
+	typeSubtypes = type => this.db.collection('types_subtypes').doc(type)
+
 	// *** Category API ***
 	category = category_id => this.db.doc(`categories/${category_id}`)
 	categories = () => this.db.collection('categories')

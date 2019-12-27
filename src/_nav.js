@@ -52,6 +52,11 @@ export default {
 					icon: 'fa fa-list-alt',
 				},
 				{
+					name: 'Bulk Upload',
+					url: ROUTES.CATEGORIES_BULK_UPLOAD.path,
+					icon: 'fa fa-list-alt',
+				},
+				{
 					name: 'Add Category',
 					url: ROUTES.ADD_CATEGORY.path,
 					icon: 'fa fa-plus',

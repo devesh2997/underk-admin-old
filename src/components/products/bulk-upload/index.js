@@ -19,7 +19,6 @@ import {
 	InputGroupAddon,
 	InputGroupText
 } from 'reactstrap'
-import { async } from '@firebase/util'
 
 class BulkUpload extends Component {
 	constructor (props) {
