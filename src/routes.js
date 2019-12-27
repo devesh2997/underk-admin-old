@@ -20,6 +20,7 @@ const AddProductItem = React.lazy(() => import('./components/products/add-produc
 const BulkUpload = React.lazy(()=>import('./components/products/bulk-upload/index'));
 const EditProductItem = React.lazy(() => import('./components/products/edit-product'));
 const AttributeList = React.lazy(() => import('./components/products/attributes/attribute-list'));
+const AttributesBulkUpload = React.lazy(()=>import('./components/products/attributes/bulk-upload'))
 const AddAttribute = React.lazy(() => import('./components/products/attributes/add-attribute'));
 const CollectionList = React.lazy(() => import('./components/products/collections/collection-list'));
 const CollectionsBulkUpload = React.lazy(()=>import('./components/products/collections/bulk-upload'))
@@ -150,6 +151,12 @@ const routes = {
 		name: 'Attributes',
 		component: AttributeList,
 	},
+	ATTRIBUTES_BULK_UPLOAD: {
+		path: '/products/attributes/bulk',
+		exact: true,
+		name: 'Bulk Upload Attributes',
+		component: AttributesBulkUpload,
+	},
 	ADD_ATTRIBUTE: {
 		path: '/products/attributes/add',
 		exact: true,
@@ -165,7 +172,7 @@ const routes = {
 	COLLECTIONS_BULK_UPLOAD: {
 		path: '/products/collections/bulk',
 		exact: true,
-		name: 'Collections',
+		name: 'Bulk Upload Collections',
 		component: CollectionsBulkUpload,
 	},
 	ADD_COLLECTION: {

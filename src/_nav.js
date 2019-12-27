@@ -110,6 +110,11 @@ export default {
 					url: ROUTES.ATTRIBUTE_LIST.path,
 					icon: 'fa fa-list-alt',
 				},
+				{
+					name: 'Bulk Upload Attributes',
+					url: ROUTES.ATTRIBUTES_BULK_UPLOAD.path,
+					icon: 'fa fa-list-alt',
+				},
 				// {
 				// 	name: 'Add Attribute',
 				// 	url: ROUTES.ADD_ATTRIBUTE.path,

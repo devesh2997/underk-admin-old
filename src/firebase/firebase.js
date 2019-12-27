@@ -131,7 +131,9 @@ class Firebase {
 		this.db.collection('inventory').doc(product_id)
 
 	// *** Attributes API ***
-	clothingAttributes = () => this.db.collection('attributes').doc('clothing')
+	attributesAll = () => this.db.collection('attributes')
+	attributesOfType = type => this.db.collection('attributes').doc(type)
+	clothingAttributes = () => this.db.collection('attributes').doc('CLTH')
 
 	// *** Orders API ***
 	ordersByStatusAndDateAndPaymentMode = (
