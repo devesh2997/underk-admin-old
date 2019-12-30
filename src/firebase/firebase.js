@@ -129,6 +129,7 @@ class Firebase {
 	inventory = () => this.db.collection('inventory')
 	inventoryOfProduct = product_id =>
 		this.db.collection('inventory').doc(product_id)
+	inventoryTransactions = () => this.db.collection('inventory_transactions')
 
 	// *** Attributes API ***
 	attributesAll = () => this.db.collection('attributes')

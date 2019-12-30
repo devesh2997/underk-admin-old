@@ -118,7 +118,9 @@ class BulkUpload extends Component {
 			.typesSubtypes()
 			.onSnapshot(snapshot => {
 				let types = {}
-				snapshot.forEach(doc => (types[doc.data().sku] = { ...doc.data() }))
+				snapshot.forEach(
+					doc => (types[doc.data().sku] = { ...doc.data() })
+				)
 
 				this.setState({ types, loadingTypes: false })
 			})
@@ -173,78 +175,6 @@ class BulkUpload extends Component {
 		})
 	}
 
-	uploadProducts = async event => {
-		this.setState({ isUploadingProducts: true })
-		let { validProducts } = this.state
-
-		for (let i = 0; i < validProducts.length; i++) {
-			let product = validProducts[i].product
-			let inventory = validProducts[i].inventory
-			let prevProductRef = this.props.firebase
-				.products()
-				.where('slug', '==', product.slug)
-			let productsRef = this.props.firebase.products()
-			let newProductRef = productsRef.doc()
-			let inventoryRef = this.props.firebase.inventory()
-			let prevProduct = await prevProductRef.get()
-			if (prevProduct.empty) {
-				let batch = this.props.firebase.db.batch()
-				batch.set(newProductRef, product)
-				batch.set(inventoryRef.doc(newProductRef.id), inventory)
-				try {
-					await batch.commit()
-					console.log('Uploaded product with id' + newProductRef.id)
-					this.setState({
-						numOfCreatedProducts:
-							this.state.numOfCreatedProducts + 1
-					})
-				} catch (e) {
-					console.error(e)
-				}
-			} else {
-				try {
-					let prevProductDoc = prevProduct.docs[0]
-					let prevInventory = await this.props.firebase
-						.inventoryOfProduct(prevProductDoc.id)
-						.get()
-					prevInventory = prevInventory.data()
-					Object.keys(product.options.skus).forEach((sku, i) => {
-						prevInventory[sku].stock += Number(inventory[sku].stock)
-						product.options.skus[sku]['inStock'] =
-							prevInventory[sku].stock > 0
-						product.options.skus[sku]['lessThanTen'] =
-							prevInventory[sku].stock -
-								prevInventory[sku].reserved <=
-							10
-								? prevInventory[sku].stock -
-								  prevInventory[sku].reserved
-								: 10
-					})
-
-					let batch = this.props.firebase.db.batch()
-					batch.set(
-						this.props.firebase.product(prevProductDoc.id),
-						product
-					)
-					batch.set(
-						this.props.firebase.inventoryOfProduct(
-							prevProductDoc.id
-						),
-						prevInventory
-					)
-					await batch.commit()
-					console.log('Updated product with id' + prevProductDoc.id)
-					this.setState({
-						numOfUpdatedProducts:
-							this.state.numOfUpdatedProducts + 1
-					})
-				} catch (e) {
-					console.error(e)
-				}
-			}
-		}
-		this.setState({ isUploadingProducts: false })
-	}
 
 	onAssetsFolderChanged = event => {
 		let assetFiles = event.target.files
@@ -809,17 +739,26 @@ class BulkUpload extends Component {
 				}
 				product['assets'] = assets
 				let inventory = validProducts[i].inventory
+				let inventoryTransactions = validProducts[i].inventoryTransactions
 				let prevProductRef = this.props.firebase
 					.products()
 					.where('slug', '==', product.slug)
 				let productsRef = this.props.firebase.products()
 				let newProductRef = productsRef.doc()
 				let inventoryRef = this.props.firebase.inventory()
+				let inventoryTransactionsRef = this.props.firebase.inventoryTransactions()
 				let prevProduct = await prevProductRef.get()
 				if (prevProduct.empty) {
 					let batch = this.props.firebase.db.batch()
 					batch.set(newProductRef, product)
 					batch.set(inventoryRef.doc(newProductRef.id), inventory)
+					for (let j = 0; j < inventoryTransactions.length; j++) {
+						inventoryTransactions[j].pid = newProductRef.id
+						batch.set(
+							inventoryTransactionsRef.doc(),
+							inventoryTransactions[j]
+						)
+					}
 					try {
 						await batch.commit()
 						console.log(
@@ -954,6 +893,7 @@ class BulkUpload extends Component {
 								<Col>
 									Inventory -{' '}
 									{Object.keys(i).map((sku, index) => {
+										if(sku ==='skus')return <span key={index}></span>
 										let stock = 0
 										const inventoryKeys = Object.keys(
 											i[sku]['inventory']

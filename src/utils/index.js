@@ -44,6 +44,14 @@ const isEmpty = o => {
 	return o === null || o === undefined || (o !== undefined && o.length === 0)
 }
 
+const INVENTORY_TRANSACTION_TYPE = {
+	INCREASE: 'INCREASE',
+	DECREASE: 'DECREASE',
+	SET: 'SET',
+	RESERVE: 'RESERVE',
+	CREATE: 'CREATE'
+}
+
 const generateSKU = (product, skuOrdering, suppliers, attributesAll) => {
 	console.log(attributesAll)
 	let sku = ''
@@ -56,6 +64,7 @@ const generateSKU = (product, skuOrdering, suppliers, attributesAll) => {
 	}
 	console.log(sku)
 	let inventory = {}
+	let inventoryTransactions = []
 	let skus = {}
 	let options = product.options
 	let productSuppliers = Object.keys(options['inventory'])
@@ -68,6 +77,7 @@ const generateSKU = (product, skuOrdering, suppliers, attributesAll) => {
 			let productSupplier = suppliers.find(s => s.sid === bareSID)
 			let productOptions = options['inventory'][productSupplierId]
 			let productOptionsKeys = Object.keys(productOptions)
+
 			productOptionsKeys.map((key, index) => {
 				let productOption = basedOnAttributeAll[key]
 				let optionSku = sku + productOption.sku
@@ -99,19 +109,31 @@ const generateSKU = (product, skuOrdering, suppliers, attributesAll) => {
 					inventory[optionSku] = {
 						name: productOption.name,
 						reserved: 0,
+						stock: quantity,
 						inventory: {}
 					}
+				} else {
+					inventory[optionSku]['stock'] =
+						inventory[optionSku]['stock'] + quantity
 				}
 				if (isEmpty(inventory[optionSku][productSupplierId])) {
 					inventory[optionSku]['inventory'][productSupplierId] = {
 						cp,
 						stock: quantity
 					}
+					inventoryTransactions.push({
+						sku: optionSku,
+						bareSupplierId: bareSID,
+						supplierId: productSupplierId,
+						quantity,
+						type: INVENTORY_TRANSACTION_TYPE.SET,
+						time: Date.now()
+					})
 				}
 			})
-			console.log('ooo', skus, inventory)
 		}
 	} else {
+		let stock = 0
 		for (let i = 0; i < productSuppliers.length; i++) {
 			let productSupplierId = productSuppliers[i]
 			let bareSID = productSupplierId.split(':')[0]
@@ -127,37 +149,48 @@ const generateSKU = (product, skuOrdering, suppliers, attributesAll) => {
 					lessThanTen,
 					exists: true
 				}
-			}else {
+			} else {
 				const oldSkuValue = skus[sku]
 				const inStock = oldSkuValue['inStock'] + quantity > 0
 				const lessThanTen =
-					oldSkuValue['lessThanTen'] + quantity <= 10
-						? quantity
-						: 10
+					oldSkuValue['lessThanTen'] + quantity <= 10 ? quantity : 10
 				skus[sku]['inStock'] = inStock
 				skus[sku]['lessThanTen'] = lessThanTen
 			}
 			if (isEmpty(inventory[sku])) {
 				inventory[sku] = {
 					reserved: 0,
+					stock: quantity,
 					inventory: {}
 				}
+			} else {
+				inventory[sku]['stock'] = inventory[sku]['stock'] + quantity
 			}
 			if (isEmpty(inventory[sku][productSupplierId])) {
 				inventory[sku]['inventory'][productSupplierId] = {
 					cp,
 					stock: quantity
 				}
+				inventoryTransactions.push({
+					sku: sku,
+					bareSupplierId: bareSID,
+					supplierId: productSupplierId,
+					quantity,
+					type: INVENTORY_TRANSACTION_TYPE.SET,
+					time: Date.now()
+				})
 			}
 		}
 	}
 	product.options['skus'] = skus
+	inventory['skus'] = Object.keys(skus)
 	delete product.options.inventory
-	console.log('hhh', { product, inventory })
+	console.log('hhh', { product, inventory,inventoryTransactions })
 
 	return {
 		product,
-		inventory
+		inventory,
+		inventoryTransactions
 	}
 }
 
