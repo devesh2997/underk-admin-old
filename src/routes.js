@@ -2,6 +2,8 @@ import React from 'react';
 
 const Dashboard = React.lazy(() => import('./views/Dashboard'));
 const OrdersList = React.lazy(() => import('./components/orders'));
+const InventoryTransactionsList = React.lazy(() => import('./components/inventory/transactions-list'));
+const Inventory = React.lazy(() => import('./components/inventory'));
 const AdminList = React.lazy(() => import('./components/administrators/administrator-list'));
 const AddAdminItem = React.lazy(() => import('./components/administrators/add-administrator'));
 const AdminItem = React.lazy(() => import('./components/administrators/administrator-item'));
@@ -60,6 +62,18 @@ const routes = {
 		exact: true,
 		name: 'Orders',
 		component: OrdersList
+	},
+	INVENTORY: {
+		path: '/inventory',
+		exact: true,
+		name: 'Inventory',
+		component: Inventory
+	},
+	INVENTORY_TRANSACTIONS: {
+		path: '/inventory/transactions',
+		exact: true,
+		name: 'Inventory Transactions',
+		component: InventoryTransactionsList
 	},
 	ADMINISTRATOR_LIST: {
 		path: '/administrators',

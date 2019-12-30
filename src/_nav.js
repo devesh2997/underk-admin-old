@@ -20,6 +20,18 @@ export default {
 			],
 		},
 		{
+			name: 'Inventory',
+			url: ROUTES.INVENTORY.path,
+			icon: 'fa fa-user-secret',
+			children: [
+				{
+					name: 'Transactions',
+					url: ROUTES.INVENTORY_TRANSACTIONS.path,
+					icon: 'fa fa-list-alt',
+				},
+			],
+		},
+		{
 			name: 'Administrators',
 			url: ROUTES.ADMINISTRATOR_LIST.path,
 			icon: 'fa fa-user-secret',
