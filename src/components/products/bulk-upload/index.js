@@ -3,7 +3,7 @@ import { withFirebase } from '../../../firebase'
 import { Card, CardBody, CardHeader } from 'reactstrap'
 import { Form, FormGroup, Input, Label, Button } from 'reactstrap'
 import CSVReader from 'react-csv-reader'
-import { generateSKU } from '../../../utils'
+import { generateSKU, isEmpty } from '../../../utils'
 
 import {
 	Container,
@@ -25,21 +25,20 @@ class BulkUpload extends Component {
 		super(props)
 
 		this.state = {
-			type: 'clothing',
 			categories: [],
 			suppliers: [],
 			collectionsAll: [],
 			loadingCategories: false,
 			loadingSuppliers: false,
 			loadingCollections: false,
+			loadingTypes: false,
+			loadingAttributes: false,
 			colors: [],
 			styles: [],
 			designs: [],
 			sizes: [],
-			loadingColors: false,
-			loadingStyles: false,
-			loadingDesigns: false,
-			loadingSizes: false,
+			types: {},
+			attributesAll: {},
 			totalCSVRows: 0,
 			totalProductsWithAssets: 0,
 			validProducts: [],
@@ -56,10 +55,6 @@ class BulkUpload extends Component {
 	}
 
 	componentWillUnmount () {
-		this.getColors()
-		this.getSizes()
-		this.getStyles()
-		this.getDesigns()
 		this.getCategories()
 		this.getCollections()
 		this.getSuppliers()
@@ -69,7 +64,9 @@ class BulkUpload extends Component {
 		this.setState({
 			loadingCategories: true,
 			loadingSuppliers: true,
-			loadingCollections: true
+			loadingCollections: true,
+			loadingTypes: true,
+			loadingAttributes: true
 		})
 
 		this.getCategories = this.props.firebase
@@ -78,7 +75,7 @@ class BulkUpload extends Component {
 				let categories = []
 
 				snapshot.forEach(doc =>
-					categories.push({ ...doc.data(), cid: doc.id })
+					categories.push({ ...doc.data(), cid: doc.data().slug })
 				)
 
 				this.setState({
@@ -116,74 +113,25 @@ class BulkUpload extends Component {
 					loadingSuppliers: false
 				})
 			})
-		this.setState({
-			loadingColors: true,
-			loadingStyles: true,
-			loadingDesigns: true,
-			loadingSizes: true
-		})
 
-		this.getColors = this.props.firebase
-			.clothingAttributes()
-			.collection('colors')
+		this.getTypes = this.props.firebase
+			.typesSubtypes()
 			.onSnapshot(snapshot => {
-				let colors = []
+				let types = {}
+				snapshot.forEach(doc => (types[doc.data().sku] = { ...doc.data() }))
 
-				snapshot.forEach(doc =>
-					colors.push({ ...doc.data(), id: doc.id })
-				)
-				this.setState({
-					colors,
-					loadingColors: false
-				})
+				this.setState({ types, loadingTypes: false })
 			})
 
-		this.getStyles = this.props.firebase
-			.clothingAttributes()
-			.collection('styles')
+		this.getAttributes = this.props.firebase
+			.attributesAll()
 			.onSnapshot(snapshot => {
-				let styles = []
-
-				snapshot.forEach(doc =>
-					styles.push({ ...doc.data(), id: doc.id })
+				let attributesAll = {}
+				snapshot.forEach(
+					doc => (attributesAll[doc.data().type] = { ...doc.data() })
 				)
 
-				this.setState({
-					styles,
-					loadingStyles: false
-				})
-			})
-
-		this.getDesigns = this.props.firebase
-			.clothingAttributes()
-			.collection('designs')
-			.onSnapshot(snapshot => {
-				let designs = []
-
-				snapshot.forEach(doc =>
-					designs.push({ ...doc.data(), id: doc.id })
-				)
-
-				this.setState({
-					designs,
-					loadingDesigns: false
-				})
-			})
-
-		this.getSizes = this.props.firebase
-			.clothingAttributes()
-			.collection('sizes')
-			.onSnapshot(snapshot => {
-				let sizes = []
-
-				snapshot.forEach(doc =>
-					sizes.push({ ...doc.data(), id: doc.id })
-				)
-
-				this.setState({
-					sizes,
-					loadingSizes: false
-				})
+				this.setState({ attributesAll, loadingAttributes: false })
 			})
 	}
 
@@ -298,41 +246,6 @@ class BulkUpload extends Component {
 		this.setState({ isUploadingProducts: false })
 	}
 
-	jaiSriRam = async event => {
-		let { validProducts, errors, assetFiles } = this.state
-
-		this.setState({ isUploadingAssets: true })
-		for (let i = 0; i < validProducts.length; i++) {
-			let assets = {}
-			let product = validProducts[i].product
-			for (let j = 0; j < product.assets.length; j++) {
-				let asset = product.assets[j]
-				let newAsset = await this.uploadTaskPromise(
-					product.slug,
-					asset,
-					this.props.firebase
-				)
-				if (newAsset === undefined) {
-					errors.push(
-						'Error in uploading asset with name : ' + asset.name
-					)
-				} else {
-					assets[asset.name] = newAsset
-					this.setState({
-						numOfAssetsUploaded: this.state.numOfAssetsUploaded + 1
-					})
-				}
-			}
-			product['assets'] = assets
-			validProducts[i].product = product
-			console.log(validProducts[i])
-		}
-		if (this.state.numOfAssetsUploaded === assetFiles.length) {
-			this.setState({ successfullyUploadedAllAssets: true })
-		}
-		this.setState({ validProducts, isUploadingAssets: false })
-	}
-
 	onAssetsFolderChanged = event => {
 		let assetFiles = event.target.files
 		assetFiles = Array.from(assetFiles)
@@ -367,81 +280,6 @@ class BulkUpload extends Component {
 		})
 	}
 
-	onChangeType = event => {
-		this.setState({ type: event.target.value })
-		if (event.target.value === 'clothing') {
-			this.setState({
-				loadingColors: true,
-				loadingStyles: true,
-				loadingDesigns: true,
-				loadingSizes: true
-			})
-
-			this.getColors = this.props.firebase
-				.clothingAttributes()
-				.collection('colors')
-				.onSnapshot(snapshot => {
-					let colors = []
-
-					snapshot.forEach(doc =>
-						colors.push({ ...doc.data(), id: doc.id })
-					)
-					this.setState({
-						colors,
-						loadingColors: false
-					})
-				})
-
-			this.getStyles = this.props.firebase
-				.clothingAttributes()
-				.collection('styles')
-				.onSnapshot(snapshot => {
-					let styles = []
-
-					snapshot.forEach(doc =>
-						styles.push({ ...doc.data(), id: doc.id })
-					)
-
-					this.setState({
-						styles,
-						loadingStyles: false
-					})
-				})
-
-			this.getDesigns = this.props.firebase
-				.clothingAttributes()
-				.collection('designs')
-				.onSnapshot(snapshot => {
-					let designs = []
-
-					snapshot.forEach(doc =>
-						designs.push({ ...doc.data(), id: doc.id })
-					)
-
-					this.setState({
-						designs,
-						loadingDesigns: false
-					})
-				})
-
-			this.getSizes = this.props.firebase
-				.clothingAttributes()
-				.collection('sizes')
-				.onSnapshot(snapshot => {
-					let sizes = []
-
-					snapshot.forEach(doc =>
-						sizes.push({ ...doc.data(), id: doc.id })
-					)
-
-					this.setState({
-						sizes,
-						loadingSizes: false
-					})
-				})
-		}
-	}
-
 	handleFileSelection = async csvdata => {
 		let totalCSVRows = 0
 		let validProducts = []
@@ -451,36 +289,33 @@ class BulkUpload extends Component {
 			categories,
 			suppliers,
 			collectionsAll,
-			colors,
-			styles,
-			designs,
-			sizes
+			types,
+			attributesAll
 		} = this.state
-
+		// console.log(types, attributesAll)
 		for (let i in csvdata) {
 			if (Number(i) !== csvdata.length) totalCSVRows++
 			let row = csvdata[i]
-			if (row.length === 18) {
+			if (row.length === 16) {
 				let product = {}
 				try {
-					let title = row[0]
-					let slug = row[1]
-					let isActive = row[2] === 'TRUE'
-					let gender = row[3]
-					let category = row[4]
-					let collections = JSON.parse(row[5])
-					let supplier_id = row[6]
-					let listPrice = Number(row[7])
-					let discount = row[8]
-					let taxPercent = Number(row[9])
-					let isInclusiveTax = row[10] === 'TRUE'
-					let type = row[11]
-					let subtype = row[12]
-					let color = row[13]
-					let style = row[14]
-					let design = row[15]
-					let options = JSON.parse(row[16])
-					let description = JSON.parse(row[17])
+					let type = row[0]
+					let subtype = row[1]
+					let title = row[2]
+					let slug = row[3]
+					let isActive = row[4] === 'TRUE'
+					let gender = row[5]
+					let category = row[6]
+					let collections = JSON.parse(row[7])
+					let listPrice = Number(row[8])
+					let discount = row[9]
+					let taxPercent = Number(row[10])
+					let isInclusiveTax = row[11] === 'TRUE'
+					let attributes = JSON.parse(row[12])
+					// console.log('att',attributes)
+					let options = JSON.parse(row[13])
+					let description = JSON.parse(row[14])
+					let keywords = JSON.parse(row[15])
 
 					if (
 						title &&
@@ -489,16 +324,12 @@ class BulkUpload extends Component {
 						isActive !== undefined &&
 						gender &&
 						category &&
-						supplier_id &&
 						listPrice !== undefined &&
 						discount &&
 						taxPercent !== undefined &&
 						isInclusiveTax !== undefined &&
-						type === 'clothing' &&
-						subtype &&
-						color &&
-						style &&
-						design
+						type &&
+						subtype
 					) {
 						if (isNaN(listPrice)) {
 							throw 'Invalid list price given at row '
@@ -528,6 +359,14 @@ class BulkUpload extends Component {
 							throw 'Invalid gender at row '
 						}
 
+						if (!types[type]) {
+							throw 'Invalid type'
+						}
+
+						if (!types[type]['subtypes'][subtype]) {
+							throw 'Invalid subtype'
+						}
+
 						category = categories.find(c => c.cid === category)
 						if (!category) {
 							throw 'Invalid category id provided'
@@ -538,68 +377,186 @@ class BulkUpload extends Component {
 							)
 							if (!_col) throw 'Invalid collection provided'
 						}
-						let supplier = suppliers.find(
-							s => s.sid === supplier_id
-						)
-						if (!supplier) {
-							throw 'Invalid supplier id provided'
-						}
-						if (
-							subtype !== 'TP' &&
-							subtype !== 'BT' &&
-							subtype !== 'AC'
-						) {
-							throw 'Invalid subtype provided'
-						}
-						supplier_id = supplier.sid
-						let supplier_sku = supplier.sku
 
-						color = colors.find(c => c.sku === color)
-						if (!color) {
-							throw 'Invalid color sku provided'
+						let rowAttributesAll =
+							attributesAll[type]['subtypes'][subtype]
+						let attributesTemp = {}
+						let skuOrdering
+						if (types[type]['subtypes'][subtype]['skuOrdering']) {
+							skuOrdering =
+								types[type]['subtypes'][subtype]['skuOrdering']
+							for (let j = 0; j < skuOrdering.length; j++) {
+								let attributeName = skuOrdering[j]
+								if (!attributes[attributeName]) {
+									throw 'Required attribute : ' +
+										attributeName +
+										' missing'
+								} else {
+									let attributeValueId =
+										attributes[attributeName]
+									let filterable = !attributeValueId.includes(
+										':nf'
+									)
+									if (!filterable) {
+										attributeValueId = attributeValueId.split(
+											':'
+										)[0]
+									}
+									attributesTemp[attributeName] =
+										rowAttributesAll[attributeName][
+											attributeValueId
+										]
+									attributesTemp[attributeName][
+										'filterable'
+									] = filterable
+								}
+							}
 						}
-						style = styles.find(s => s.sku === style)
-						if (!style) {
-							throw 'Invalid style sku provided'
-						}
-						design = designs.find(d => d.sku === design)
-						if (!design) {
-							throw 'Invalid design sku provided'
-						}
+
+						attributes = attributesTemp
+						// console.log(attributes)
 
 						let sizeValues = {}
-						Object.keys(options).forEach(sizeName => {
-							let size = sizes.find(s => s.name === sizeName)
-							if (!size) {
-								throw 'Invalid size name'
-							}
-							let quantity = options[sizeName]['qty']
-							let order = options[sizeName]['order']
-							if (isNaN(quantity)) {
-								throw 'Invalid quantity given for size ' +
-									sizeName
-							}
-							if (isNaN(order)) {
-								throw 'Invalid order given for size ' + sizeName
-							}
-							sizeValues[sizeName] = { quantity, order }
-						})
+						console.log('oo', options)
 
-						let attributes = { subtype, color, style, design }
-						options = {
-							type: 'multiple',
-							based_on: 'size',
-							values: sizeValues
+						if (!isEmpty(options)) {
+							if (!options['inventory'])
+								throw 'Inventory not provided'
+							if (!options['type'])
+								throw 'Inventory type not provided'
+							if (
+								options['type'] !== 'single' &&
+								options['type'] !== 'multiple'
+							)
+								throw 'Invalid inventory type provided'
+							if (
+								options['type'] === 'multiple' &&
+								isEmpty(options['based_on'])
+							)
+								throw 'Based on attribute missing'
+							let productSuppliers = Object.keys(
+								options['inventory']
+							)
+							if (productSuppliers.length < 1)
+								throw 'No supplier info provided'
+							console.log(suppliers)
+							productSuppliers.map((sid, index) => {
+								let bareSID = sid.split(':')[0]
+								let found = suppliers.find(
+									s => s.sid === bareSID
+								)
+								if (isEmpty(found))
+									throw 'Invalid supplier id provided in inventory'
+							})
+							let basedOn = options['based_on']
+							if (options['type'] === 'multiple') {
+								productSuppliers.map((sid, index) => {
+									let productOptions = Object.keys(
+										options['inventory'][sid]
+									)
+									for (
+										let i = 0;
+										i < productOptions.length;
+										i++
+									) {
+										if (
+											isEmpty(
+												rowAttributesAll[basedOn][
+													productOptions[i]
+												]
+											)
+										)
+											throw 'Invalid option provided for inventory'
+										let optionInventory =
+											options['inventory'][sid][
+												productOptions[i]
+											]
+										let inventoryKeys = Object.keys(
+											optionInventory
+										)
+										for (
+											let j = 0;
+											j < inventoryKeys.length;
+											j++
+										) {
+											let key = inventoryKeys[j]
+											if (
+												key !== 'qty' &&
+												key !== 'order' &&
+												key !== 'cp'
+											)
+												throw 'Invalid inventory'
+										}
+										if (
+											isEmpty(optionInventory['order']) ||
+											isEmpty(optionInventory['qty']) ||
+											isEmpty(optionInventory['cp'])
+										)
+											throw 'Invalid inventory'
+									}
+								})
+							} else {
+								productSuppliers.map((sid, index) => {
+									let inventoryKeys = Object.keys(
+										options['inventory'][sid]
+									)
+									for (
+										let j = 0;
+										j < inventoryKeys.length;
+										j++
+									) {
+										let key = inventoryKeys[j]
+										if (
+											key !== 'qty' &&
+											key !== 'order' &&
+											key !== 'cp'
+										)
+											throw 'Invalid inventory'
+									}
+									if (
+										isEmpty(
+											options['inventory'][sid]['qty']
+										) ||
+										isEmpty(options['inventory'][sid]['cp'])
+									)
+										throw 'Invalid inventory'
+								})
+							}
 						}
+						// Object.keys(options).forEach(sizeName => {
+						// 	let size = sizes.find(s => s.name === sizeName)
+						// 	if (!size) {
+						// 		throw 'Invalid size name'
+						// 	}
+						// 	let quantity = options[sizeName]['qty']
+						// 	let order = options[sizeName]['order']
+						// 	if (isNaN(quantity)) {
+						// 		throw 'Invalid quantity given for size ' +
+						// 			sizeName
+						// 	}
+						// 	if (isNaN(order)) {
+						// 		throw 'Invalid order given for size ' + sizeName
+						// 	}
+						// 	sizeValues[sizeName] = { quantity, order }
+						// })
+
+						// let attributes = { subtype, color, style, design }
+						// options = {
+						// 	type: 'multiple',
+						// 	based_on: 'size',
+						// 	values: sizeValues
+						// }
 						product = {
+							type,
+							subtype,
 							title,
 							description,
 							slug,
 							isActive,
 							gender,
 							category,
-							supplier_id,
-							supplier_sku,
+							// supplier_id,
+							// supplier_sku,
 							listPrice,
 							discount,
 							taxPercent,
@@ -617,7 +574,12 @@ class BulkUpload extends Component {
 						}
 
 						let productAndInventoryObject = {}
-						productAndInventoryObject = generateSKU(product, sizes)
+						productAndInventoryObject = generateSKU(
+							product,
+							skuOrdering,
+							suppliers,
+							rowAttributesAll
+						)
 						if (
 							productAndInventoryObject.product === null ||
 							productAndInventoryObject.product === undefined
@@ -670,18 +632,7 @@ class BulkUpload extends Component {
 	}
 
 	getForm = () => {
-		const { type } = this.state
 		let loading = false
-		if (type === 'clothing') {
-			const {
-				loadingColors,
-				loadingDesigns,
-				loadingStyles,
-				loadingSizes
-			} = this.state
-			loading =
-				loadingColors || loadingDesigns || loadingSizes || loadingStyles
-		}
 
 		const {
 			validProducts,
@@ -704,144 +655,117 @@ class BulkUpload extends Component {
 
 		return (
 			<Form>
-				<FormGroup>
-					<Label>Type</Label>
-					<Input
-						type='select'
-						name='type'
-						value={this.state.type}
-						onChange={this.onChangeType}
-					>
-						<option value=''>Select type</option>
-						<option value='clothing'>Clothing</option>
-					</Input>
-				</FormGroup>
-				{type !== '' ? (
-					loading ? (
-						<div className='animated fadeIn pt-3 text-center'>
-							Loading...
-						</div>
-					) : (
-						<div>
-							<InputGroup>
-								<InputGroupAddon addonType='prepend'>
-									<InputGroupText>
-										Choose CSV file
-									</InputGroupText>
-								</InputGroupAddon>
-								<CSVReader
-									cssClass='csv-reader-input'
-									label=''
-									onFileLoaded={this.handleFileSelection}
-									onError={this.handleFileSelectionError}
-									inputId='ObiWan'
-									inputStyle={{}}
-								/>
-							</InputGroup>
-							{totalCSVRows > 0 ? (
-								<div>
-									{errorTexts}
-									{/* totalCSVRows === validProducts.length */}
-									{true ? (
-										<div style={{ marginTop: 20 }}>
-											<InputGroup>
-												<InputGroupAddon>
-													<InputGroupText>
-														Choose Assets Folder
-													</InputGroupText>
-												</InputGroupAddon>
-												<Label></Label>
-												<Input
-													label='Choose Assets Folder'
-													directory=''
-													webkitdirectory=''
-													type='file'
-													onChange={
-														this
-															.onAssetsFolderChanged
-													}
-												/>
-											</InputGroup>
-											{totalProductsWithAssets ===
-											validProducts.length ? (
-												<div>
-													<Label>
-														Total assets uploaded :{' '}
-														{numOfAssetsUploaded} of{' '}
-														{assetFiles.length}
-													</Label>
-													{!successfullyUploadedAllAssets ? (
-														!isUploadingAssets ? (
-															<div>
-																{/* <Button
-                                  onClick={this.jaiSriRam}
-                                  color={'primary'}
-                                >
-                                  Upload Assets #JaiSriRam
-                                </Button> */}
-															</div>
-														) : (
-															<div>
-																Uploading Assets
-																...
-															</div>
-														)
+				{loading ? (
+					<div className='animated fadeIn pt-3 text-center'>
+						Loading...
+					</div>
+				) : (
+					<div>
+						<InputGroup>
+							<InputGroupAddon addonType='prepend'>
+								<InputGroupText>Choose CSV file</InputGroupText>
+							</InputGroupAddon>
+							<CSVReader
+								cssClass='csv-reader-input'
+								label=''
+								onFileLoaded={this.handleFileSelection}
+								onError={this.handleFileSelectionError}
+								inputId='ObiWan'
+								inputStyle={{}}
+							/>
+						</InputGroup>
+						{totalCSVRows > 0 ? (
+							<div>
+								{errorTexts}
+								{/* totalCSVRows === validProducts.length */}
+								{true ? (
+									<div style={{ marginTop: 20 }}>
+										<InputGroup>
+											<InputGroupAddon addonType='prepend'>
+												<InputGroupText>
+													Choose Assets Folder
+												</InputGroupText>
+											</InputGroupAddon>
+											<Label></Label>
+											<Input
+												label='Choose Assets Folder'
+												directory=''
+												webkitdirectory=''
+												type='file'
+												onChange={
+													this.onAssetsFolderChanged
+												}
+											/>
+										</InputGroup>
+										{totalProductsWithAssets ===
+										validProducts.length ? (
+											<div>
+												<Label>
+													Total assets uploaded :{' '}
+													{numOfAssetsUploaded} of{' '}
+													{assetFiles.length}
+												</Label>
+												{!successfullyUploadedAllAssets ? (
+													!isUploadingAssets ? (
+														<div></div>
 													) : (
 														<div>
-															<Label>
-																Total Products
-																Created :{' '}
-																{
-																	numOfCreatedProducts
-																}
-															</Label>
-															<br />
-															<Label>
-																Total Products
-																Updated :{' '}
-																{
-																	numOfUpdatedProducts
-																}
-															</Label>
-															<br />
-															{!isUploadingProducts ? (
-																<Button
-																	onClick={
-																		this
-																			.uploadProducts
-																	}
-																	color={
-																		'primary'
-																	}
-																>
-																	Upload
-																	Product Data
-																	#Good_Job_creating_csv_file_and_assets_folder
-																</Button>
-															) : (
-																<div>
-																	Uploading
-																	Products ...
-																</div>
-															)}
+															Uploading Assets ...
 														</div>
-													)}
-												</div>
-											) : (
-												<div />
-											)}
-										</div>
-									) : (
-										<div />
-									)}
-								</div>
-							) : (
-								<div />
-							)}
-						</div>
-					)
-				) : (
-					<div />
+													)
+												) : (
+													<div>
+														<Label>
+															Total Products
+															Created :{' '}
+															{
+																numOfCreatedProducts
+															}
+														</Label>
+														<br />
+														<Label>
+															Total Products
+															Updated :{' '}
+															{
+																numOfUpdatedProducts
+															}
+														</Label>
+														<br />
+														{!isUploadingProducts ? (
+															<Button
+																onClick={
+																	this
+																		.uploadProducts
+																}
+																color={
+																	'primary'
+																}
+															>
+																Upload Product
+																Data
+																#Good_Job_creating_csv_file_and_assets_folder
+															</Button>
+														) : (
+															<div>
+																Uploading
+																Products ...
+															</div>
+														)}
+													</div>
+												)}
+											</div>
+										) : (
+											<div />
+										)}
+									</div>
+								) : (
+									<div />
+								)}
+							</div>
+						) : (
+							<div />
+						)}
+					</div>
 				)}
 			</Form>
 		)
@@ -965,14 +889,8 @@ class BulkUpload extends Component {
 			uploading,
 			validProducts,
 			totalCSVRows,
-			errors,
 			totalProductsWithAssets,
 			totalAssets,
-			isUploadingAssets,
-			numOfAssetsUploaded,
-			assetFiles,
-			successfullyUploadedAllAssets,
-			isUploadingProducts,
 			numOfCreatedProducts,
 			numOfUpdatedProducts,
 			numOfPrevProducts,
@@ -988,8 +906,6 @@ class BulkUpload extends Component {
 			const indb = product.indb
 			const uploading = product.uploading
 			const queued = product.queued
-			// console.log(p)
-			// console.log(i)
 			if (!categories[p.category.slug]) {
 				categories[p.category.slug] = []
 			}
@@ -1038,11 +954,25 @@ class BulkUpload extends Component {
 								<Col>
 									Inventory -{' '}
 									{Object.keys(i).map((sku, index) => {
+										let stock = 0
+										const inventoryKeys = Object.keys(
+											i[sku]['inventory']
+										)
+										for (
+											let j = 0;
+											j < inventoryKeys.length;
+											j++
+										) {
+											stock +=
+												i[sku]['inventory'][
+													inventoryKeys[j]
+												]['stock']
+										}
 										return (
 											<span key={index}>
 												{i[sku]['name'] +
 													' : ' +
-													i[sku]['stock'] +
+													stock +
 													' | ' +
 													i[sku]['reserved'] +
 													',  '}
@@ -1204,9 +1134,10 @@ class BulkUpload extends Component {
 		const {
 			loadingCategories,
 			loadingSuppliers,
-			loadingCollections
+			loadingCollections,
+			loadingTypes,
+			loadingAttributes
 		} = this.state
-		const { type } = this.state
 		return (
 			<div>
 				<Card>
@@ -1214,7 +1145,9 @@ class BulkUpload extends Component {
 					<CardBody>
 						{loadingCategories ||
 						loadingSuppliers ||
-						loadingCollections ? (
+						loadingCollections ||
+						loadingTypes ||
+						loadingAttributes ? (
 							<div className='animated fadeIn pt-3 text-center'>
 								Loading...
 							</div>

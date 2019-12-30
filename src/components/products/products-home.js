@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { withFirebase } from '../../firebase'
+import {  isEmpty } from '../../utils'
 
 import {
 	Button,
@@ -20,60 +21,61 @@ class ProductsHome extends Component {
 
 	generateVariants = async () => {
 		this.setState({ generatingVariants: true })
-        let snapshots = await this.props.firebase.products().get()
-        console.log(snapshots)
-        snapshots = snapshots.docs
+		let typesSnapshots = await this.props.firebase.typesSubtypes().get()
+		let types = {}
+		typesSnapshots.forEach(doc => (types[doc.id] = { ...doc.data() }))
+
+		this.setState({ types, loadingTypes: false })
+		let snapshots = await this.props.firebase.products().get()
+		console.log(snapshots)
+		snapshots = snapshots.docs
 		for (let i = 0; i < snapshots.length; i++) {
-            let snapshot = snapshots[i]
-            console.log(snapshot)
+			let snapshot = snapshots[i]
+			console.log(snapshot)
 			if (snapshot.exists) {
 				let product = snapshot.data()
-				if (product.type === 'clothing') {
-					let subtype = product.attributes.subtype
-					console.log('generating for : ', snapshot.id)
-					let variants = await this.props.firebase
-						.products()
-						.where('type', '==', 'clothing')
-						.where('gender', '==', product.gender)
-						.where('category', '==', product.category)
-						.where('attributes.subtype', '==', subtype)
-						.where(
-							'attributes.design.name',
+				const type = product.type
+				const subtype = product.subtype
+				const skuOrdering = types[type].subtypes[subtype].skuOrdering
+				const variantsBasis =
+					types[type].subtypes[subtype].variantsBasis
+
+				console.log('generating for : ', snapshot.id)
+				let variants = this.props.firebase
+					.products()
+					.where('type', '==', type)
+					.where('gender', '==', product.gender)
+					.where('category', '==', product.category)
+					.where('subtype', '==', subtype)
+
+				for (let j = 0; j < skuOrdering.length; j++) {
+					console.log(skuOrdering[j])
+					if (isEmpty(variantsBasis.find(v => v === skuOrdering[j]))){
+						console.log('not empty')
+						variants = variants.where(
+							'attributes.' + skuOrdering[j],
 							'==',
-							product.attributes.design.name
+							product.attributes[skuOrdering[j]]
 						)
-						.where(
-							'attributes.style.name',
-							'==',
-							product.attributes.style.name
-						)
-						.get()
-					variants.forEach(async variant => {
-						if (variant.exists) {
-							console.log('variant found : ', variant.id)
-							await this.props.firebase.db
-								.doc(
-									`products/${snapshot.id}/variants/${variant.id}`
-								)
-								.set({
-									pid: variant.id,
-									type: 'color',
-									value: variant.data().attributes.color,
-									slug: variant.data().slug
-								})
-							// await this.props.firebase.db
-							// 	.doc(
-							// 		`products/${variant.id}/variants/${snapshot.id}`
-							// 	)
-							// 	.set({
-							// 		pid: snapshot.id,
-							// 		type: 'color',
-							// 		value: product.attributes.color,
-							// 		slug: product.slug
-							// 	})
-						}
-					})
+					}
+						
 				}
+				variants = await variants.get()
+				variants.forEach(async variant => {
+					if (variant.exists) {
+						console.log('variant found : ', variant.id)
+						await this.props.firebase.db
+							.doc(
+								`products/${snapshot.id}/variants/${variant.id}`
+							)
+							.set({
+								pid: variant.id,
+								type: 'color',
+								value: variant.data().attributes.color,
+								slug: variant.data().slug
+							})
+					}
+				})
 			}
 		}
 		this.setState({ generatingVariants: false })

@@ -116,6 +116,7 @@ class AttributesBulkUpload extends Component {
 				let value_name = row[4]
 				let value_sku = row[5]
 				let value_hexcode = row[6]
+				console.log(i,type,subtype,name,value_id,value_name)
 				if (type && subtype && name && value_id && value_name) {
 					let attribute = {
 						type,
@@ -128,7 +129,7 @@ class AttributesBulkUpload extends Component {
 					}
 					validAttributes.push(attribute)
 				} else {
-					throw 'All the fields are not filled at row '
+					throw 'All the fields are not filled'
 				}
 			} catch (error) {
 				let errorrow = Number(i) + 1
