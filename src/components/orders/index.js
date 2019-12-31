@@ -476,7 +476,7 @@ class OrderItem extends Component {
 	}
 
 	toggleSelecting = () => {
-		if (this.props.order.status !== types.ORDER_STATUS_PLACED) return
+		if (this.props.order.status === types.ORDER_STATUS_CREATED || this.props.order.status === 'CLOSED') return
 		this.setState({ selecting: !this.state.selecting })
 	}
 
@@ -1048,51 +1048,7 @@ class OrderItem extends Component {
 																			}
 																		/>
 																	</Col>
-																	<Col>
-																		<Label
-																			style={{
-																				marginRight:
-																					'20px',
-																				color:
-																					'#20a8d8',
-																				cursor:
-																					'pointer'
-																			}}
-																			onClick={() => {
-																				this.fetchInventory(
-																					product.pid,
-																					sku
-																				)
-																			}}
-																		>
-																			Check
-																			Inventory
-																		</Label>
-																		{inventory[
-																			sku
-																		] && (
-																			<span
-																				style={{
-																					marginRight:
-																						'10px'
-																				}}
-																				key={
-																					index
-																				}
-																				className='badge badge-primary'
-																			>
-																				{(utils.isEmpty(
-																					sku.name
-																				)
-																					? ''
-																					: sku.name +
-																					  ' : ') +
-																					sku.reserved +
-																					'|' +
-																					sku.stock}
-																			</span>
-																		)}
-																	</Col>
+																	
 																</Row>
 															</Col>
 														</Row>
