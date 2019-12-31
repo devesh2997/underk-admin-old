@@ -6,8 +6,8 @@ const URL_INIT_DELIVERY =
 const URL_CANCEL_PRODUCT =
 	'https://us-central1-underk-firebase.cloudfunctions.net/adminApp/cancelProduct'
 
-const initDelivery = async (order_id, skus, warehouse) => {
-	let body = { order_id, skus, warehouse }
+const initDelivery = async (order_id, orderFulfilments, warehouse) => {
+	let body = { order_id, orderFulfilments, warehouse }
 	try {
 		let res = await axios.post(URL_INIT_DELIVERY, body)
 		return res

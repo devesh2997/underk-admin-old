@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 
 import { withFirebase } from '../../firebase'
 
+import * as utils from '../../utils'
+
 import {
 	paiseToRupeeString,
 	timeStampToLocaleString,
@@ -460,12 +462,12 @@ class OrderItem extends Component {
 		this.state = {
 			collapsed: true,
 			selecting: false,
-			canManifest: false,
-			canCancel: false,
 			selectedSKUs: [],
+			selectedInventory: {},
 			loading: false,
 			errors: [],
-			inventory: {}
+			inventory: {},
+			selectingInventory: false
 		}
 	}
 
@@ -478,16 +480,58 @@ class OrderItem extends Component {
 		this.setState({ selecting: !this.state.selecting })
 	}
 
+	selectInventory = async () => {
+		this.setState({ loading: true })
+		let order = this.props.order
+		let selectedSKUs = this.state.selectedSKUs
+		let inventory = this.state.inventory
+		for (let i = 0; i < selectedSKUs.length; i++) {
+			let orderProductId = order.products[selectedSKUs[i]].product.pid
+			if (utils.isEmpty(inventory[orderProductId])) {
+				let snapshot = await this.props.firebase
+					.inventoryOfProduct(orderProductId)
+					.get()
+				if (snapshot.exists) {
+					snapshot = snapshot.data()
+					inventory[selectedSKUs[i]] = snapshot[selectedSKUs[i]]
+				}
+			}
+		}
+		console.log('ii', inventory)
+		this.setState({ loading: false, selectingInventory: true, inventory })
+	}
+
 	onManifest = async () => {
 		let selectedSKUs = this.state.selectedSKUs
+		let selectedInventory = this.state.selectedInventory
+		let inventory = this.state.inventory
 		let order = this.props.order
-		this.setState({ loading: true, errors: [] })
+		this.setState({ loading: true, errors: [], selectingInventory: false })
+		let skus = []
+		Object.keys(selectedInventory).map((sku, index) => {
+			let f = {}
+			f['sku'] = sku
+			f['fulfil'] = {
+				[selectedInventory[sku]]: order.products[sku]['quantity']
+			}
+			skus.push(f)
+		})
+		console.log('prepared skkus', skus)
 		let err, _r
-		;[err, _r] = await to(
-			initDelivery(order.oid, selectedSKUs, 'ahmedabad')
-		)
+		;[err, _r] = await to(initDelivery(order.oid, skus, 'ahmedabad'))
+		if (_r['status'] === 'success') {
+			//TODO
+		}else{
+			
+		}
 		console.log(_r)
-		this.setState({ loading: false, errors: [err] })
+		this.setState({
+			loading: false,
+			errors: [err],
+			selectedInventory: {},
+			selectedSKUs: [],
+			selecting: false
+		})
 	}
 
 	onCancel = async () => {
@@ -519,24 +563,7 @@ class OrderItem extends Component {
 		} else {
 			selectedSKUs.push(event.target.name)
 		}
-		let canManifest = selectedSKUs.length > 0
-		let canCancel = selectedSKUs.length > 0
-		for (let i = 0; i < selectedSKUs.length; i++) {
-			let sku = selectedSKUs[i]
-			let product = order.products[sku]
-			let productStatus = product.status
-			let productDeliveryStatus = product.delivery.status
-			if (productStatus !== types.PRODUCT_STATUS_INIT) {
-				canCancel = false
-			}
-			if (
-				productDeliveryStatus !== types.DELIVERY_STATUS_INIT ||
-				productStatus === types.PRODUCT_STATUS_CANCELLED ||
-				productStatus === types.PRODUCT_STATUS_USER_CANCELLED
-			)
-				canManifest = false
-		}
-		this.setState({ selectedSKUs, canCancel, canManifest })
+		this.setState({ selectedSKUs })
 	}
 
 	isChecked = sku => {
@@ -545,15 +572,15 @@ class OrderItem extends Component {
 		return isPresent ? true : false
 	}
 
-	fetchInventory = pid => {
+	fetchInventory = async (pid, sku) => {
 		this.setState({ loading: true })
-		let snapshot = this.props.firebase
+		return this.props.firebase
 			.inventoryOfProduct(pid)
 			.onSnapshot(snapshot => {
 				let inventory = this.state.inventory
 				if (snapshot.exists) {
 					snapshot = snapshot.data()
-					inventory[pid] = snapshot
+					inventory[sku] = snapshot[sku]
 				}
 
 				this.setState({
@@ -563,6 +590,17 @@ class OrderItem extends Component {
 			})
 	}
 
+	onCancelSelectingInventory = () => {
+		this.setState({ selectingInventory: false })
+	}
+
+	onSelectInventory = event => {
+		let selectedInventory = this.state.selectedInventory
+		selectedInventory[event.target.name] = event.target.value
+		console.log('tri', selectedInventory)
+		this.setState({ selectedInventory })
+	}
+
 	render () {
 		let { order, index } = this.props
 		let address = order.address
@@ -570,13 +608,37 @@ class OrderItem extends Component {
 		let {
 			collapsed,
 			selecting,
-			canManifest,
-			canCancel,
 			selectedSKUs,
+			selectedInventory,
 			loading,
 			errors,
-			inventory
+			inventory,
+			selectingInventory
 		} = this.state
+
+		let canSelectInventory = selectedSKUs.length > 0
+		let canCancel = selectedSKUs.length > 0
+		let canManifest = true
+		for (let i = 0; i < selectedSKUs.length; i++) {
+			let sku = selectedSKUs[i]
+			let product = order.products[sku]
+			let productStatus = product.status
+			let productDeliveryStatus = product.delivery.status
+
+			if (utils.isEmpty(selectedInventory[sku])) {
+				canManifest = false
+			}
+			if (productStatus !== types.PRODUCT_STATUS_INIT) {
+				canCancel = false
+			}
+			if (
+				productDeliveryStatus !== types.DELIVERY_STATUS_INIT ||
+				productStatus === types.PRODUCT_STATUS_CANCELLED ||
+				productStatus === types.PRODUCT_STATUS_USER_CANCELLED
+			)
+				canSelectInventory = false
+		}
+
 		return (
 			<ListGroupItem
 				style={{
@@ -654,311 +716,438 @@ class OrderItem extends Component {
 				</div>
 
 				<Collapse isOpen={!collapsed}>
-					<ListGroup style={{ marginTop: '20px' }}>
-						<ListGroupItem>
-							<Row>
-								<Col sm='1'>
-									<i
-										className='fa fa-list'
-										aria-hidden='true'
-										style={{
-											color: !selecting
-												? '#000000'
-												: '#20a8d8',
-											cursor: 'pointer'
-										}}
-										onClick={this.toggleSelecting}
-									></i>
-								</Col>
-								<Col>
-									<InputGroup>
-										<Label>MRP : </Label>
-										<Label>
-											{' ' +
-												paiseToRupeeString(summary.mrp)}
-										</Label>
-									</InputGroup>
-								</Col>
-								<Col>
-									<InputGroup>
-										<Label>Discount :</Label>
-										<Label>
-											{' ' +
-												paiseToRupeeString(
-													summary.discount
-												)}
-										</Label>
-									</InputGroup>
-								</Col>
-								<Col>
-									{summary && summary.deliveryChargeApplied && (
-										<InputGroup>
-											<Label>Delivery Charge :</Label>
-											<Label>
-												{' ' +
-													paiseToRupeeString(
-														summary.deliveryCharge
-													)}
-											</Label>
-										</InputGroup>
-									)}
-								</Col>
-								<Col>
-									<InputGroup>
-										<Label>Total : </Label>
-										<Label>
-											{' ' +
-												paiseToRupeeString(
-													summary.total
-												)}
-										</Label>
-									</InputGroup>
-								</Col>
-							</Row>
-						</ListGroupItem>
-						{loading && (
-							<i className='fa fa-refresh fa-spin fa-3x fa-fw' />
-						)}
-						{!loading &&
-							Object.keys(order.products).map((sku, index) => {
-								let orderProduct = order.products[sku]
-								let product = orderProduct['product']
-								let productStatus = orderProduct.status
-								let deliveryStatus =
-									orderProduct.delivery.status
-								let enabled =
-									productStatus !==
-										types.PRODUCT_STATUS_USER_CANCELLED &&
-									productStatus !==
-										types.PRODUCT_STATUS_CANCELLED
+					{selectingInventory && (
+						<ListGroup style={{ marginTop: '20px' }}>
+							{selectedSKUs.map((sku, index) => {
+								const orderProduct = order.products[sku]
+								const product = orderProduct.product
+
 								return (
 									<ListGroupItem key={index}>
 										<Row>
-											<Col>
+											<Col sm='2.5'>
+												<img
+													style={{
+														maxWidth: '50px',
+														maxHeight: '50px'
+													}}
+													src={product.asset.url}
+												/>
+											</Col>
+											<Col sm='4'>
+												<Row>{product.title}</Row>
+												<Row>{product.name}</Row>
 												<Row>
-													<Col sm='0.5'>
-														{selecting &&
-															enabled && (
-																<Input
-																	type='checkbox'
-																	name={sku}
-																	checked={this.isChecked(
-																		sku
-																	)}
-																	onChange={
-																		this
-																			.onChecked
-																	}
-																/>
-															)}
-													</Col>
-													<Col sm='2.5'>
-														<img
-															style={{
-																maxWidth:
-																	'75px',
-																maxHeight:
-																	'75px'
-															}}
-															src={
-																product.asset
-																	.url
-															}
-														/>
-													</Col>
-													<Col sm='4'>
-														<Row
-															style={{
-																fontSize:
-																	'1.5em'
-															}}
-														>
-															{product.title}
-														</Row>
-														<Row>
-															{
-																product.category
-																	.name
-															}
-														</Row>
-														<Row
-															style={{
-																fontSize:
-																	'1.2em'
-															}}
-														>
-															{product.option
-																.based_on +
-																': ' +
-																product.option
-																	.name +
-																', qty: ' +
-																orderProduct.quantity}
-														</Row>
-													</Col>
-													<Col sm='6'>
-														<Row>
-															<Col>
-																{'Price: ' +
-																	paiseToRupeeString(
-																		product.listPrice
-																	)}
-															</Col>
-															<Col>
-																{'Discount: ' +
-																	paiseToRupeeString(
-																		product.discount
-																	)}
-															</Col>
-															<Col>
-																{'Quantity: ' +
-																	orderProduct.quantity}
-															</Col>
-															<Col>
-																{'Total: ' +
-																	paiseToRupeeString(
-																		(product.listPrice -
-																			product.discount) *
-																			orderProduct.quantity
-																	)}
-															</Col>
-														</Row>
-														<Row
-															style={{
-																marginTop:
-																	'20px'
-															}}
-														>
-															<Col>
-																<Label
-																	style={{
-																		marginRight:
-																			'20px'
-																	}}
-																>
-																	Product
-																	Status :
-																</Label>
-
-																<StatusBadge
-																	status={
-																		productStatus
-																	}
-																/>
-															</Col>
-															<Col>
-																<Label
-																	style={{
-																		marginRight:
-																			'20px'
-																	}}
-																>
-																	Delivery
-																	Status :
-																</Label>
-
-																<StatusBadge
-																	status={
-																		deliveryStatus
-																	}
-																/>
-															</Col>
-															<Col>
-																<Label
-																	style={{
-																		marginRight:
-																			'20px',
-																		color:
-																			'#20a8d8',
-																		cursor:
-																			'pointer'
-																	}}
-																	onClick={() => {
-																		this.fetchInventory(
-																			product.pid
-																		)
-																	}}
-																>
-																	Check
-																	Inventory
-																</Label>
-																{inventory[
-																	product.pid
-																] &&
-																	Object.keys(
-																		inventory[
-																			product
-																				.pid
-																		]
-																	).map(
-																		(
-																			sku,
-																			index
-																		) => {
-                                                                            sku = inventory[product.pid][sku]
-																			return (
-																				<span
-                                                                                style={{marginRight:'10px'}}
-																					key={
-																						index
-																					}
-																					className='badge badge-primary'
-																				>
-																					{sku.name +
-																						' : ' +
-																						sku.reserved +
-																						'|' +
-																						sku.stock}
-																				</span>
-																			)
-																		}
-																	)}
-															</Col>
-														</Row>
-													</Col>
+													{product.option.based_on +
+														': ' +
+														product.option.name +
+														', qty: ' +
+														orderProduct.quantity}
 												</Row>
+											</Col>
+											<Col>
+												<Input
+													type='select'
+													name={sku}
+													value={
+														selectedInventory[sku]
+													}
+													onChange={
+														this.onSelectInventory
+													}
+												>
+													<option value={null}>
+														Select Supplier
+													</option>
+													{Object.keys(
+														inventory[sku][
+															'inventory'
+														]
+													).map((supp_id, index) => {
+														let supplierInventory =
+															inventory[sku][
+																'inventory'
+															][supp_id]
+														return (
+															<option
+																key={index}
+																value={supp_id}
+															>
+																{supp_id +
+																	', stock: ' +
+																	supplierInventory[
+																		'stock'
+																	] +
+																	', cp:' +
+																	utils.paiseToRupeeString(
+																		supplierInventory[
+																			'cp'
+																		]
+																	)}
+															</option>
+														)
+													})}
+												</Input>
 											</Col>
 										</Row>
 									</ListGroupItem>
 								)
 							})}
-						<ListGroupItem>
-							<Row>
-								<Col>
-									{canManifest && (
-										<Button
-											color='primary'
-											onClick={this.onManifest}
-										>
-											Manifest
-										</Button>
-									)}
-								</Col>
-								<Col>
-									{canCancel && (
-										<Button
-											color='danger'
-											onClick={this.onCancel}
-										>
-											Cancel
-										</Button>
-									)}
-								</Col>
-							</Row>
-						</ListGroupItem>
-						{errors.map((error, index) => {
-							if (error !== null && typeof error !== 'undefined')
-								return (
-									<ListGroupItem
-										style={{ color: 'red' }}
-										key={index}
-									>
-										{error.toString()}
-									</ListGroupItem>
+							<ListGroupItem>
+								<Row>
+									<Col>
+										{canManifest && (
+											<Button
+												color='primary'
+												onClick={this.onManifest}
+											>
+												Manifest
+											</Button>
+										)}
+									</Col>
+									<Col>
+										{canCancel && (
+											<Button
+												color='danger'
+												onClick={
+													this
+														.onCancelSelectingInventory
+												}
+											>
+												Cancel
+											</Button>
+										)}
+									</Col>
+								</Row>
+							</ListGroupItem>
+						</ListGroup>
+					)}
+					{!selectingInventory && (
+						<ListGroup style={{ marginTop: '20px' }}>
+							<ListGroupItem>
+								<Row>
+									<Col sm='1'>
+										<i
+											className='fa fa-list'
+											aria-hidden='true'
+											style={{
+												color: !selecting
+													? '#000000'
+													: '#20a8d8',
+												cursor: 'pointer'
+											}}
+											onClick={this.toggleSelecting}
+										></i>
+									</Col>
+									<Col>
+										<InputGroup>
+											<Label>MRP : </Label>
+											<Label>
+												{' ' +
+													paiseToRupeeString(
+														summary.mrp
+													)}
+											</Label>
+										</InputGroup>
+									</Col>
+									<Col>
+										<InputGroup>
+											<Label>Discount :</Label>
+											<Label>
+												{' ' +
+													paiseToRupeeString(
+														summary.discount
+													)}
+											</Label>
+										</InputGroup>
+									</Col>
+									<Col>
+										{summary &&
+											summary.deliveryChargeApplied && (
+												<InputGroup>
+													<Label>
+														Delivery Charge :
+													</Label>
+													<Label>
+														{' ' +
+															paiseToRupeeString(
+																summary.deliveryCharge
+															)}
+													</Label>
+												</InputGroup>
+											)}
+									</Col>
+									<Col>
+										<InputGroup>
+											<Label>Total : </Label>
+											<Label>
+												{' ' +
+													paiseToRupeeString(
+														summary.total
+													)}
+											</Label>
+										</InputGroup>
+									</Col>
+								</Row>
+							</ListGroupItem>
+							{loading && (
+								<i className='fa fa-refresh fa-spin fa-3x fa-fw' />
+							)}
+							{!loading &&
+								Object.keys(order.products).map(
+									(sku, index) => {
+										let orderProduct = order.products[sku]
+										let product = orderProduct['product']
+										let productStatus = orderProduct.status
+										let deliveryStatus =
+											orderProduct.delivery.status
+										let enabled =
+											productStatus !==
+												types.PRODUCT_STATUS_USER_CANCELLED &&
+											productStatus !==
+												types.PRODUCT_STATUS_CANCELLED
+										return (
+											<ListGroupItem key={index}>
+												<Row>
+													<Col>
+														<Row>
+															<Col sm='0.5'>
+																{selecting &&
+																	enabled && (
+																		<Input
+																			type='checkbox'
+																			name={
+																				sku
+																			}
+																			checked={this.isChecked(
+																				sku
+																			)}
+																			onChange={
+																				this
+																					.onChecked
+																			}
+																		/>
+																	)}
+															</Col>
+															<Col sm='2.5'>
+																<img
+																	style={{
+																		maxWidth:
+																			'75px',
+																		maxHeight:
+																			'75px'
+																	}}
+																	src={
+																		product
+																			.asset
+																			.url
+																	}
+																/>
+															</Col>
+															<Col sm='4'>
+																<Row
+																	style={{
+																		fontSize:
+																			'1.5em'
+																	}}
+																>
+																	{
+																		product.title
+																	}
+																</Row>
+																<Row>
+																	{
+																		product
+																			.category
+																			.name
+																	}
+																</Row>
+																<Row
+																	style={{
+																		fontSize:
+																			'1.2em'
+																	}}
+																>
+																	{product
+																		.option
+																		.based_on +
+																		': ' +
+																		product
+																			.option
+																			.name +
+																		', qty: ' +
+																		orderProduct.quantity}
+																</Row>
+															</Col>
+															<Col sm='6'>
+																<Row>
+																	<Col>
+																		{'Price: ' +
+																			paiseToRupeeString(
+																				product.listPrice
+																			)}
+																	</Col>
+																	<Col>
+																		{'Discount: ' +
+																			paiseToRupeeString(
+																				product.discount
+																			)}
+																	</Col>
+																	<Col>
+																		{'Quantity: ' +
+																			orderProduct.quantity}
+																	</Col>
+																	<Col>
+																		{'Total: ' +
+																			paiseToRupeeString(
+																				(product.listPrice -
+																					product.discount) *
+																					orderProduct.quantity
+																			)}
+																	</Col>
+																</Row>
+																<Row
+																	style={{
+																		marginTop:
+																			'20px'
+																	}}
+																>
+																	<Col>
+																		<Label
+																			style={{
+																				marginRight:
+																					'20px'
+																			}}
+																		>
+																			Product
+																			Status
+																			:
+																		</Label>
+
+																		<StatusBadge
+																			status={
+																				productStatus
+																			}
+																		/>
+																	</Col>
+																	<Col>
+																		<Label
+																			style={{
+																				marginRight:
+																					'20px'
+																			}}
+																		>
+																			Delivery
+																			Status
+																			:
+																		</Label>
+
+																		<StatusBadge
+																			status={
+																				deliveryStatus
+																			}
+																		/>
+																	</Col>
+																	<Col>
+																		<Label
+																			style={{
+																				marginRight:
+																					'20px',
+																				color:
+																					'#20a8d8',
+																				cursor:
+																					'pointer'
+																			}}
+																			onClick={() => {
+																				this.fetchInventory(
+																					product.pid,
+																					sku
+																				)
+																			}}
+																		>
+																			Check
+																			Inventory
+																		</Label>
+																		{inventory[
+																			sku
+																		] && (
+																			<span
+																				style={{
+																					marginRight:
+																						'10px'
+																				}}
+																				key={
+																					index
+																				}
+																				className='badge badge-primary'
+																			>
+																				{(utils.isEmpty(
+																					sku.name
+																				)
+																					? ''
+																					: sku.name +
+																					  ' : ') +
+																					sku.reserved +
+																					'|' +
+																					sku.stock}
+																			</span>
+																		)}
+																	</Col>
+																</Row>
+															</Col>
+														</Row>
+													</Col>
+												</Row>
+											</ListGroupItem>
+										)
+									}
+								)}
+							{
+								<ListGroupItem>
+									<Row>
+										<Col>
+											{canSelectInventory && (
+												<Button
+													color='primary'
+													onClick={
+														this.selectInventory
+													}
+												>
+													Select Inventory
+												</Button>
+											)}
+										</Col>
+										<Col>
+											{canCancel && (
+												<Button
+													color='danger'
+													onClick={this.onCancel}
+												>
+													Cancel
+												</Button>
+											)}
+										</Col>
+									</Row>
+								</ListGroupItem>
+							}
+
+							{errors.map((error, index) => {
+								if (
+									error !== null &&
+									typeof error !== 'undefined'
 								)
-							else return <div key={index}></div>
-						})}
-					</ListGroup>
+									return (
+										<ListGroupItem
+											style={{ color: 'red' }}
+											key={index}
+										>
+											{error.toString()}
+										</ListGroupItem>
+									)
+								else return <div key={index}></div>
+							})}
+						</ListGroup>
+					)}
 				</Collapse>
 			</ListGroupItem>
 		)

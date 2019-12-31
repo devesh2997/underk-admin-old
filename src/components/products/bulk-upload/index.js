@@ -453,29 +453,6 @@ class BulkUpload extends Component {
 								})
 							}
 						}
-						// Object.keys(options).forEach(sizeName => {
-						// 	let size = sizes.find(s => s.name === sizeName)
-						// 	if (!size) {
-						// 		throw 'Invalid size name'
-						// 	}
-						// 	let quantity = options[sizeName]['qty']
-						// 	let order = options[sizeName]['order']
-						// 	if (isNaN(quantity)) {
-						// 		throw 'Invalid quantity given for size ' +
-						// 			sizeName
-						// 	}
-						// 	if (isNaN(order)) {
-						// 		throw 'Invalid order given for size ' + sizeName
-						// 	}
-						// 	sizeValues[sizeName] = { quantity, order }
-						// })
-
-						// let attributes = { subtype, color, style, design }
-						// options = {
-						// 	type: 'multiple',
-						// 	based_on: 'size',
-						// 	values: sizeValues
-						// }
 						product = {
 							type,
 							subtype,
@@ -485,8 +462,6 @@ class BulkUpload extends Component {
 							isActive,
 							gender,
 							category,
-							// supplier_id,
-							// supplier_sku,
 							listPrice,
 							discount,
 							taxPercent,
@@ -494,7 +469,8 @@ class BulkUpload extends Component {
 							type,
 							collections,
 							options,
-							attributes
+							attributes,
+							keywords
 						}
 
 						let pr = validProducts.find(p => p.slug == product.slug)
