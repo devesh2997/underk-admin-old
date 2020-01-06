@@ -44,6 +44,10 @@ const isEmpty = o => {
 	return o === null || o === undefined || (o !== undefined && o.length === 0)
 }
 
+const prepareAttributeFilter = (name,valueId) =>{
+	return name.toLowerCase()+":"+valueId.toLowerCase()
+}
+
 const INVENTORY_TRANSACTION_TYPE = {
 	INCREASE: 'INCREASE',
 	DECREASE: 'DECREASE',
@@ -202,5 +206,6 @@ export {
 	getDateTimeStampFromDate,
 	timeStampToDateLocaleString,
 	timeStampToTimeLocaleString,
-	isEmpty
+	isEmpty,
+	prepareAttributeFilter
 }

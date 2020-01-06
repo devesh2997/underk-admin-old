@@ -3,7 +3,7 @@ import { withFirebase } from '../../../firebase'
 import { Card, CardBody, CardHeader } from 'reactstrap'
 import { Form, FormGroup, Input, Label, Button } from 'reactstrap'
 import CSVReader from 'react-csv-reader'
-import { generateSKU, isEmpty } from '../../../utils'
+import { generateSKU, isEmpty, prepareAttributeFilter } from '../../../utils'
 
 import {
 	Container,
@@ -175,7 +175,6 @@ class BulkUpload extends Component {
 		})
 	}
 
-
 	onAssetsFolderChanged = event => {
 		let assetFiles = event.target.files
 		assetFiles = Array.from(assetFiles)
@@ -238,7 +237,7 @@ class BulkUpload extends Component {
 					let category = row[6]
 					let collections = JSON.parse(row[7])
 					let listPrice = Number(row[8])
-					let discount = row[9]
+					let discount = Number(row[9])
 					let taxPercent = Number(row[10])
 					let isInclusiveTax = row[11] === 'TRUE'
 					let attributes = JSON.parse(row[12])
@@ -311,6 +310,7 @@ class BulkUpload extends Component {
 						let rowAttributesAll =
 							attributesAll[type]['subtypes'][subtype]
 						let attributesTemp = {}
+						let filters = []
 						let skuOrdering
 						if (types[type]['subtypes'][subtype]['skuOrdering']) {
 							skuOrdering =
@@ -339,6 +339,57 @@ class BulkUpload extends Component {
 									attributesTemp[attributeName][
 										'filterable'
 									] = filterable
+									if (filterable) {
+										filters.push(
+											prepareAttributeFilter(
+												attributeName,
+												attributeValueId
+											)
+										)
+									}
+								}
+							}
+						}
+
+						let attributeNames = Object.keys(attributes)
+						for (let j = 0; j < attributeNames.length; j++) {
+							if (isEmpty(attributesTemp[attributeNames[j]])) {
+								let attributeValueId =
+									attributes[attributeNames[j]]
+								let filterable = !attributeValueId.includes(
+									':nf'
+								)
+								if (
+									isEmpty(rowAttributesAll[attributeNames[j]])
+								) {
+									throw 'Invalid attribute name'
+								} else {
+									if (
+										isEmpty(
+											rowAttributesAll[attributeNames[j]][
+												attributeValueId
+											]
+										)
+									) {
+										throw 'invalid attribute value for attribute: ' +
+											attributeNames[j]
+									} else {
+										attributesTemp[attributeNames[j]] =
+											rowAttributesAll[attributeNames[j]][
+												attributeValueId
+											]
+										attributesTemp[attributeNames[j]][
+											'filterable'
+										] = filterable
+										if (filterable) {
+											filters.push(
+												prepareAttributeFilter(
+													attributeNames[j],
+													attributeValueId
+												)
+											)
+										}
+									}
 								}
 							}
 						}
@@ -453,6 +504,7 @@ class BulkUpload extends Component {
 								})
 							}
 						}
+						const sellingPrice = listPrice - discount
 						product = {
 							type,
 							subtype,
@@ -463,6 +515,7 @@ class BulkUpload extends Component {
 							gender,
 							category,
 							listPrice,
+							sellingPrice,
 							discount,
 							taxPercent,
 							isInclusiveTax,
@@ -470,7 +523,8 @@ class BulkUpload extends Component {
 							collections,
 							options,
 							attributes,
-							keywords
+							keywords,
+							filters
 						}
 
 						let pr = validProducts.find(p => p.slug == product.slug)
@@ -715,7 +769,8 @@ class BulkUpload extends Component {
 				}
 				product['assets'] = assets
 				let inventory = validProducts[i].inventory
-				let inventoryTransactions = validProducts[i].inventoryTransactions
+				let inventoryTransactions =
+					validProducts[i].inventoryTransactions
 				let prevProductRef = this.props.firebase
 					.products()
 					.where('slug', '==', product.slug)
@@ -869,7 +924,8 @@ class BulkUpload extends Component {
 								<Col>
 									Inventory -{' '}
 									{Object.keys(i).map((sku, index) => {
-										if(sku ==='skus')return <span key={index}></span>
+										if (sku === 'skus')
+											return <span key={index}></span>
 										let stock = 0
 										const inventoryKeys = Object.keys(
 											i[sku]['inventory']
