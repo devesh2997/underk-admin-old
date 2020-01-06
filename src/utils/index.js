@@ -88,16 +88,19 @@ const generateSKU = (product, skuOrdering, suppliers, attributesAll) => {
 				let quantity = Number(productOptions[key]['qty'])
 				let order = Number(productOptions[key]['order'])
 				let cp = Number(productOptions[key]['cp'])
+				let id = productOption.id
 				if (isEmpty(skus[optionSku])) {
 					const inStock = quantity > 0
 					const lessThanTen = quantity <= 10 ? quantity : 10
 					const name = productOption.name
 					skus[optionSku] = {
+						id,
 						order,
 						inStock,
 						lessThanTen,
 						name,
-						exists: true
+						exists: true,
+						sku: productOption.sku
 					}
 				} else {
 					const oldSkuValue = skus[optionSku]

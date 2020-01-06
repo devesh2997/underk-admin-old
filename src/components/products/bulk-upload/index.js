@@ -312,6 +312,8 @@ class BulkUpload extends Component {
 						let attributesTemp = {}
 						let filters = []
 						let skuOrdering
+						filters.push(prepareAttributeFilter('type', type))
+						filters.push(prepareAttributeFilter('subtype', subtype))
 						if (types[type]['subtypes'][subtype]['skuOrdering']) {
 							skuOrdering =
 								types[type]['subtypes'][subtype]['skuOrdering']
@@ -431,6 +433,8 @@ class BulkUpload extends Component {
 							})
 							let basedOn = options['based_on']
 							if (options['type'] === 'multiple') {
+								if(isEmpty(basedOn))
+									throw 'Based on name not provided.'
 								productSuppliers.map((sid, index) => {
 									let productOptions = Object.keys(
 										options['inventory'][sid]
@@ -474,6 +478,7 @@ class BulkUpload extends Component {
 											isEmpty(optionInventory['cp'])
 										)
 											throw 'Invalid inventory'
+										filters.push(prepareAttributeFilter(basedOn,productOptions[i]))
 									}
 								})
 							} else {
@@ -504,7 +509,8 @@ class BulkUpload extends Component {
 								})
 							}
 						}
-						const sellingPrice = listPrice - discount
+						const sellingPrice = Number(listPrice - discount)
+						const createdAt = new Date().getTime()
 						product = {
 							type,
 							subtype,
@@ -524,7 +530,8 @@ class BulkUpload extends Component {
 							options,
 							attributes,
 							keywords,
-							filters
+							filters,
+							createdAt
 						}
 
 						let pr = validProducts.find(p => p.slug == product.slug)
@@ -731,6 +738,77 @@ class BulkUpload extends Component {
 		)
 	}
 
+	uploadNewProduct = async i => {
+		console.log('uploading product init')
+		let { validProducts, errors } = this.state
+		validProducts[i]['uploading'] = true
+		this.setState({ validProducts })
+		let product = validProducts[i].product
+		let synced = validProducts[i].synced
+		let syncing = validProducts[i].syncing
+		if (!syncing && synced) {
+			let assets = {}
+			for (let j = 0; j < product.assets.length; j++) {
+				let asset = product.assets[j]
+				let newAsset = await this.uploadTaskPromise(
+					product.slug,
+					asset,
+					this.props.firebase
+				)
+				if (newAsset === undefined) {
+					errors.push(
+						'Error in uploading asset with name : ' + asset.name
+					)
+				} else {
+					assets[asset.name] = newAsset
+					this.setState({
+						numOfAssetsUploaded: this.state.numOfAssetsUploaded + 1
+					})
+				}
+			}
+			product['assets'] = assets
+			let inventory = validProducts[i].inventory
+			let inventoryTransactions = validProducts[i].inventoryTransactions
+			let prevProductRef = this.props.firebase
+				.products()
+				.where('slug', '==', product.slug)
+			let productsRef = this.props.firebase.products()
+			let newProductRef = productsRef.doc()
+			let inventoryRef = this.props.firebase.inventory()
+			let inventoryTransactionsRef = this.props.firebase.inventoryTransactions()
+			let prevProduct = await prevProductRef.get()
+			if (prevProduct.empty) {
+				let batch = this.props.firebase.db.batch()
+				batch.set(newProductRef, product)
+				batch.set(inventoryRef.doc(newProductRef.id), inventory)
+				for (let j = 0; j < inventoryTransactions.length; j++) {
+					inventoryTransactions[j].pid = newProductRef.id
+					batch.set(
+						inventoryTransactionsRef.doc(),
+						inventoryTransactions[j]
+					)
+				}
+				try {
+					await batch.commit()
+					console.log('Uploaded product with id' + newProductRef.id)
+					validProducts[i]['queued'] = false
+					validProducts[i]['uploading'] = false
+					this.setState({
+						numOfCreatedProducts:
+							this.state.numOfCreatedProducts + 1,
+						validProducts
+					})
+				} catch (e) {
+					validProducts[i]['error'] = e
+					this.setState({ validProducts })
+					console.error(e)
+				}
+			}
+			// validProducts[i].product = product
+			// console.log(validProducts[i])
+		}
+	}
+
 	uploadNewProducts = async () => {
 		let { validProducts, errors } = this.state
 		this.setState({ uploading: true })
@@ -741,76 +819,8 @@ class BulkUpload extends Component {
 		}
 		for (let i = 0; i < validProducts.length; i++) {
 			if (validProducts[i]['indb']) continue
-			let assets = {}
-			validProducts[i]['uploading'] = true
-			this.setState({ validProducts })
-			let product = validProducts[i].product
-			let synced = validProducts[i].synced
-			let syncing = validProducts[i].syncing
-			if (!syncing && synced) {
-				for (let j = 0; j < product.assets.length; j++) {
-					let asset = product.assets[j]
-					let newAsset = await this.uploadTaskPromise(
-						product.slug,
-						asset,
-						this.props.firebase
-					)
-					if (newAsset === undefined) {
-						errors.push(
-							'Error in uploading asset with name : ' + asset.name
-						)
-					} else {
-						assets[asset.name] = newAsset
-						this.setState({
-							numOfAssetsUploaded:
-								this.state.numOfAssetsUploaded + 1
-						})
-					}
-				}
-				product['assets'] = assets
-				let inventory = validProducts[i].inventory
-				let inventoryTransactions =
-					validProducts[i].inventoryTransactions
-				let prevProductRef = this.props.firebase
-					.products()
-					.where('slug', '==', product.slug)
-				let productsRef = this.props.firebase.products()
-				let newProductRef = productsRef.doc()
-				let inventoryRef = this.props.firebase.inventory()
-				let inventoryTransactionsRef = this.props.firebase.inventoryTransactions()
-				let prevProduct = await prevProductRef.get()
-				if (prevProduct.empty) {
-					let batch = this.props.firebase.db.batch()
-					batch.set(newProductRef, product)
-					batch.set(inventoryRef.doc(newProductRef.id), inventory)
-					for (let j = 0; j < inventoryTransactions.length; j++) {
-						inventoryTransactions[j].pid = newProductRef.id
-						batch.set(
-							inventoryTransactionsRef.doc(),
-							inventoryTransactions[j]
-						)
-					}
-					try {
-						await batch.commit()
-						console.log(
-							'Uploaded product with id' + newProductRef.id
-						)
-						validProducts[i]['queued'] = false
-						validProducts[i]['uploading'] = false
-						this.setState({
-							numOfCreatedProducts:
-								this.state.numOfCreatedProducts + 1,
-							validProducts
-						})
-					} catch (e) {
-						validProducts[i]['error'] = e
-						this.setState({ validProducts })
-						console.error(e)
-					}
-				}
-				// validProducts[i].product = product
-				// console.log(validProducts[i])
-			}
+
+			await this.uploadNewProduct(i)
 		}
 		this.setState({ uploading: false })
 	}
@@ -952,6 +962,23 @@ class BulkUpload extends Component {
 										)
 									})}
 								</Col>
+								{!uploading &&
+									!queued &&
+									!syncing &&
+									synced &&
+									p.assets &&
+									p.assets.length > 0 && (
+										<Col sm='1'>
+											<Button
+												color={'primary'}
+												onClick={() =>
+													this.uploadNewProduct(index)
+												}
+											>
+												Upload
+											</Button>
+										</Col>
+									)}
 							</Row>
 						)}
 						{p.assets && (

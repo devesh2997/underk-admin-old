@@ -476,7 +476,11 @@ class OrderItem extends Component {
 	}
 
 	toggleSelecting = () => {
-		if (this.props.order.status === types.ORDER_STATUS_CREATED || this.props.order.status === 'CLOSED') return
+		if (
+			this.props.order.status === types.ORDER_STATUS_CREATED ||
+			this.props.order.status === 'CLOSED'
+		)
+			return
 		this.setState({ selecting: !this.state.selecting })
 	}
 
@@ -521,8 +525,7 @@ class OrderItem extends Component {
 		;[err, _r] = await to(initDelivery(order.oid, skus, 'ahmedabad'))
 		if (_r['status'] === 'success') {
 			//TODO
-		}else{
-			
+		} else {
 		}
 		console.log(_r)
 		this.setState({
@@ -978,6 +981,26 @@ class OrderItem extends Component {
 																		', qty: ' +
 																		orderProduct.quantity}
 																</Row>
+																{product.attributes &&
+																	product
+																		.attributes
+																		.color && (
+																		<Row
+																			style={{
+																				fontSize:
+																					'1.2em'
+																			}}
+																		>
+																			{product
+																				.attributes
+																				.color +
+																				': ' +
+																				product
+																					.attributes
+																					.color
+																					.name}
+																		</Row>
+																	)}
 															</Col>
 															<Col sm='6'>
 																<Row>
@@ -1048,7 +1071,6 @@ class OrderItem extends Component {
 																			}
 																		/>
 																	</Col>
-																	
 																</Row>
 															</Col>
 														</Row>
