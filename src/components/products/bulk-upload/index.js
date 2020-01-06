@@ -221,6 +221,7 @@ class BulkUpload extends Component {
 			types,
 			attributesAll
 		} = this.state
+		console.log('aa', attributesAll)
 		// console.log(types, attributesAll)
 		for (let i in csvdata) {
 			if (Number(i) !== csvdata.length) totalCSVRows++
@@ -286,6 +287,20 @@ class BulkUpload extends Component {
 							gender !== 'U'
 						) {
 							throw 'Invalid gender at row '
+						}
+
+						if (
+							isEmpty(types[type]) ||
+							isEmpty(attributesAll[type])
+						) {
+							throw 'Invalid type'
+						}
+
+						if (
+							isEmpty(types[type]['subtypes'][subtype]) ||
+							isEmpty(attributesAll[type]['subtypes'][subtype])
+						) {
+							throw 'Invalid subtype'
 						}
 
 						if (!types[type]) {
@@ -433,7 +448,7 @@ class BulkUpload extends Component {
 							})
 							let basedOn = options['based_on']
 							if (options['type'] === 'multiple') {
-								if(isEmpty(basedOn))
+								if (isEmpty(basedOn))
 									throw 'Based on name not provided.'
 								productSuppliers.map((sid, index) => {
 									let productOptions = Object.keys(
@@ -478,7 +493,12 @@ class BulkUpload extends Component {
 											isEmpty(optionInventory['cp'])
 										)
 											throw 'Invalid inventory'
-										filters.push(prepareAttributeFilter(basedOn,productOptions[i]))
+										filters.push(
+											prepareAttributeFilter(
+												basedOn,
+												productOptions[i]
+											)
+										)
 									}
 								})
 							} else {
