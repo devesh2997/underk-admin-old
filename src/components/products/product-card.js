@@ -11,6 +11,7 @@ import {
 import { Link } from 'react-router-dom';
 import ROUTES from '../../routes';
 import { withFirebase } from '../../firebase';
+import Switch from 'react-switch';
 
 const siteURL = "https://master.dnznxvwoj6gri.amplifyapp.com";
 
@@ -194,12 +195,34 @@ class ProductCard extends React.Component {
 		this.setState((prevState) => ({ isInventoryModalOpen: !prevState.isInventoryModalOpen }));
 	}
 
+	toggleProduct = () => {
+		const { firebase, product } = this.props;
+
+		firebase.product(product.pid)
+			.set(
+				{
+					isActive: !product.isActive
+				},
+				{ merge: true }
+			);
+	}
+
 	render() {
 		const { product } = this.props;
 		const prdThumb = Object.keys(product.assets).length > 0 ? product.assets[Object.keys(product.assets)[0]] : {};
 
 		return (
 			<div className="prd-card">
+				<span className="btn-toggle">
+					<Switch
+						checked={product.isActive}
+						onChange={this.toggleProduct}
+						onColor="#0dac8e"
+						offColor="#c9c9c9"
+						height={20}
+						width={40}
+					/>
+				</span>
 				<Row className="align-items-center">
 					<div className="thumb">
 						<img src={prdThumb.downloadURL} className="img-fluid" alt={prdThumb.name} />
