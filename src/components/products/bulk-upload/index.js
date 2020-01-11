@@ -531,6 +531,14 @@ class BulkUpload extends Component {
 						}
 						const sellingPrice = Number(listPrice - discount)
 						const createdAt = new Date().getTime()
+						type = {
+							sku: type,
+							name: types[type]['name']
+						}
+						subtype = {
+							sku : types[type]['subtypes'][subtype]['sku'],
+							name: types[type]['subtypes'][subtype]['name']
+						}
 						product = {
 							type,
 							subtype,
