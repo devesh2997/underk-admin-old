@@ -104,12 +104,10 @@ class MobileHomeWidgetsManager extends Component {
 		console.log('drag ended', result)
 		const { source, destination } = result
 		if (destination === null || source.index === destination.index) return
-		let { landingWidgetsLocal } = this.state
-		console.log('before', landingWidgetsLocal)
-		let widget = landingWidgetsLocal.splice(source.index, 1)
-		landingWidgetsLocal.splice(destination.index, 0, widget[0])
-		console.log('after', landingWidgetsLocal)
-		this.setState({ landingWidgetsLocal })
+		let landingWidgets = Array.from(this.state.landingWidgetsLocal)
+		let [ widget ] = landingWidgets.splice(source.index, 1)
+		landingWidgets.splice(destination.index, 0, widget)
+		this.setState({ landingWidgetsLocal: landingWidgets })
 	}
 
 	revert = () => {
@@ -190,9 +188,9 @@ class MobileHomeWidgetsManager extends Component {
 												(doc, index) => {
 													return (
 														<Draggable
-															draggableId={index.toString()}
+															draggableId={doc.id}
+															key={doc.id}
 															index={index}
-															key={index}
 														>
 															{provided => (
 																<LandingWidget
@@ -266,7 +264,7 @@ class LandingWidget extends React.Component {
 				{/* <ListGroupItem>
 					<ListGroupItemHeading></ListGroupItemHeading>{' '}
 					<ListGroupItemText>{doc.priority}</ListGroupItemText>
-					
+
 				</ListGroupItem> */}
 			</div>
 		)
