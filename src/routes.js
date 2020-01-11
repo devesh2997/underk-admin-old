@@ -29,6 +29,7 @@ const CollectionsBulkUpload = React.lazy(()=>import('./components/products/colle
 const AddCollection = React.lazy(() => import('./components/products/collections/add-collection'));
 const Strategies = React.lazy(()=>import('./components/strategies'));
 const MobileHomeWidgetsManager = React.lazy(()=>import('./components/mobile-home-widgets'));
+const AddWidget = React.lazy(()=>import('./components/mobile-home-widgets/add-widget'));
 const ProductItem = React.lazy(()=>import('./components/products/product-item'));
 
 const TempDashboard = () => {
@@ -49,13 +50,21 @@ const routes = {
 	},
 	STRATEGIES: {
 		path: '/strategies',
+		exact: true,
 		name: 'Strategies',
 		component: Strategies
 	},
 	HOME_WIDGETS: {
 		path: '/landing-widgets',
+		exact: true,
 		name: 'Home Widgets',
 		component: MobileHomeWidgetsManager
+	},
+	ADD_WIDGET: {
+		path: '/landing-widgets/add',
+		exact: true,
+		name: 'Add Widget',
+		component: AddWidget
 	},
 	ORDERS: {
 		path: '/orders',

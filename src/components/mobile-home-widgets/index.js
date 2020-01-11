@@ -32,8 +32,10 @@ import {
 } from 'reactstrap'
 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import { Link } from 'react-router-dom'
+import ROUTES from '../../routes';
 
-const WIDGET_TYPES = {
+export const WIDGET_TYPES = {
 	IMAGE: 'image',
 	BANNER: 'banner',
 	COOLSLIDER: 'coolslider',
@@ -176,7 +178,16 @@ class MobileHomeWidgetsManager extends Component {
 						{!loading && !updating && (
 							<Container>
 								<CardFooter style={{ marginBottom: 10 }}>
-									<Button color='link'>Insert</Button>
+									<Link
+										to={{
+											pathname: `${ROUTES.HOME_WIDGETS.path}/add`,
+											state: {
+												priority: 0
+											}
+										}}
+									>
+										Insert
+									</Link>
 								</CardFooter>
 								<Droppable droppableId='landing-widgets'>
 									{provided => (
@@ -259,7 +270,16 @@ class LandingWidget extends React.Component {
 				</Card>
 
 				<CardFooter style={{ marginBottom: 10 }}>
-					<Button color='link'>Insert</Button>
+					<Link
+						to={{
+							pathname: `${ROUTES.HOME_WIDGETS.path}/add`,
+							state: {
+								priority: doc.priority + 1
+							}
+						}}
+					>
+						Insert
+					</Link>
 				</CardFooter>
 				{/* <ListGroupItem>
 					<ListGroupItemHeading></ListGroupItemHeading>{' '}
