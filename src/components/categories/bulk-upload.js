@@ -31,7 +31,7 @@ class CategoriesBulkUpload extends Component {
 		}
 	}
 
-	addCategory = async (cid, name, parent, slug, sku, extras, categories) => {
+	addCategory = async (cid, name, parent, slug, sku, extra, categories) => {
 		let ancestors = []
 		let slugFamily = []
 		let parent_category
@@ -58,7 +58,7 @@ class CategoriesBulkUpload extends Component {
 			parent,
 			slug,
 			sku,
-			extras,
+			extra,
 			ancestors,
 			slugFamily
 		})
@@ -77,7 +77,7 @@ class CategoriesBulkUpload extends Component {
 				validCategory.parent,
                 validCategory.slug,
 				validCategory.sku,
-				validCategory.extras,
+				validCategory.extra,
 				categories
 			)
 		}
@@ -123,9 +123,9 @@ class CategoriesBulkUpload extends Component {
 				let name = row[1]
 				let sku = row[2]
 				let parent = row[3]
-				let extras = row[4] ? JSON.parse(row[4]) : []
+				let extra = row[4] ? JSON.parse(row[4]) : {}
 				if (slug && name && sku) {
-					let category = { slug, name, sku, extras }
+					let category = { slug, name, sku, extra }
 					if (parent && parent.length > 0) {
 						category['parent'] = parent
 					}
