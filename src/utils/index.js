@@ -60,7 +60,7 @@ const generateSKU = (product, skuOrdering, suppliers, attributesAll) => {
 	console.log(attributesAll)
 	let sku = ''
 	sku +=
-		product.gender + product.type + product.subtype + product.category.sku
+		product.gender + product.type.sku + product.subtype.sku + product.category.sku
 
 	for (let i = 0; i < skuOrdering.length; i++) {
 		let attributeName = skuOrdering[i]
