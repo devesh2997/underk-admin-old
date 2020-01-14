@@ -34,8 +34,8 @@ class ProductsHome extends Component {
 			console.log(snapshot)
 			if (snapshot.exists) {
 				let product = snapshot.data()
-				const type = product.type
-				const subtype = product.subtype
+				const type = product.type.sku
+				const subtype = product.subtype.sku
 				const skuOrdering = types[type].subtypes[subtype].skuOrdering
 				const variantsBasis =
 					types[type].subtypes[subtype].variantsBasis
