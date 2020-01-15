@@ -203,6 +203,33 @@ class Firebase {
 		this.db.collection('landing_widgets').orderBy('priority')
 	landingWidget = id => this.db.collection('landing_widgets').doc(id)
 	landingWidgetsAssetsRef = () => this.storage.ref().child('assets_landing')
+
+	// *** emails API */
+	emails = () => this.db.collection('mail')
+	emailsWithStartAndEndDate = (startDate, endDate) => {
+		try {
+			startDate = new Date(
+				startDate.getFullYear(),
+				startDate.getMonth(),
+				startDate.getDate()
+			)
+			let startMilliSecondsSinceEpoch = startDate.getTime()
+			endDate = new Date(
+				endDate.getFullYear(),
+				endDate.getMonth(),
+				endDate.getDate() + 1
+			)
+			let endMilliSecondsSinceEpoch = endDate.getTime()
+			let query = this.db.collection('mail')
+			query = query
+				.where('time', '>=', startMilliSecondsSinceEpoch)
+				.where('time', '<=', endMilliSecondsSinceEpoch)
+			return query.orderBy('time', 'desc')
+		} catch (error) {
+			console.log(error)
+			return null
+		}
+	}
 }
 
 export default Firebase

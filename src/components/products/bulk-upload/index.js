@@ -312,6 +312,7 @@ class BulkUpload extends Component {
 						}
 
 						category = categories.find(c => c.cid === category)
+						delete category.extra
 						if (!category) {
 							throw 'Invalid category id provided'
 						}

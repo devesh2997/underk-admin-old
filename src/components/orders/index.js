@@ -40,8 +40,6 @@ import {
 	Row,
 	ListGroup,
 	ListGroupItem,
-	ListGroupItemHeading,
-	ListGroupItemText,
 	Collapse
 } from 'reactstrap'
 

@@ -43,10 +43,10 @@ class ProductsHome extends Component {
 				console.log('generating for : ', snapshot.id)
 				let variants = this.props.firebase
 					.products()
-					.where('type', '==', type)
+					.where('type.sku', '==', type)
 					.where('gender', '==', product.gender)
-					.where('category', '==', product.category)
-					.where('subtype', '==', subtype)
+					.where('category.cid', '==', product.category.cid)
+					.where('subtype.sku', '==', subtype)
 
 				for (let j = 0; j < skuOrdering.length; j++) {
 					console.log(skuOrdering[j])

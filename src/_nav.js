@@ -150,6 +150,19 @@ export default {
 				
 			],
 		},
+		{
+			name: 'Miscellaneous',
+			url: ROUTES.MISCELLANEOUS_MAILS.path,
+			icon: 'fa fa-cubes',
+			children: [
+				{
+					name: 'Emails',
+					url: ROUTES.MISCELLANEOUS_MAILS.path,
+					icon: 'fa fa-list-alt',
+				},
+				
+			],
+		},
 	],
 };
 
