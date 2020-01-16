@@ -244,13 +244,47 @@ class EmailsOnDate extends Component {
 										}}
 									>
 										<Row>
-											<Col>
+											<Col sm='2'>
 												{timeStampToTimeLocaleString(
 													email.time
 												)}
 											</Col>
 											{!isEmpty(email.template) && (
-												<Col>{email.template.name}</Col>
+												<Col sm='2'>
+													{email.template.name}
+												</Col>
+											)}
+											{!isEmpty(email.template) &&
+												!isEmpty(email.template.data) &&
+												!isEmpty(
+													email.template.data.orderId
+												) && (
+													<Col sm='3'>
+														<Row>
+															<Col>OID : </Col>
+															<Col>
+																{
+																	email
+																		.template
+																		.data
+																		.orderId
+																}
+															</Col>
+														</Row>
+													</Col>
+												)}
+											{!isEmpty(email.delivery) && (
+												<Col sm='3'>
+													<Row>
+														<Col>Status : </Col>
+														<Col>
+															{
+																email.delivery
+																	.state
+															}
+														</Col>
+													</Row>
+												</Col>
 											)}
 										</Row>
 									</ListGroupItem>

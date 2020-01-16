@@ -246,6 +246,7 @@ class BulkUpload extends Component {
 					let options = JSON.parse(row[13])
 					let description = JSON.parse(row[14])
 					let keywords = JSON.parse(row[15])
+					let optionHelp = row[16]
 
 					if (
 						title &&
@@ -605,6 +606,13 @@ class BulkUpload extends Component {
 								})
 							}
 						})
+
+						//add options help
+						if (!utils.isEmpty(optionHelp)) {
+							productAndInventoryObject.product.options[
+								'option_help'
+							] = optionHelp
+						}
 						// console.log(productAndInventoryObject)
 						validProducts.push(productAndInventoryObject)
 					} else {
