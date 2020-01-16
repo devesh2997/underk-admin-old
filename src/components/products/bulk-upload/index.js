@@ -226,7 +226,7 @@ class BulkUpload extends Component {
 		for (let i in csvdata) {
 			if (Number(i) !== csvdata.length) totalCSVRows++
 			let row = csvdata[i]
-			if (row.length === 16) {
+			if (row.length === 17) {
 				let product = {}
 				try {
 					let type = row[0]
@@ -608,12 +608,12 @@ class BulkUpload extends Component {
 						})
 
 						//add options help
-						if (!utils.isEmpty(optionHelp)) {
+						if (!isEmpty(optionHelp)) {
 							productAndInventoryObject.product.options[
 								'option_help'
 							] = optionHelp
 						}
-						// console.log(productAndInventoryObject)
+						console.log(productAndInventoryObject)
 						validProducts.push(productAndInventoryObject)
 					} else {
 						throw 'All the fields are not filled or invalid type is given at row '
