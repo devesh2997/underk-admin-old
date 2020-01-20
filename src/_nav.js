@@ -147,7 +147,7 @@ export default {
 				// 	url: ROUTES.ADD_COLLECTION.path,
 				// 	icon: 'fa fa-plus',
 				// },
-				
+
 			],
 		},
 		{
@@ -160,7 +160,25 @@ export default {
 					url: ROUTES.MISCELLANEOUS_MAILS.path,
 					icon: 'fa fa-list-alt',
 				},
-				
+
+			],
+		},
+		{
+			name: 'Blogs',
+			url: ROUTES.BLOG_LIST.path,
+			icon: 'fa fa-rss',
+			children: [
+				{
+					name: 'Blog List',
+					url: ROUTES.BLOG_LIST.path,
+					icon: 'fa fa-list-alt',
+				},
+				{
+					name: 'Add Blog',
+					url: ROUTES.ADD_BLOG.path,
+					icon: 'fa fa-plus',
+				},
+
 			],
 		},
 	],

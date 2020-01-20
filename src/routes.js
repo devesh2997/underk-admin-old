@@ -32,6 +32,9 @@ const Strategies = React.lazy(()=>import('./components/strategies'));
 const MobileHomeWidgetsManager = React.lazy(()=>import('./components/mobile-home-widgets'));
 const AddWidget = React.lazy(()=>import('./components/mobile-home-widgets/add-widget'));
 const ProductItem = React.lazy(()=>import('./components/products/product-item'));
+const BlogList = React.lazy(()=>import('./components/blogs/blog-list'));
+const AddBlog = React.lazy(()=>import('./components/blogs/add-blog'));
+const EditBlog = React.lazy(()=>import('./components/blogs/edit-blog'));
 
 const TempDashboard = () => {
 	return <span>Dashboard</span>;
@@ -235,6 +238,24 @@ const routes = {
 		name: 'Edit Product',
 		component: EditProductItem,
 	},
+	BLOG_LIST: {
+		path: '/blogs',
+		exact: true,
+		name: 'Blogs',
+		component: BlogList,
+	},
+	ADD_BLOG: {
+		path: '/blogs/add',
+		exact: true,
+		name: 'Blogs',
+		component: AddBlog,
+	},
+	EDIT_BLOG: {
+		path: '/blogs/:bid/edit',
+		exact: true,
+		name: 'Blogs',
+		component: EditBlog,
+	}
 };
 
 export default routes;
