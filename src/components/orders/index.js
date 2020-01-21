@@ -24,6 +24,8 @@ import { to } from '../../services/util.service'
 
 import './style.css'
 
+import { Link } from 'react-router-dom'
+
 import {
 	Card,
 	CardHeader,
@@ -210,21 +212,8 @@ class OrdersList extends Component {
 
 	parseOrdersToArrangeByDate = orders => {
 		let ordersByDate = {}
-		let ordersTotalRevenue = 0
-		let ordersTotalProductCount = 0
-		let ordersTotalCodOrders = 0
-		let ordersTotalOnlineOrders = 0
 		for (let i = 0; i < orders.length; i++) {
 			let order = orders[i]
-			if (order.status === types.ORDER_STATUS_PLACED) {
-				ordersTotalRevenue += order.summary.total
-				ordersTotalProductCount += order.product_count
-				if (order.payment.mode === types.PAYMENT_MODE_COD) {
-					ordersTotalCodOrders++
-				} else {
-					ordersTotalOnlineOrders++
-				}
-			}
 
 			let orderDate = getDateTimeStampFromDate(
 				new Date(parseInt(order.time))
@@ -243,12 +232,6 @@ class OrdersList extends Component {
 				orders: ordersByDate[orderDates[i]]
 			})
 		}
-		this.setState({
-			ordersTotalCodOrders,
-			ordersTotalRevenue,
-			ordersTotalOnlineOrders,
-			ordersTotalProductCount
-		})
 		return arrangedOrders
 	}
 
@@ -260,10 +243,6 @@ class OrdersList extends Component {
 			withPaymentMode,
 			withStartDate,
 			withEndDate,
-			ordersTotalCodOrders,
-			ordersTotalRevenue,
-			ordersTotalOnlineOrders,
-			ordersTotalProductCount
 		} = this.state
 
 		return (
@@ -283,6 +262,8 @@ class OrdersList extends Component {
 									onChange={this.onChange}
 								>
 									<option>{types.ORDER_STATUS_PLACED}</option>
+									<option>{types.ORDER_STATUS_ACTIVE}</option>
+									<option>{types.ORDER_STATUS_CLOSED}</option>
 									<option>
 										{types.ORDER_STATUS_CREATED}
 									</option>
@@ -336,48 +317,6 @@ class OrdersList extends Component {
 					</Row>
 					{loading && (
 						<i className='fa fa-refresh fa-spin fa-3x fa-fw' />
-					)}
-					{!loading && (
-						<Card style={{ marginTop: '20px' }}>
-							<CardHeader>Summary</CardHeader>
-							<CardBody>
-								<Row>
-									<Col>
-										<Row>
-											<Col>Total Revenue: </Col>
-											<Col>
-												{paiseToRupeeString(
-													ordersTotalRevenue
-												)}
-											</Col>
-										</Row>
-									</Col>
-									<Col>
-										<Row>
-											<Col>
-												Total Products (quantity not
-												included):{' '}
-											</Col>
-											<Col>{ordersTotalProductCount}</Col>
-										</Row>
-									</Col>
-								</Row>
-								<Row>
-									<Col>
-										<Row>
-											<Col>Total COD Orders: </Col>
-											<Col>{ordersTotalCodOrders}</Col>
-										</Row>
-									</Col>
-									<Col>
-										<Row>
-											<Col>Total Online Orders: </Col>
-											<Col>{ordersTotalOnlineOrders}</Col>
-										</Row>
-									</Col>
-								</Row>
-							</CardBody>
-						</Card>
 					)}
 					{!loading && (
 						<ListGroup style={{ marginTop: '20px' }}>
@@ -952,9 +891,17 @@ class OrderItem extends Component {
 																			'1.5em'
 																	}}
 																>
-																	{
-																		product.title
-																	}
+																	<a
+																		href={
+																			'https://www.underk.in/p/' +
+																			product.slug
+																		}
+																		target='_blank'
+																	>
+																		{
+																			product.title
+																		}
+																	</a>
 																</Row>
 																<Row>
 																	{
@@ -989,10 +936,7 @@ class OrderItem extends Component {
 																					'1.2em'
 																			}}
 																		>
-																			{product
-																				.attributes
-																				.color +
-																				': ' +
+																			{'Color : ' +
 																				product
 																					.attributes
 																					.color
