@@ -8,7 +8,7 @@ const paiseToRupeeString = paise => {
 }
 
 const canDeleteCreatedOrder = order => {
-	console.log('diff ', order.oid, new Date().getTime() - Number(order.time))
+	// console.log('diff ', order.oid, new Date().getTime() - Number(order.time))
 	return new Date().getTime() - Number(order.time) > 7200000
 }
 
@@ -209,6 +209,31 @@ const generateSKU = (product, skuOrdering, suppliers, attributesAll) => {
 	}
 }
 
+const parseOrdersToArrangeByDate = orders => {
+	let ordersByDate = {}
+	for (let i = 0; i < orders.length; i++) {
+		let order = orders[i]
+
+		let orderDate = getDateTimeStampFromDate(
+			new Date(parseInt(order.time))
+		).toString()
+		if (!ordersByDate[orderDate]) {
+			ordersByDate[orderDate] = []
+		}
+		ordersByDate[orderDate].push(order)
+	}
+	let arrangedOrders = []
+	let orderDates = Object.keys(ordersByDate).sort()
+	orderDates.reverse()
+	for (let i = 0; i < orderDates.length; i++) {
+		arrangedOrders.push({
+			date: orderDates[i],
+			orders: ordersByDate[orderDates[i]]
+		})
+	}
+	return arrangedOrders
+}
+
 export {
 	beautifyAddress,
 	timeStampToLocaleString,
@@ -219,5 +244,6 @@ export {
 	timeStampToTimeLocaleString,
 	isEmpty,
 	prepareAttributeFilter,
-	canDeleteCreatedOrder
+	canDeleteCreatedOrder,
+	parseOrdersToArrangeByDate
 }

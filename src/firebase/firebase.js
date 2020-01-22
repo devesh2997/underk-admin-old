@@ -99,7 +99,7 @@ class Firebase {
 
 	// *** User API ***
 	user = uid => this.db.doc(`users/${uid}`)
-	users = () => this.db.collection('users')
+	users = () => this.db.collection('users').orderBy('created_at', 'desc')
 	admin = uid => this.db.doc(`admins/${uid}`)
 	admins = () => this.db.collection('admins')
 
@@ -178,8 +178,13 @@ class Firebase {
 			return null
 		}
 	}
-	order = (oid) => this.db.collection('orders').doc(oid)
+	order = oid => this.db.collection('orders').doc(oid)
 	orders = () => this.db.collection('orders').orderBy('time', 'desc')
+	ordersByUser = uid =>
+		this.db
+			.collection('orders')
+			.where('uid', '==', uid)
+			.orderBy('time', 'desc')
 	ordersByStatus = status =>
 		this.db
 			.collection('orders')
