@@ -7,6 +7,11 @@ const paiseToRupeeString = paise => {
 	}
 }
 
+const canDeleteCreatedOrder = order => {
+	console.log('diff ', order.oid, new Date().getTime() - Number(order.time))
+	return new Date().getTime() - Number(order.time) > 7200000
+}
+
 const beautifyAddress = address => {
 	let addressString = ''
 	addressString +=
@@ -44,8 +49,8 @@ const isEmpty = o => {
 	return o === null || o === undefined || (o !== undefined && o.length === 0)
 }
 
-const prepareAttributeFilter = (name,valueId) =>{
-	return name.toLowerCase()+":"+valueId.toLowerCase()
+const prepareAttributeFilter = (name, valueId) => {
+	return name.toLowerCase() + ':' + valueId.toLowerCase()
 }
 
 const INVENTORY_TRANSACTION_TYPE = {
@@ -60,7 +65,10 @@ const generateSKU = (product, skuOrdering, suppliers, attributesAll) => {
 	console.log(attributesAll)
 	let sku = ''
 	sku +=
-		product.gender + product.type.sku + product.subtype.sku + product.category.sku
+		product.gender +
+		product.type.sku +
+		product.subtype.sku +
+		product.category.sku
 
 	for (let i = 0; i < skuOrdering.length; i++) {
 		let attributeName = skuOrdering[i]
@@ -192,7 +200,7 @@ const generateSKU = (product, skuOrdering, suppliers, attributesAll) => {
 	product.options['skus'] = skus
 	inventory['skus'] = Object.keys(skus)
 	delete product.options.inventory
-	console.log('hhh', { product, inventory,inventoryTransactions })
+	console.log('hhh', { product, inventory, inventoryTransactions })
 
 	return {
 		product,
@@ -210,5 +218,6 @@ export {
 	timeStampToDateLocaleString,
 	timeStampToTimeLocaleString,
 	isEmpty,
-	prepareAttributeFilter
+	prepareAttributeFilter,
+	canDeleteCreatedOrder
 }

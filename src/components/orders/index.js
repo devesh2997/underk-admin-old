@@ -408,6 +408,10 @@ class OrderItem extends Component {
 		}
 	}
 
+	deleteOrder = oid => {
+		this.props.firebase.order(oid).delete()
+	}
+
 	toggle = () => {
 		this.setState({ collapsed: !this.state.collapsed })
 	}
@@ -643,6 +647,35 @@ class OrderItem extends Component {
 												status={order.status}
 											/>
 										</Col>
+										{order.device && (
+											<Col>
+												<Label>
+													{order.device.type}
+												</Label>
+											</Col>
+										)}
+										{order.status ===
+											types.ORDER_STATUS_CREATED &&
+											utils.canDeleteCreatedOrder(
+												order
+											) && (
+												<Button
+													type='button'
+													color='danger'
+													onClick={() => {
+														let isConfirmed = window.confirm(
+															'Are you sure you want to delete this order?'
+														)
+														if (isConfirmed) {
+															this.deleteOrder(
+																order.oid
+															)
+														}
+													}}
+												>
+													<i className='fa fa-trash'></i>
+												</Button>
+											)}
 									</Row>
 								</Col>
 							</Row>

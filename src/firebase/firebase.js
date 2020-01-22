@@ -178,6 +178,7 @@ class Firebase {
 			return null
 		}
 	}
+	order = (oid) => this.db.collection('orders').doc(oid)
 	orders = () => this.db.collection('orders').orderBy('time', 'desc')
 	ordersByStatus = status =>
 		this.db
