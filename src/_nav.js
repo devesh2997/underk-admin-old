@@ -151,6 +151,19 @@ export default {
 			],
 		},
 		{
+			name: 'Accounting',
+			url: ROUTES.MISCELLANEOUS_MAILS.path,
+			icon: 'fa fa-cubes',
+			children: [
+				{
+					name: 'Purchase-Sale Sheet',
+					url: ROUTES.ACCOUNTING_PURCHASE_SALE_SHEET.path,
+					icon: 'fa fa-list-alt',
+				},
+
+			],
+		},
+		{
 			name: 'Miscellaneous',
 			url: ROUTES.MISCELLANEOUS_MAILS.path,
 			icon: 'fa fa-cubes',

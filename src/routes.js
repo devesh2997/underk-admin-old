@@ -18,6 +18,7 @@ const AddSupplierItem = React.lazy(() => import('./components/suppliers/add-supp
 const SupplierItem = React.lazy(() => import('./components/suppliers/supplier-item'));
 const ProductsHome = React.lazy(() => import('./components/products/products-home'));
 const ProductList = React.lazy(() => import('./components/products/product-list'));
+const PurchaseSaleSheet = React.lazy(()=>import('./components/accounting/purchase-sale-sheet'))
 const EmailsList = React.lazy(() => import('./components/miscellaneous/emails'));
 const AddProductItem = React.lazy(() => import('./components/products/add-product'));
 const BulkUpload = React.lazy(()=>import('./components/products/bulk-upload/index'));
@@ -171,6 +172,12 @@ const routes = {
 		exact: true,
 		name: 'Products',
 		component: ProductList,
+	},
+	ACCOUNTING_PURCHASE_SALE_SHEET: {
+		path: '/accounting/purchase-sale-sheet',
+		exact: true,
+		name: 'Purchase Sale Sheet',
+		component: PurchaseSaleSheet,
 	},
 	MISCELLANEOUS_MAILS: {
 		path: '/miscellaneous/mails',

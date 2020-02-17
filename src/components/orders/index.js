@@ -2,19 +2,15 @@ import React, { Component } from 'react'
 
 import { withFirebase } from '../../firebase'
 
-import OrdersOnDate from "./orders-by-date";
+import OrdersOnDate from './orders-by-date'
 
-import {
-	parseOrdersToArrangeByDate
-} from '../../utils/index'
+import { parseOrdersToArrangeByDate, addDays } from '../../utils/index'
 
 import DatePicker from 'react-datepicker'
 
 import types from 'underk-types'
 
-
 import './style.css'
-
 
 import {
 	Card,
@@ -42,7 +38,7 @@ class OrdersList extends Component {
 			loading: false,
 			orders: [],
 			withStatus: 'all',
-			withStartDate: new Date(2019, 11, 17),
+			withStartDate: addDays(new Date(), -14),
 			withEndDate: new Date(),
 			withPaymentMode: 'all'
 		}
@@ -302,7 +298,5 @@ class OrdersList extends Component {
 		)
 	}
 }
-
-
 
 export default withFirebase(OrdersList)

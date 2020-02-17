@@ -28,6 +28,12 @@ const beautifyAddress = address => {
 	return addressString
 }
 
+const addDays = (date, days) => {
+	var result = new Date(date)
+	result.setDate(result.getDate() + days)
+	return result
+}
+
 const timeStampToLocaleString = timestamp => {
 	return new Date(timestamp).toLocaleString()
 }
@@ -236,6 +242,7 @@ const parseOrdersToArrangeByDate = orders => {
 
 export {
 	beautifyAddress,
+	addDays,
 	timeStampToLocaleString,
 	generateSKU,
 	paiseToRupeeString,

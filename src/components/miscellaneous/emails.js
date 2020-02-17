@@ -5,9 +5,12 @@ import {
 	getDateTimeStampFromDate,
 	timeStampToTimeLocaleString,
 	timeStampToDateLocaleString,
-	isEmpty
+	isEmpty,
+	addDays
 } from '../../utils/index'
 import DatePicker from 'react-datepicker'
+
+import './style.css'
 
 import {
 	Card,
@@ -36,7 +39,7 @@ class EmailsList extends Component {
 		this.state = {
 			loading: false,
 			emails: [],
-			withStartDate: new Date(2019, 11, 17),
+			withStartDate: addDays(new Date(), -14),
 			withEndDate: new Date()
 		}
 	}
@@ -287,6 +290,17 @@ class EmailsOnDate extends Component {
 												</Col>
 											)}
 										</Row>
+										{!isEmpty(email.message) && (
+											<Row>
+												<Col sm='4'>
+													Subject :{' '}
+													{email.message.subject}
+												</Col>
+												<Col sm='8'>
+													Text : {email.message.text}
+												</Col>
+											</Row>
+										)}
 									</ListGroupItem>
 								)
 							})}
