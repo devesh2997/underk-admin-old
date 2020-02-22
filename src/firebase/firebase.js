@@ -236,6 +236,33 @@ class Firebase {
 			return null
 		}
 	}
+
+	// ** sms Api **
+	sms = () => this.db.collection('sms')
+	smsWithStartAndEndDate = (startDate, endDate) => {
+		try {
+			startDate = new Date(
+				startDate.getFullYear(),
+				startDate.getMonth(),
+				startDate.getDate()
+			)
+			let startMilliSecondsSinceEpoch = startDate.getTime()
+			endDate = new Date(
+				endDate.getFullYear(),
+				endDate.getMonth(),
+				endDate.getDate() + 1
+			)
+			let endMilliSecondsSinceEpoch = endDate.getTime()
+			let query = this.db.collection('sms')
+			query = query
+				.where('time', '>=', startMilliSecondsSinceEpoch)
+				.where('time', '<=', endMilliSecondsSinceEpoch)
+			return query.orderBy('time', 'desc')
+		} catch (error) {
+			console.log(error)
+			return null
+		}
+	}
 }
 
 export default Firebase

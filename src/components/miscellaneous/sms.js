@@ -33,12 +33,12 @@ import {
 	Collapse
 } from 'reactstrap'
 
-class EmailsList extends Component {
+class SmsList extends Component {
 	constructor (props) {
 		super(props)
 		this.state = {
 			loading: false,
-			emails: [],
+			sms: [],
 			withStartDate: addDays(new Date(), -14),
 			withEndDate: new Date()
 		}
@@ -50,17 +50,15 @@ class EmailsList extends Component {
 		let { withStartDate, withEndDate } = this.state
 
 		this.unsubscribe = this.props.firebase
-			.emailsWithStartAndEndDate(withStartDate, withEndDate)
+			.smsWithStartAndEndDate(withStartDate, withEndDate)
 			.onSnapshot(snapshot => {
-				let emails = []
-				snapshot.forEach(doc =>
-					emails.push({ ...doc.data(), id: doc.id })
-				)
+				let sms = []
+				snapshot.forEach(doc => sms.push({ ...doc.data(), id: doc.id }))
 
-				emails = this.parseEmailsToArrangeByDate(emails)
+				sms = this.parseSmsToArrangeByDate(sms)
 
 				this.setState({
-					emails,
+					sms,
 					loading: false
 				})
 			})
@@ -78,17 +76,15 @@ class EmailsList extends Component {
 		let { withEndDate } = this.state
 
 		this.unsubscribe = this.props.firebase
-			.emailsWithStartAndEndDate(date, withEndDate)
+			.SmsWithStartAndEndDate(date, withEndDate)
 			.onSnapshot(snapshot => {
-				let emails = []
-				snapshot.forEach(doc =>
-					emails.push({ ...doc.data(), id: doc.id })
-				)
+				let sms = []
+				snapshot.forEach(doc => sms.push({ ...doc.data(), id: doc.id }))
 
-				emails = this.parseEmailsToArrangeByDate(emails)
+				sms = this.parseSmsToArrangeByDate(sms)
 
 				this.setState({
-					emails,
+					sms,
 					loading: false
 				})
 			})
@@ -102,53 +98,51 @@ class EmailsList extends Component {
 		let { withStartDate } = this.state
 
 		this.unsubscribe = this.props.firebase
-			.emailsWithStartAndEndDate(withStartDate, date)
+			.SmsWithStartAndEndDate(withStartDate, date)
 			.onSnapshot(snapshot => {
-				let emails = []
-				snapshot.forEach(doc =>
-					emails.push({ ...doc.data(), id: doc.id })
-				)
+				let sms = []
+				snapshot.forEach(doc => sms.push({ ...doc.data(), id: doc.id }))
 
-				emails = this.parseEmailsToArrangeByDate(emails)
+				sms = this.parseSmsToArrangeByDate(sms)
 
 				this.setState({
-					emails,
+					sms,
 					loading: false
 				})
 			})
 	}
 
-	parseEmailsToArrangeByDate = emails => {
-		let emailsByDate = {}
-		for (let i = 0; i < emails.length; i++) {
-			let email = emails[i]
+	parseSmsToArrangeByDate = sms => {
+		let SmsByDate = {}
+		for (let i = 0; i < sms.length; i++) {
+			let s = sms[i]
 
-			let emailDate = getDateTimeStampFromDate(
-				new Date(parseInt(email.time))
+			let smsDate = getDateTimeStampFromDate(
+				new Date(parseInt(s.time))
 			).toString()
-			if (!emailsByDate[emailDate]) {
-				emailsByDate[emailDate] = []
+			if (!SmsByDate[smsDate]) {
+				SmsByDate[smsDate] = []
 			}
-			emailsByDate[emailDate].push(email)
+			SmsByDate[smsDate].push(s)
 		}
-		let arrangedEmails = []
-		let emailDates = Object.keys(emailsByDate).sort()
-		emailDates.reverse()
-		for (let i = 0; i < emailDates.length; i++) {
-			arrangedEmails.push({
-				date: emailDates[i],
-				emails: emailsByDate[emailDates[i]]
+		let arrangedSms = []
+		let smsDates = Object.keys(SmsByDate).sort()
+		smsDates.reverse()
+		for (let i = 0; i < smsDates.length; i++) {
+			arrangedSms.push({
+				date: smsDates[i],
+				sms: SmsByDate[smsDates[i]]
 			})
 		}
-		console.log(arrangedEmails)
-		return arrangedEmails
+		console.log(arrangedSms)
+		return arrangedSms
 	}
 
 	render () {
-		let { loading, emails, withStartDate, withEndDate } = this.state
+		let { loading, sms, withStartDate, withEndDate } = this.state
 		return (
 			<Card>
-				<CardHeader>Emails sent</CardHeader>
+				<CardHeader>Sms sent</CardHeader>
 				<CardBody>
 					<Row>
 						<Col>
@@ -181,12 +175,12 @@ class EmailsList extends Component {
 					)}
 					{!loading && (
 						<ListGroup style={{ marginTop: '20px' }}>
-							{emails.map((email, index) => {
+							{sms.map((s, index) => {
 								return (
-									<EmailsOnDate
+									<SmsOnDate
 										key={index}
-										emails={email.emails}
-										date={email.date}
+										sms={s.sms}
+										date={s.date}
 									/>
 								)
 							})}
@@ -198,7 +192,7 @@ class EmailsList extends Component {
 	}
 }
 
-class EmailsOnDate extends Component {
+class SmsOnDate extends Component {
 	constructor (props) {
 		super(props)
 		this.state = {
@@ -211,7 +205,7 @@ class EmailsOnDate extends Component {
 	}
 
 	render () {
-		let { emails, date } = this.props
+		let { sms, date } = this.props
 
 		return (
 			<Card>
@@ -236,7 +230,7 @@ class EmailsOnDate extends Component {
 				<Collapse isOpen={!this.state.collapsed}>
 					<CardBody style={{ margin: '0px', padding: '0px' }}>
 						<ListGroup>
-							{emails.map((email, index) => {
+							{sms.map((s, index) => {
 								return (
 									<ListGroupItem
 										key={index}
@@ -249,68 +243,15 @@ class EmailsOnDate extends Component {
 										<Row>
 											<Col sm='2'>
 												{timeStampToTimeLocaleString(
-													email.time
+													s.time
 												)}
 											</Col>
-											{!isEmpty(email.template) && (
-												<Col sm='2'>
-													{email.template.name}
-												</Col>
-											)}
-											{!isEmpty(email.template) &&
-												!isEmpty(email.template.data) &&
-												!isEmpty(
-													email.template.data.orderId
-												) && (
-													<Col sm='3'>
-														<Row>
-															<Col>OID : </Col>
-															<Col>
-																{
-																	email
-																		.template
-																		.data
-																		.orderId
-																}
-															</Col>
-														</Row>
-													</Col>
-												)}
-											{!isEmpty(email.delivery) && (
-												<Col sm='3'>
-													<Row>
-														<Col>Status : </Col>
-														<Col>
-															{
-																email.delivery
-																	.state
-															}
-														</Col>
-													</Row>
-												</Col>
-											)}
+											<Col>{s.number}</Col>
+											<Col>{s.status}</Col>
 										</Row>
-										{!isEmpty(email.template) && (
-											<Row>
-												<Col sm='4'>
-													Template Data :{' '}
-													{JSON.stringify(
-														email.template.data
-													)}
-												</Col>
-											</Row>
-										)}
-										{!isEmpty(email.message) && (
-											<Row>
-												<Col sm='4'>
-													Subject :{' '}
-													{email.message.subject}
-												</Col>
-												<Col sm='8'>
-													Text : {email.message.text}
-												</Col>
-											</Row>
-										)}
+										<Row>
+											<Col>{s.message}</Col>
+										</Row>{' '}
 									</ListGroupItem>
 								)
 							})}
@@ -322,4 +263,4 @@ class EmailsOnDate extends Component {
 	}
 }
 
-export default withFirebase(EmailsList)
+export default withFirebase(SmsList)

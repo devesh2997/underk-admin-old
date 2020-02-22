@@ -152,7 +152,7 @@ export default {
 		},
 		{
 			name: 'Accounting',
-			url: ROUTES.MISCELLANEOUS_MAILS.path,
+			url: ROUTES.ACCOUNTING_PURCHASE_SALE_SHEET.path,
 			icon: 'fa fa-cubes',
 			children: [
 				{
@@ -171,6 +171,11 @@ export default {
 				{
 					name: 'Emails',
 					url: ROUTES.MISCELLANEOUS_MAILS.path,
+					icon: 'fa fa-list-alt',
+				},
+				{
+					name: 'SMS',
+					url: ROUTES.MISCELLANEOUS_SMS.path,
 					icon: 'fa fa-list-alt',
 				},
 
