@@ -17,6 +17,16 @@ export default {
 					url: ROUTES.ORDERS.path,
 					icon: 'fa fa-list-alt',
 				},
+				{
+					name: 'Returns List',
+					url: ROUTES.RETURNS.path,
+					icon: 'fa fa-list-alt',
+				},
+				{
+					name: 'Custom Orders',
+					url: ROUTES.CUSTOM_ORDERS.path,
+					icon: 'fa fa-list-alt',
+				},
 			],
 		},
 		{
