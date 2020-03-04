@@ -65,10 +65,23 @@ class PurchaseSaleSheet extends Component {
 		})
 	}
 
-	handleStartDateChange = date => {
+	handleEndDateChange = date => {
 		this.setState({
 			withEndDate: date
 		})
+	}
+
+	generate = () => {
+		const { withStartDate, withEndDate } = this.state
+		this.props.firebase.db
+			.collection('accounting')
+			.doc('purchase-sale-sheets')
+			.collection('purchase-sale-sheets')
+			.add({
+				status: 'init',
+				startTime: withStartDate.getTime(),
+				endTime: withEndDate.getTime()
+			})
 	}
 
 	render () {
@@ -104,7 +117,9 @@ class PurchaseSaleSheet extends Component {
 							</InputGroup>
 						</Col>
 						<Col>
-							<Button color='primary'>Generate</Button>
+							<Button color='primary' onClick={this.generate}>
+								Generate
+							</Button>
 						</Col>
 					</Row>
 					{loading && (
@@ -131,9 +146,14 @@ class PurchaseSaleSheet extends Component {
 											</Col>
 											{sheet.status === 'completed' && (
 												<Col>
-													<Button color='primary'>
-														Download CSV
-													</Button>
+													<a
+														href={sheet.downloadURL}
+														target='_blank'
+													>
+														<Button color='primary'>
+															Download CSV
+														</Button>
+													</a>
 												</Col>
 											)}
 											{sheet.status !== 'completed' && (
