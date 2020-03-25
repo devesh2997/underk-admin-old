@@ -104,7 +104,7 @@ class UserListBase extends Component {
 				.add({
 					from: emailFrom,
 					message: { subject: emailSubject, text: emailBody },
-					toUids: selectedUsers
+					bccUids: selectedUsers
 				})
 				.then(() => {
 					this.setState({ loading: false, sendingEmail: false })
