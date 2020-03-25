@@ -139,7 +139,6 @@ class OrderItem extends Component {
 	}
 
 	onChecked = event => {
-		let order = this.props.order
 		let selectedSKUs = this.state.selectedSKUs
 		let isPresentAt = -1
 		for (let i = 0; i < selectedSKUs.length; i++) {
