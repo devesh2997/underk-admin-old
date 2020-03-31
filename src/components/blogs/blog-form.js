@@ -12,10 +12,10 @@ export default class BlogForm extends React.Component {
 		this.state = {
 			author: (props.blog && props.blog.author) || 'underK',
 			title: (props.blog && props.blog.title) || '',
-			src: null,
-			srcObjectURL: (props.blog && props.blog.image.src) || '',
+			original: null,
+			originalObjectURL: (props.blog && props.blog.assets.original.downloadURL) || '',
 			placeholder: null,
-			placeholderObjectURL: (props.blog && props.blog.image.placeholder) || '',
+			placeholderObjectURL: (props.blog && props.blog.assets.placeholder.downloadURL) || '',
 			description: (props.blog && props.blog.description) || '',
 			body: (props.blog && props.blog.body) || '',
 			category: (props.blog && props.blog.category) || '',
@@ -45,24 +45,34 @@ export default class BlogForm extends React.Component {
 
 	uploadTaskPromise = (file, firebase) => {
 		return new Promise((resolve, reject) => {
-			let storageRef = firebase.storage.ref().child('assets_blogs')
-			let uploadTask = storageRef.child(file.name).put(file)
+			let storageRef = firebase.storage.ref().child('assets_blogs');
+			let uploadTask = storageRef.child(file.name).put(file);
 			uploadTask.on(
 				'state_changed',
 				snapshot => {},
 				error => {
-					console.log(error)
-					reject()
+					console.log(error);
+					reject();
 				},
 				() => {
+					const metadata = uploadTask.snapshot.metadata;
+					const {name, contentType, fullPath, size, bucket} = metadata;
+
 					uploadTask.snapshot.ref
 						.getDownloadURL()
 						.then(downloadURL => {
-							resolve(downloadURL)
-						})
+							resolve({
+								name,
+								contentType,
+								fullPath,
+								size,
+								bucket,
+								downloadURL
+							});
+						});
 				}
-			)
-		})
+			);
+		});
 	}
 
 	onSubmit = async (event) => {
@@ -72,7 +82,7 @@ export default class BlogForm extends React.Component {
 		const {
 			author,
 			title,
-			src,
+			original,
 			placeholder,
 			description,
 			body,
@@ -97,13 +107,13 @@ export default class BlogForm extends React.Component {
 				}
 			});
 		}
-		if(src) {
-			blog.image = {
-				src: await this.uploadTaskPromise(src, this.props.firebase),
-				aspectRatio: (this.image.current.naturalHeight / this.image.current.naturalWidth).toFixed(4)
+		if(original) {
+			blog.assets = {
+				original: await this.uploadTaskPromise(original, this.props.firebase),
+				aspectRatio: Number((this.image.current.naturalHeight / this.image.current.naturalWidth).toFixed(4))
 			}
 			if(placeholder) {
-				blog.image.placeholder = await this.uploadTaskPromise(placeholder, this.props.firebase);
+				blog.assets.placeholder = await this.uploadTaskPromise(placeholder, this.props.firebase);
 			}
 		}
 		if(!(this.props.blog && this.props.blog.createdAt)) {
@@ -119,7 +129,7 @@ export default class BlogForm extends React.Component {
 		const {
 			author,
 			title,
-			srcObjectURL,
+			originalObjectURL,
 			placeholderObjectURL,
 			description,
 			body,
@@ -186,7 +196,7 @@ export default class BlogForm extends React.Component {
 					<Col>
 						<img
 							ref={this.image}
-							src={srcObjectURL}
+							src={originalObjectURL}
 							alt="Original"
 							style={{ maxWidth: '150px' }}
 						/>
@@ -194,7 +204,7 @@ export default class BlogForm extends React.Component {
 					<Col>
 						<Label>Choose src</Label>
 						<Input type="file"
-							name="src"
+							name="original"
 							onChange={this.onImageChange}
 						/>
 					</Col>
@@ -260,7 +270,10 @@ export default class BlogForm extends React.Component {
 				</FormGroup>
 				<FormGroup>
 					<Button type="submit" color="primary" disabled={isSubmitDisabled}>
-						Save Blog
+						{loading
+							? <i className='fa fa-refresh fa-spin fa-fw' />
+							: 'Save Blog'
+						}
 					</Button>
 				</FormGroup>
 			</Form>
