@@ -16,6 +16,8 @@ export default class BlogForm extends React.Component {
 			originalObjectURL: (props.blog && props.blog.assets.original.downloadURL) || '',
 			placeholder: null,
 			placeholderObjectURL: (props.blog && props.blog.assets.placeholder.downloadURL) || '',
+			alt: (props.blog && props.blog.assets.original.name) || '',
+			caption: (props.blog && props.blog.assets.caption) || '',
 			description: (props.blog && props.blog.description) || '',
 			body: (props.blog && props.blog.body) || '',
 			category: (props.blog && props.blog.category) || '',
@@ -56,13 +58,13 @@ export default class BlogForm extends React.Component {
 				},
 				() => {
 					const metadata = uploadTask.snapshot.metadata;
-					const {name, contentType, fullPath, size, bucket} = metadata;
+					const { name, contentType, fullPath, size, bucket } = metadata;
 
 					uploadTask.snapshot.ref
 						.getDownloadURL()
 						.then(downloadURL => {
 							resolve({
-								name,
+								name: this.state.alt || name,
 								contentType,
 								fullPath,
 								size,
@@ -84,6 +86,7 @@ export default class BlogForm extends React.Component {
 			title,
 			original,
 			placeholder,
+			caption,
 			description,
 			body,
 			category,
@@ -110,7 +113,8 @@ export default class BlogForm extends React.Component {
 		if(original) {
 			blog.assets = {
 				original: await this.uploadTaskPromise(original, this.props.firebase),
-				aspectRatio: Number((this.image.current.naturalHeight / this.image.current.naturalWidth).toFixed(4))
+				aspectRatio: Number((this.image.current.naturalHeight / this.image.current.naturalWidth).toFixed(4)),
+				caption
 			}
 			if(placeholder) {
 				blog.assets.placeholder = await this.uploadTaskPromise(placeholder, this.props.firebase);
@@ -131,6 +135,8 @@ export default class BlogForm extends React.Component {
 			title,
 			originalObjectURL,
 			placeholderObjectURL,
+			alt,
+			caption,
 			description,
 			body,
 			category,
@@ -192,39 +198,65 @@ export default class BlogForm extends React.Component {
 						required
 					/>
 				</FormGroup>
-				<FormGroup row style={{ margin: '1rem 0' }}>
-					<Col>
-						<img
-							ref={this.image}
-							src={originalObjectURL}
-							alt="Original"
-							style={{ maxWidth: '150px' }}
+				<div
+					style={{
+						margin: '1rem -1.25rem',
+						padding: '1rem 1.25rem',
+						backgroundColor: '#e4e5e6'
+					}}
+				>
+					<FormGroup row style={{ margin: '1rem 0' }}>
+						<Col>
+							<img
+								ref={this.image}
+								src={originalObjectURL}
+								alt="Original IMG"
+								style={{ maxWidth: '150px' }}
+							/>
+						</Col>
+						<Col>
+							<Label>Choose src</Label>
+							<Input type="file"
+								name="original"
+								onChange={this.onImageChange}
+							/>
+						</Col>
+					</FormGroup>
+					<FormGroup row style={{ margin: '1rem 0' }}>
+						<Col>
+							<img
+								src={placeholderObjectURL}
+								alt="Placeholder IMG"
+								style={{ maxWidth: '150px' }}
+							/>
+						</Col>
+						<Col>
+							<Label>Choose placeholder</Label>
+							<Input type="file"
+								name="placeholder"
+								onChange={this.onImageChange}
+							/>
+						</Col>
+					</FormGroup>
+					<FormGroup>
+						<Label>Alternate text</Label>
+						<Input type="text"
+							name="alt"
+							value={alt}
+							onChange={this.onTextInput}
+							placeholder="Enter alternate text"
 						/>
-					</Col>
-					<Col>
-						<Label>Choose src</Label>
-						<Input type="file"
-							name="original"
-							onChange={this.onImageChange}
+					</FormGroup>
+					<FormGroup>
+						<Label>Caption</Label>
+						<Input type="textarea"
+							name="caption"
+							value={caption}
+							onChange={this.onTextInput}
+							placeholder="Enter caption"
 						/>
-					</Col>
-				</FormGroup>
-				<FormGroup row style={{ margin: '1rem 0' }}>
-					<Col>
-						<img
-							src={placeholderObjectURL}
-							alt="Placeholder"
-							style={{ maxWidth: '150px' }}
-						/>
-					</Col>
-					<Col>
-						<Label>Choose placeholder</Label>
-						<Input type="file"
-							name="placeholder"
-							onChange={this.onImageChange}
-						/>
-					</Col>
-				</FormGroup>
+					</FormGroup>
+				</div>
 				<FormGroup>
 					<Label>Description</Label>
 					<div style={styles.descContainerStyle}>
