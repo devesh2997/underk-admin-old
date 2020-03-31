@@ -4,8 +4,8 @@ import { Badge, DropdownItem, DropdownMenu, DropdownToggle, Nav, NavItem } from 
 import PropTypes from 'prop-types';
 
 import { AppAsideToggler, AppHeaderDropdown, AppNavbarBrand, AppSidebarToggler } from '@coreui/react';
-import logoLong from '../../assets/img/brand/logo_long.png'
-import logo from '../../assets/img/brand/logo.png'
+import logo1 from '../../assets/img/brand/logo1.png'
+import logo2 from '../../assets/img/brand/logo2.png'
 
 const propTypes = {
 	children: PropTypes.node,
@@ -23,8 +23,8 @@ class DefaultHeader extends Component {
 			<React.Fragment>
 				<AppSidebarToggler className="d-lg-none" display="md" mobile />
 				<AppNavbarBrand
-					full={{ src: logoLong, width: 93.5, height: 65, alt: 'underK Logo' }}
-					minimized={{ src: logo, width: 30, height: 30, alt: 'underK Logo' }}
+					full={{ src: logo2, width: 109.5, height: 25, alt: 'underK Logo' }}
+					minimized={{ src: logo1, width: 45, height: 45, alt: 'underK Logo' }}
 				/>
 				<AppSidebarToggler className="d-md-down-none" display="lg" />
 

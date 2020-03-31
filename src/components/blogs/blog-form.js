@@ -16,11 +16,14 @@ export default class BlogForm extends React.Component {
 			srcObjectURL: (props.blog && props.blog.image.src) || '',
 			placeholder: null,
 			placeholderObjectURL: (props.blog && props.blog.image.placeholder) || '',
+			description: (props.blog && props.blog.description) || '',
 			body: (props.blog && props.blog.body) || '',
 			category: (props.blog && props.blog.category) || '',
 			keywords: (props.blog && props.blog.keywords && props.blog.keywords.join(', ')) || '',
 			loading: false
 		};
+
+		this.image = React.createRef();
 	}
 
 	onTextInput = (e) => {
@@ -71,6 +74,7 @@ export default class BlogForm extends React.Component {
 			title,
 			src,
 			placeholder,
+			description,
 			body,
 			category,
 			keywords
@@ -79,6 +83,7 @@ export default class BlogForm extends React.Component {
 		let blog = {
 			author,
 			title,
+			description,
 			body
 		};
 		if(category.trim().length > 0) {
@@ -94,11 +99,16 @@ export default class BlogForm extends React.Component {
 		}
 		if(src) {
 			blog.image = {
-				src: await this.uploadTaskPromise(src, this.props.firebase)
+				src: await this.uploadTaskPromise(src, this.props.firebase),
+				aspectRatio: (this.image.current.naturalHeight / this.image.current.naturalWidth).toFixed(4)
 			}
 			if(placeholder) {
 				blog.image.placeholder = await this.uploadTaskPromise(placeholder, this.props.firebase);
 			}
+		}
+		if(!(this.props.blog && this.props.blog.createdAt)) {
+			let now = new Date();
+			blog.createdAt = now.getTime();
 		}
 
 		await this.props.handleSubmit(blog);
@@ -111,6 +121,7 @@ export default class BlogForm extends React.Component {
 			title,
 			srcObjectURL,
 			placeholderObjectURL,
+			description,
 			body,
 			category,
 			keywords,
@@ -120,29 +131,32 @@ export default class BlogForm extends React.Component {
 		const isSubmitDisabled =
 			author.trim().length === 0
 			|| title.trim().length === 0
+			|| description.trim().length === 0
 			|| body.length === 0
 			|| loading;
 
 		const modules = {
 			toolbar: [
-				[{ font: [] }, { size: [] }],
+				// [{ font: [] }, { size: [] }],
+				[{ header: [] }],
 				['bold', 'italic', 'underline', 'strike'],
 				[{ color: [] }, { background: [] }],
 				[{ script: 'sub' }, { script: 'super' }],
-				[{ header: 1 }, { header: 2 }, 'blockquote', 'code-block'],
-				[{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }, { align: [] }],
+				['blockquote', 'code-block'],
+				[{ list: 'ordered' }, { list: 'bullet' }, { align: [] }],
 				['link'],
 				['clean']
 			]
 		}
 
 		const formats = [
-			'font', 'size',
+			// 'font', 'size',
+			'header',
 			'bold', 'italic', 'underline', 'strike',
 			'color', 'background',
 			'script',
-			'header', 'blockquote', 'code-block',
-			'list', 'indent', 'align',
+			'blockquote', 'code-block',
+			'list', 'align',
 			'link'
 		]
 
@@ -170,7 +184,12 @@ export default class BlogForm extends React.Component {
 				</FormGroup>
 				<FormGroup row style={{ margin: '1rem 0' }}>
 					<Col>
-						<img src={srcObjectURL} alt="Original" style={{ maxWidth: '150px' }} />
+						<img
+							ref={this.image}
+							src={srcObjectURL}
+							alt="Original"
+							style={{ maxWidth: '150px' }}
+						/>
 					</Col>
 					<Col>
 						<Label>Choose src</Label>
@@ -182,7 +201,11 @@ export default class BlogForm extends React.Component {
 				</FormGroup>
 				<FormGroup row style={{ margin: '1rem 0' }}>
 					<Col>
-						<img src={placeholderObjectURL} alt="Placeholder" style={{ maxWidth: '150px' }} />
+						<img
+							src={placeholderObjectURL}
+							alt="Placeholder"
+							style={{ maxWidth: '150px' }}
+						/>
 					</Col>
 					<Col>
 						<Label>Choose placeholder</Label>
@@ -191,6 +214,22 @@ export default class BlogForm extends React.Component {
 							onChange={this.onImageChange}
 						/>
 					</Col>
+				</FormGroup>
+				<FormGroup>
+					<Label>Description</Label>
+					<div style={styles.descContainerStyle}>
+						<Input type="textarea"
+							name="description"
+							value={description}
+							onChange={this.onTextInput}
+							placeholder="Enter description"
+							maxLength={300}
+							required
+						/>
+						<span style={styles.counterStyle}>
+							{(300 - description.length).toString()}
+						</span>
+					</div>
 				</FormGroup>
 				<FormGroup>
 					<Label>Body</Label>
@@ -228,3 +267,17 @@ export default class BlogForm extends React.Component {
 		);
 	}
 }
+
+
+const styles = {
+	descContainerStyle: {
+		position: 'relative'
+	},
+	counterStyle: {
+		position: 'absolute',
+		right: 15,
+		bottom: 0,
+		backgroundColor: 'rgba(255,255,255,0.25)',
+		pointerEvents: 'none'
+	}
+};
