@@ -12,10 +12,15 @@ export default class BlogForm extends React.Component {
 		this.state = {
 			author: (props.blog && props.blog.author) || 'underK',
 			title: (props.blog && props.blog.title) || '',
+			slug: (props.blog && props.blog.slug) || '',
 			original: null,
 			originalObjectURL: (props.blog && props.blog.assets.original.downloadURL) || '',
 			placeholder: null,
-			placeholderObjectURL: (props.blog && props.blog.assets.placeholder.downloadURL) || '',
+			placeholderObjectURL: (
+				props.blog
+				&& props.blog.assets.placeholder
+				&& props.blog.assets.placeholder.downloadURL
+			) || '',
 			alt: (props.blog && props.blog.assets.original.name) || '',
 			caption: (props.blog && props.blog.assets.caption) || '',
 			description: (props.blog && props.blog.description) || '',
@@ -84,6 +89,7 @@ export default class BlogForm extends React.Component {
 		const {
 			author,
 			title,
+			slug,
 			original,
 			placeholder,
 			caption,
@@ -96,6 +102,7 @@ export default class BlogForm extends React.Component {
 		let blog = {
 			author,
 			title,
+			slug,
 			description,
 			body
 		};
@@ -133,6 +140,7 @@ export default class BlogForm extends React.Component {
 		const {
 			author,
 			title,
+			slug,
 			originalObjectURL,
 			placeholderObjectURL,
 			alt,
@@ -147,6 +155,7 @@ export default class BlogForm extends React.Component {
 		const isSubmitDisabled =
 			author.trim().length === 0
 			|| title.trim().length === 0
+			|| slug.trim().length === 0
 			|| description.trim().length === 0
 			|| body.length === 0
 			|| loading;
@@ -195,6 +204,16 @@ export default class BlogForm extends React.Component {
 						value={title}
 						onChange={this.onTextInput}
 						placeholder="Enter title"
+						required
+					/>
+				</FormGroup>
+				<FormGroup>
+					<Label>Slug</Label>
+					<Input type="text"
+						name="slug"
+						value={slug}
+						onChange={this.onTextInput}
+						placeholder="Enter slug"
 						required
 					/>
 				</FormGroup>
@@ -301,11 +320,21 @@ export default class BlogForm extends React.Component {
 					/>
 				</FormGroup>
 				<FormGroup>
-					<Button type="submit" color="primary" disabled={isSubmitDisabled}>
+					<Button type="submit"
+						color="primary"
+						disabled={isSubmitDisabled}
+						style={{ marginRight: 10 }}
+					>
 						{loading
 							? <i className='fa fa-refresh fa-spin fa-fw' />
 							: 'Save Blog'
 						}
+					</Button>
+					<Button type="button"
+						color="secondary"
+						onClick={() => this.props.history.push(ROUTES.BLOG_LIST.path)}
+					>
+						Cancel
 					</Button>
 				</FormGroup>
 			</Form>
