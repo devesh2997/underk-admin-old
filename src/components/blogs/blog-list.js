@@ -1,26 +1,10 @@
 import React, { Component } from 'react';
 import { Button, Card, CardBody, CardHeader, Table } from 'reactstrap';
-import { withFirebase } from '../../firebase';
 import { Link } from 'react-router-dom';
 
+import { withFirebase } from '../../firebase';
+
 import ROUTES from '../../routes';
-
-const DeleteCategory = ({ bid, firebase }) => (
-	<Button type="button"
-		color="danger"
-		onClick={() => {
-			let isConfirmed = window.confirm('Are you sure you want to delete this blog?');
-			if(isConfirmed) {
-				firebase.db.doc(`blogs/${bid}`).delete();
-			}
-		}}
-		style={{ margin: 5 }}
-	>
-		<i className="fa fa-trash"></i>
-  	</Button>
-);
-
-
 
 class BlogList extends Component {
 	constructor(props) {
@@ -71,6 +55,7 @@ class BlogList extends Component {
 								<th>#</th>
 								<th>Blog ID</th>
 								<th>Title</th>
+								<th>Slug</th>
 								<th>Author</th>
 								<th>Category</th>
 								<th>Keywords</th>
@@ -83,6 +68,7 @@ class BlogList extends Component {
 									<td>{idx+1}</td>
 									<td>{blog.bid}</td>
 									<td>{blog.title}</td>
+									<td>{blog.slug}</td>
 									<td>{blog.author}</td>
 									<td>{blog.category || 'NULL'}</td>
 									<td>{blog.keywords ? blog.keywords.join(', ') : 'NULL'}</td>
@@ -90,11 +76,25 @@ class BlogList extends Component {
 										<Link
 											to={`${ROUTES.BLOG_LIST.path}/${blog.bid}/edit`}
 										>
-											<Button type='button' color='secondary' style={{ margin: 5 }}>
+											<Button type='button'
+												color='secondary'
+												style={{ margin: 5 }}
+											>
 												<i className='fa fa-pencil' />
 											</Button>
 										</Link>
-										<DeleteCategory bid={blog.cid} firebase={this.props.firebase} />
+										<Button type="button"
+											color="danger"
+											onClick={() => {
+												let isConfirmed = window.confirm('Are you sure you want to delete this blog?');
+												if(isConfirmed) {
+													this.props.firebase.db.doc(`blogs/${blog.bid}`).delete();
+												}
+											}}
+											style={{ margin: 5 }}
+										>
+											<i className="fa fa-trash"></i>
+										</Button>
 									</td>
 								</tr>
 							))}

@@ -12,15 +12,25 @@ export default class BlogForm extends React.Component {
 		this.state = {
 			author: (props.blog && props.blog.author) || 'underK',
 			title: (props.blog && props.blog.title) || '',
-			src: null,
-			srcObjectURL: (props.blog && props.blog.image.src) || '',
+			slug: (props.blog && props.blog.slug) || '',
+			original: null,
+			originalObjectURL: (props.blog && props.blog.assets.original.downloadURL) || '',
 			placeholder: null,
-			placeholderObjectURL: (props.blog && props.blog.image.placeholder) || '',
+			placeholderObjectURL: (
+				props.blog
+				&& props.blog.assets.placeholder
+				&& props.blog.assets.placeholder.downloadURL
+			) || '',
+			alt: (props.blog && props.blog.assets.original.name) || '',
+			caption: (props.blog && props.blog.assets.caption) || '',
+			description: (props.blog && props.blog.description) || '',
 			body: (props.blog && props.blog.body) || '',
 			category: (props.blog && props.blog.category) || '',
 			keywords: (props.blog && props.blog.keywords && props.blog.keywords.join(', ')) || '',
 			loading: false
 		};
+
+		this.image = React.createRef();
 	}
 
 	onTextInput = (e) => {
@@ -42,24 +52,34 @@ export default class BlogForm extends React.Component {
 
 	uploadTaskPromise = (file, firebase) => {
 		return new Promise((resolve, reject) => {
-			let storageRef = firebase.storage.ref().child('assets_blogs')
-			let uploadTask = storageRef.child(file.name).put(file)
+			let storageRef = firebase.storage.ref().child('assets_blogs');
+			let uploadTask = storageRef.child(file.name).put(file);
 			uploadTask.on(
 				'state_changed',
 				snapshot => {},
 				error => {
-					console.log(error)
-					reject()
+					console.log(error);
+					reject();
 				},
 				() => {
+					const metadata = uploadTask.snapshot.metadata;
+					const { name, contentType, fullPath, size, bucket } = metadata;
+
 					uploadTask.snapshot.ref
 						.getDownloadURL()
 						.then(downloadURL => {
-							resolve(downloadURL)
-						})
+							resolve({
+								name: this.state.alt || name,
+								contentType,
+								fullPath,
+								size,
+								bucket,
+								downloadURL
+							});
+						});
 				}
-			)
-		})
+			);
+		});
 	}
 
 	onSubmit = async (event) => {
@@ -69,8 +89,11 @@ export default class BlogForm extends React.Component {
 		const {
 			author,
 			title,
-			src,
+			slug,
+			original,
 			placeholder,
+			caption,
+			description,
 			body,
 			category,
 			keywords
@@ -79,6 +102,8 @@ export default class BlogForm extends React.Component {
 		let blog = {
 			author,
 			title,
+			slug,
+			description,
 			body
 		};
 		if(category.trim().length > 0) {
@@ -92,13 +117,19 @@ export default class BlogForm extends React.Component {
 				}
 			});
 		}
-		if(src) {
-			blog.image = {
-				src: await this.uploadTaskPromise(src, this.props.firebase)
+		if(original) {
+			blog.assets = {
+				original: await this.uploadTaskPromise(original, this.props.firebase),
+				aspectRatio: Number((this.image.current.naturalHeight / this.image.current.naturalWidth).toFixed(4)),
+				caption
 			}
 			if(placeholder) {
-				blog.image.placeholder = await this.uploadTaskPromise(placeholder, this.props.firebase);
+				blog.assets.placeholder = await this.uploadTaskPromise(placeholder, this.props.firebase);
 			}
+		}
+		if(!(this.props.blog && this.props.blog.createdAt)) {
+			let now = new Date();
+			blog.createdAt = now.getTime();
 		}
 
 		await this.props.handleSubmit(blog);
@@ -109,8 +140,12 @@ export default class BlogForm extends React.Component {
 		const {
 			author,
 			title,
-			srcObjectURL,
+			slug,
+			originalObjectURL,
 			placeholderObjectURL,
+			alt,
+			caption,
+			description,
 			body,
 			category,
 			keywords,
@@ -120,29 +155,33 @@ export default class BlogForm extends React.Component {
 		const isSubmitDisabled =
 			author.trim().length === 0
 			|| title.trim().length === 0
+			|| slug.trim().length === 0
+			|| description.trim().length === 0
 			|| body.length === 0
 			|| loading;
 
 		const modules = {
 			toolbar: [
-				[{ font: [] }, { size: [] }],
+				// [{ font: [] }, { size: [] }],
+				[{ header: [] }],
 				['bold', 'italic', 'underline', 'strike'],
 				[{ color: [] }, { background: [] }],
 				[{ script: 'sub' }, { script: 'super' }],
-				[{ header: 1 }, { header: 2 }, 'blockquote', 'code-block'],
-				[{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }, { align: [] }],
+				['blockquote', 'code-block'],
+				[{ list: 'ordered' }, { list: 'bullet' }, { align: [] }],
 				['link'],
 				['clean']
 			]
 		}
 
 		const formats = [
-			'font', 'size',
+			// 'font', 'size',
+			'header',
 			'bold', 'italic', 'underline', 'strike',
 			'color', 'background',
 			'script',
-			'header', 'blockquote', 'code-block',
-			'list', 'indent', 'align',
+			'blockquote', 'code-block',
+			'list', 'align',
 			'link'
 		]
 
@@ -168,29 +207,90 @@ export default class BlogForm extends React.Component {
 						required
 					/>
 				</FormGroup>
-				<FormGroup row style={{ margin: '1rem 0' }}>
-					<Col>
-						<img src={srcObjectURL} alt="Original" style={{ maxWidth: '150px' }} />
-					</Col>
-					<Col>
-						<Label>Choose src</Label>
-						<Input type="file"
-							name="src"
-							onChange={this.onImageChange}
-						/>
-					</Col>
+				<FormGroup>
+					<Label>Slug</Label>
+					<Input type="text"
+						name="slug"
+						value={slug}
+						onChange={this.onTextInput}
+						placeholder="Enter slug"
+						required
+					/>
 				</FormGroup>
-				<FormGroup row style={{ margin: '1rem 0' }}>
-					<Col>
-						<img src={placeholderObjectURL} alt="Placeholder" style={{ maxWidth: '150px' }} />
-					</Col>
-					<Col>
-						<Label>Choose placeholder</Label>
-						<Input type="file"
-							name="placeholder"
-							onChange={this.onImageChange}
+				<div
+					style={{
+						margin: '1rem -1.25rem',
+						padding: '1rem 1.25rem',
+						backgroundColor: '#e4e5e6'
+					}}
+				>
+					<FormGroup row style={{ margin: '1rem 0' }}>
+						<Col>
+							<img
+								ref={this.image}
+								src={originalObjectURL}
+								alt="Original IMG"
+								style={{ maxWidth: '150px' }}
+							/>
+						</Col>
+						<Col>
+							<Label>Choose src</Label>
+							<Input type="file"
+								name="original"
+								onChange={this.onImageChange}
+							/>
+						</Col>
+					</FormGroup>
+					<FormGroup row style={{ margin: '1rem 0' }}>
+						<Col>
+							<img
+								src={placeholderObjectURL}
+								alt="Placeholder IMG"
+								style={{ maxWidth: '150px' }}
+							/>
+						</Col>
+						<Col>
+							<Label>Choose placeholder</Label>
+							<Input type="file"
+								name="placeholder"
+								onChange={this.onImageChange}
+							/>
+						</Col>
+					</FormGroup>
+					<FormGroup>
+						<Label>Alternate text</Label>
+						<Input type="text"
+							name="alt"
+							value={alt}
+							onChange={this.onTextInput}
+							placeholder="Enter alternate text"
 						/>
-					</Col>
+					</FormGroup>
+					<FormGroup>
+						<Label>Caption</Label>
+						<Input type="textarea"
+							name="caption"
+							value={caption}
+							onChange={this.onTextInput}
+							placeholder="Enter caption"
+						/>
+					</FormGroup>
+				</div>
+				<FormGroup>
+					<Label>Description</Label>
+					<div style={styles.descContainerStyle}>
+						<Input type="textarea"
+							name="description"
+							value={description}
+							onChange={this.onTextInput}
+							placeholder="Enter description"
+							maxLength={300}
+							required
+						/>
+						<span style={styles.counterStyle}>
+							{(300 - description.length).toString()}
+						</span>
+					</div>
 				</FormGroup>
 				<FormGroup>
 					<Label>Body</Label>
@@ -220,11 +320,38 @@ export default class BlogForm extends React.Component {
 					/>
 				</FormGroup>
 				<FormGroup>
-					<Button type="submit" color="primary" disabled={isSubmitDisabled}>
-						Save Blog
+					<Button type="submit"
+						color="primary"
+						disabled={isSubmitDisabled}
+						style={{ marginRight: 10 }}
+					>
+						{loading
+							? <i className='fa fa-refresh fa-spin fa-fw' />
+							: 'Save Blog'
+						}
+					</Button>
+					<Button type="button"
+						color="secondary"
+						onClick={() => this.props.history.push(ROUTES.BLOG_LIST.path)}
+					>
+						Cancel
 					</Button>
 				</FormGroup>
 			</Form>
 		);
 	}
 }
+
+
+const styles = {
+	descContainerStyle: {
+		position: 'relative'
+	},
+	counterStyle: {
+		position: 'absolute',
+		right: 15,
+		bottom: 0,
+		backgroundColor: 'rgba(255,255,255,0.25)',
+		pointerEvents: 'none'
+	}
+};
