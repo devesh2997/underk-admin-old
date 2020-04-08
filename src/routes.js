@@ -9,6 +9,9 @@ const CustomOrders = React.lazy(() =>
 const InventoryTransactionsList = React.lazy(() =>
 	import('./components/inventory/transactions-list')
 )
+const ExportInventory = React.lazy(() =>
+	import('./components/inventory/export')
+)
 const Inventory = React.lazy(() => import('./components/inventory'))
 const AdminList = React.lazy(() =>
 	import('./components/administrators/administrator-list')
@@ -157,6 +160,12 @@ const routes = {
 		exact: true,
 		name: 'Inventory Transactions',
 		component: InventoryTransactionsList
+	},
+	EXPORT_INVENTORY: {
+		path: '/inventory/export',
+		exact: true,
+		name: 'Export Inventory',
+		component: ExportInventory
 	},
 	ADMINISTRATOR_LIST: {
 		path: '/administrators',

@@ -39,6 +39,11 @@ export default {
 					url: ROUTES.INVENTORY_TRANSACTIONS.path,
 					icon: 'fa fa-list-alt',
 				},
+				{
+					name: 'Export',
+					url: ROUTES.EXPORT_INVENTORY.path,
+					icon: 'fa fa-list-alt',
+				},
 			],
 		},
 		{
