@@ -186,12 +186,17 @@ export default {
 				{
 					name: 'Emails',
 					url: ROUTES.MISCELLANEOUS_MAILS.path,
-					icon: 'fa fa-list-alt',
+					icon: 'fa-envelope-o',
 				},
 				{
 					name: 'SMS',
 					url: ROUTES.MISCELLANEOUS_SMS.path,
-					icon: 'fa fa-list-alt',
+					icon: 'fa fa-commenting-o',
+				},
+				{
+					name: ROUTES.MISCELLANEOUS_URL_SHORTENER.name,
+					url: ROUTES.MISCELLANEOUS_URL_SHORTENER.path,
+					icon: 'fa fa-compress',
 				},
 
 			],

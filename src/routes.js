@@ -56,6 +56,7 @@ const PurchaseSaleSheet = React.lazy(() =>
 )
 const EmailsList = React.lazy(() => import('./components/miscellaneous/emails'))
 const SmsList = React.lazy(() => import('./components/miscellaneous/sms'))
+const UrlShortener = React.lazy(() => import('./components/miscellaneous/url-shortener'))
 const AddProductItem = React.lazy(() =>
 	import('./components/products/add-product')
 )
@@ -268,6 +269,12 @@ const routes = {
 		exact: true,
 		name: 'SMS',
 		component: SmsList
+	},
+	MISCELLANEOUS_URL_SHORTENER: {
+		path: '/miscellaneous/url-shortener',
+		exact: true,
+		name: 'URL Shortener',
+		component: UrlShortener
 	},
 	ATTRIBUTE_LIST: {
 		path: '/products/attributes',
