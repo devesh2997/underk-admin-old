@@ -44,8 +44,14 @@ class UrlShortener extends Component {
 			redirectUrl: '',
 			shortUrls: [],
 			message: '',
-			error: ''
+			error: '',
+			forceCreateShortUrl: false,
+			trackShortUrl: false
 		}
+	}
+
+	onChecked = event => {
+		this.setState({ [event.target.name]: event.target.checked })
 	}
 
 	onChange = event => {
@@ -54,8 +60,8 @@ class UrlShortener extends Component {
 
 	onDelete = async index => {
 		let shortUrls = this.state.shortUrls
+		const shortUrl = shortUrls[index]
 		shortUrls.splice(index, 1)
-		let shortUrl = this.state.shortUrls[index]
 
 		this.setState({ shortUrls, loading: true, message: '', error: '' })
 
@@ -67,7 +73,7 @@ class UrlShortener extends Component {
 	getShortUrl = async url => {
 		let urlSnapshot = await this.props.firebase.shortUrlForUrl(url).get()
 		if (urlSnapshot.empty) return null
-		else return urlSnapshot.docs
+		else return urlSnapshot.docs.map(doc=>doc.id)
 	}
 
 	checkForExistingShortUrl = async () => {
@@ -76,7 +82,7 @@ class UrlShortener extends Component {
 		let error = ''
 		let shortUrls = []
 		if (!utils.isEmpty(urls)) {
-			shortUrls = urls.map(url => url.id)
+			shortUrls = urls
 		} else {
 			error = 'Short URL does not exist for the given url.'
 		}
@@ -84,17 +90,22 @@ class UrlShortener extends Component {
 	}
 
 	createShortUrl = async () => {
+		let { forceCreateShortUrl, trackShortUrl } = this.state
 		this.setState({ loading: true, message: '', shortUrls: [], error: '' })
 		let error = ''
 		let message = ''
-		let shortUrls = await this.getShortUrl(this.state.redirectUrl)
-		if (utils.isEmpty(shortUrls)) {
+		let shortUrls
+		const redirectUrl = this.state.redirectUrl
+		if (!forceCreateShortUrl)
+			shortUrls = await this.getShortUrl(redirectUrl)
+		if (forceCreateShortUrl || utils.isEmpty(shortUrls)) {
 			const createShortUrlActionId = await this.props.firebase.createShortUrlAction(
-				this.state.redirectUrl
+				redirectUrl,
+				trackShortUrl
 			)
 			this.props.firebase
 				.action(createShortUrlActionId)
-				.onSnapshot(snapshot => {
+				.onSnapshot(async snapshot => {
 					if (snapshot.exists) {
 						let action = snapshot.data()
 						if (action.status === types.ACTION_STATUS_ERROR) {
@@ -110,9 +121,10 @@ class UrlShortener extends Component {
 						} else if (
 							action.status === types.ACTION_STATUS_COMPLETED
 						) {
+							shortUrls = await this.getShortUrl(redirectUrl)
 							this.setState({
 								loading: false,
-								shortUrl: [action.shortUrl]
+								shortUrls
 							})
 						}
 					} else {
@@ -124,14 +136,21 @@ class UrlShortener extends Component {
 					}
 				})
 		} else {
-			shortUrls = shortUrls.map(url => url.id)
 			message = 'Short URL already exists for this url.	'
 			this.setState({ shortUrls, message, error, loading: false })
 		}
 	}
 
 	render () {
-		let { loading, redirectUrl, shortUrls, message, error } = this.state
+		let {
+			loading,
+			redirectUrl,
+			shortUrls,
+			message,
+			error,
+			forceCreateShortUrl,
+			trackShortUrl
+		} = this.state
 
 		let validUrl =
 			redirectUrl.startsWith('https://') ||
@@ -157,6 +176,32 @@ class UrlShortener extends Component {
 								></Input>
 							</InputGroup>
 						</Col>
+					</Row>
+					<Row style={{ marginTop: '20px', marginBottom: '20px' }}>
+						<Col sm='1'></Col>
+						<Col>
+							<Label check>
+								<Input
+									type='checkbox'
+									onChange={this.onChecked}
+									name='forceCreateShortUrl'
+									checked={forceCreateShortUrl}
+								/>{' '}
+								Force create short.
+							</Label>
+						</Col>
+						<Col>
+							<Label check>
+								<Input
+									type='checkbox'
+									onChange={this.onChecked}
+									name='trackShortUrl'
+									checked={trackShortUrl}
+								></Input>
+								Track the redirects from the created short url
+							</Label>
+						</Col>
+						<Col sm='1'></Col>
 					</Row>
 					{loading && (
 						<i className='fa fa-refresh fa-spin fa-3x fa-fw' />

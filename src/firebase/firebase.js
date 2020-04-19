@@ -109,20 +109,21 @@ class Firebase {
 	shortUrls = () => this.db.collection('short-urls')
 	shortUrlForUrl = url =>
 		this.db.collection('short-urls').where('redirect', '==', url)
-	shortUrl = shortUrl => this.db.collection('short-urls').doc(shortUrl)
-	createShortUrlAction = async url => {
+	shortUrl = url => this.db.collection('short-urls').doc(url)
+	createShortUrlAction = async (url, trackingEnabled) => {
 		const action = await this.db.collection('actions').add({
 			type: types.ACTION_SHORTEN_URL,
 			url: url,
 			adminId: this.auth.currentUser.uid,
-			status: types.ACTION_STATUS_INIT
+			status: types.ACTION_STATUS_INIT,
+			trackingEnabled: trackingEnabled
 		})
 		return action.id
 	}
 
 	//*** Action API */
-	actions = ()=>this.db.collection('actions')
-	action = (actionId)=>this.db.collection('actions').doc(actionId)
+	actions = () => this.db.collection('actions')
+	action = actionId => this.db.collection('actions').doc(actionId)
 
 	// *** type_subtypes API ***
 	typesSubtypes = () => this.db.collection('types_subtypes')
