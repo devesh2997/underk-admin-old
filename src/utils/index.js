@@ -1,3 +1,18 @@
+import isPlainObject from 'lodash/fp/isPlainObject';
+import isNull from 'lodash/fp/isNull';
+import isBoolean from 'lodash/fp/isBoolean';
+import isNumber from 'lodash/fp/isNumber';
+import isString from 'lodash/fp/isString';
+import isArray from 'lodash/fp/isArray';
+
+export const isPlainObjectWithKeys = (value) => isPlainObject(value) && !isNull(value);
+
+export const boolify = (value, defaultValue = false) => isBoolean(value) ? value : defaultValue;
+export const numify = (value, defaultValue = 0) => isNumber(value) ? value : defaultValue;
+export const stringify = (value, defaultValue = '') => isString(value) ? value : defaultValue;
+export const objectify = (value, defaultValue = {}) => isPlainObjectWithKeys(value) ? value : defaultValue;
+export const arrify = (value, defaultValue = []) => isArray(value) ? value : defaultValue;
+
 const paiseToRupeeString = paise => {
 	paise = Number(paise)
 	if (paise % 100 === 0) {

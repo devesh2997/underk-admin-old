@@ -13,6 +13,12 @@ const ExportInventory = React.lazy(() =>
 	import('./components/inventory/export')
 )
 const Inventory = React.lazy(() => import('./components/inventory'))
+const EmployeeList = React.lazy(() =>
+	import('./components/employees/EmployeeList')
+)
+const AddEmployee = React.lazy(() =>
+	import('./components/employees/AddEmployee')
+)
 const AdminList = React.lazy(() =>
 	import('./components/administrators/administrator-list')
 )
@@ -167,6 +173,18 @@ const routes = {
 		exact: true,
 		name: 'Export Inventory',
 		component: ExportInventory
+	},
+	EMPLOYEE_LIST: {
+		path: '/employees',
+		exact: true,
+		name: 'Employees',
+		component: EmployeeList
+	},
+	ADD_EMPLOYEE: {
+		path: '/employees/add',
+		exact: true,
+		name: 'Add Employee',
+		component: AddEmployee
 	},
 	ADMINISTRATOR_LIST: {
 		path: '/administrators',
