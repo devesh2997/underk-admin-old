@@ -33,10 +33,13 @@ class CollectionsBulkUpload extends Component {
 
 	addCollection = async (name, slug, collections) => {
 		let found
-		if (collections) found = collections.find(c => c.slug === slug)
+		if (collections) found = collections.find(c => c.id === slug)
 		if (!found) {
-			let collection = { name, slug }
-			await this.props.firebase.collections().add(collection)
+			let collection = { id: slug, name, slug }
+			await this.props.firebase
+				.collections()
+				.doc(slug)
+				.set(collection)
 		} else {
 			console.log('collection already exists')
 		}
@@ -65,7 +68,7 @@ class CollectionsBulkUpload extends Component {
 			let collections = []
 
 			snapshots.forEach(doc =>
-				collections.push({ ...doc.data(), cid: doc.id })
+				collections.push({ ...doc.data(), id: doc.id })
 			)
 
 			return collections
