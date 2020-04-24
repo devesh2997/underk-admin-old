@@ -104,6 +104,8 @@ class Firebase {
 	users = () => this.db.collection('users').orderBy('created_at', 'desc')
 	admin = uid => this.db.doc(`admins/${uid}`)
 	admins = () => this.db.collection('admins')
+	employee = (id) => this.db.doc(`employees/${id}`)
+	employees = () => this.db.collection('employees')
 
 	// *** shortURLs API ***
 	shortUrls = () => this.db.collection('short-urls')
