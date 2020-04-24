@@ -14,16 +14,16 @@ export default class Employee {
 	validate = () => {
 		// FIXME: write stricter validation tests
 
-		if(this.name.trim().length === 0) {
+		if(this.name.length === 0) {
 			throw(new Error('Invalid name'));
 		}
-		if(this.email.trim().length === 0) {
+		if(this.email.length === 0) {
 			throw(new Error('Invalid email'));
 		}
-		if(this.mobile.trim().length === 0) {
+		if(this.mobile.length === 0) {
 			throw(new Error('Invalid mobile'));
 		}
-		if(this.address.trim().length === 0) {
+		if(this.address.length === 0) {
 			throw(new Error('Invalid address'));
 		}
 	}
