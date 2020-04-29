@@ -14,6 +14,7 @@ import {
 import { firebase } from '../../index';
 import ROUTES from '../../routes';
 import Employee from './models/employee';
+import MakeAdminModal from './MakeAdminModal';
 
 export default class EmployeeList extends Component {
 	constructor(props) {
@@ -22,6 +23,8 @@ export default class EmployeeList extends Component {
 		this.state = {
 			isLoading: false,
 			employees: [],
+			isModalOpen: false,
+			selectedEmployee: {}
 		};
 	}
 
@@ -47,8 +50,19 @@ export default class EmployeeList extends Component {
 		this.unsubscribe();
 	}
 
+	toggleModal = () => {
+		this.setState(prevState => ({
+			isModalOpen: !prevState.isModalOpen
+		}));
+	}
+
 	render() {
-		const { isLoading, employees } = this.state;
+		const {
+			isLoading,
+			employees,
+			selectedEmployee,
+			isModalOpen
+		} = this.state;
 
 		return (
 			<Card>
@@ -102,6 +116,12 @@ export default class EmployeeList extends Component {
 													type="button"
 													color="success"
 													style={{ margin: 3 }}
+													onClick={() => {
+														this.setState({
+															isModalOpen: true,
+															selectedEmployee: employee
+														});
+													}}
 												>
 													<i className="fa fa-user-secret" />
 													<UncontrolledTooltip
@@ -133,6 +153,11 @@ export default class EmployeeList extends Component {
 						)
 					}
 				</CardBody>
+				<MakeAdminModal
+					isOpen={isModalOpen}
+					toggle={this.toggleModal}
+					employee={selectedEmployee}
+				/>
 			</Card>
 		);
 	}
