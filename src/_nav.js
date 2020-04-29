@@ -219,6 +219,11 @@ export default {
 
 			],
 		},
+		{
+			name: 'Test Playground',
+			url: ROUTES.TEST_PLAYGROUND.path,
+			icon: 'fa fa-rss',
+		},
 	],
 };
 

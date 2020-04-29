@@ -62,7 +62,9 @@ const PurchaseSaleSheet = React.lazy(() =>
 )
 const EmailsList = React.lazy(() => import('./components/miscellaneous/emails'))
 const SmsList = React.lazy(() => import('./components/miscellaneous/sms'))
-const UrlShortener = React.lazy(() => import('./components/miscellaneous/url-shortener'))
+const UrlShortener = React.lazy(() =>
+	import('./components/miscellaneous/url-shortener')
+)
 const AddProductItem = React.lazy(() =>
 	import('./components/products/add-product')
 )
@@ -104,6 +106,8 @@ const BlogList = React.lazy(() => import('./components/blogs/blog-list'))
 const AddBlog = React.lazy(() => import('./components/blogs/add-blog'))
 const EditBlog = React.lazy(() => import('./components/blogs/edit-blog'))
 
+const TestPlayground = React.lazy(() => import('./components/test-playground'))
+
 const TempDashboard = () => {
 	return <span>Dashboard</span>
 }
@@ -119,6 +123,11 @@ const routes = {
 		path: '/dashboard',
 		name: 'Dashboard',
 		component: TempDashboard
+	},
+	TEST_PLAYGROUND: {
+		path: '/test-playground',
+		name: 'Test Playground',
+		component: TestPlayground
 	},
 	STRATEGIES: {
 		path: '/strategies',
