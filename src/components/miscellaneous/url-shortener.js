@@ -155,7 +155,7 @@ class UrlShortener extends Component {
 		let validUrl =
 			redirectUrl.startsWith('https://') ||
 			redirectUrl.startsWith('http://')
-		validUrl = validUrl && redirectUrl.split('.').length === 3
+		// validUrl = validUrl && redirectUrl.split('.').length === 3
 
 		return (
 			<Card>
