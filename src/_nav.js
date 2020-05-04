@@ -175,7 +175,11 @@ export default {
 					url: ROUTES.ACCOUNTING_PURCHASE_SALE_SHEET.path,
 					icon: 'fa fa-list-alt',
 				},
-
+				{
+					name: 'Create Invoice',
+					url: ROUTES.ACCOUNTING_CREATE_INVOICE.path,
+					icon: 'fa fa-list-alt',
+				},
 			],
 		},
 		{

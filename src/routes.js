@@ -60,6 +60,9 @@ const ProductList = React.lazy(() =>
 const PurchaseSaleSheet = React.lazy(() =>
 	import('./components/accounting/purchase-sale-sheet')
 )
+const CreateInvoice = React.lazy(() =>
+	import('./components/accounting/CreateInvoice')
+)
 const EmailsList = React.lazy(() => import('./components/miscellaneous/emails'))
 const SmsList = React.lazy(() => import('./components/miscellaneous/sms'))
 const UrlShortener = React.lazy(() =>
@@ -284,6 +287,12 @@ const routes = {
 		exact: true,
 		name: 'Purchase Sale Sheet',
 		component: PurchaseSaleSheet
+	},
+	ACCOUNTING_CREATE_INVOICE: {
+		path: '/accounting/create-invoice',
+		exact: true,
+		name: 'Create Invoice',
+		component: CreateInvoice
 	},
 	MISCELLANEOUS_MAILS: {
 		path: '/miscellaneous/mails',
