@@ -1,42 +1,25 @@
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { compose } from 'recompose';
-import AuthUserContext from './context';
-import { withFirebase } from '../firebase';
+import React, { useContext, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 
-const withAuthorization = (condition, locationOnFailure, locationOnFallback) => Component => {
-	class WithAuthorization extends React.Component {
-		componentDidMount() {
-			this.listener = this.props.firebase.onAuthUserListener(authUser => {
-				if (!condition(authUser)) {
-					this.props.history.replace(locationOnFailure);
-				}
-			}, () => {
-				if(locationOnFallback){
-					this.props.history.replace(locationOnFallback);
-				}
-			});
-		}
+import { AuthContext } from './AuthProvider';
 
-		componentWillUnmount() {
-			this.listener();
-		}
+const withAuthorization = (locWhenAuthenticated, locWhenUnauthenticated) => Component => {
+	function AuthorizationWrapperComponent(props) {
+    const Auth = useContext(AuthContext);
+    const history = useHistory();
 
-		render() {
-			return (
-				<AuthUserContext.Consumer>
-					{authUser =>
-						condition(authUser) ? <Component {...this.props} /> : null
-					}
-				</AuthUserContext.Consumer>
-			);
-		}
+    useEffect(() => {
+      if(Auth.user) {
+        if(locWhenAuthenticated) history.replace(locWhenAuthenticated);
+      } else {
+        if(locWhenUnauthenticated) history.replace(locWhenUnauthenticated);
+      }
+    }, [Auth]);
+
+    return <Component {...props} />;
 	}
 
-	return compose(
-		withRouter,
-		withFirebase,
-	)(WithAuthorization);
+	return AuthorizationWrapperComponent;
 };
 
 export default withAuthorization;

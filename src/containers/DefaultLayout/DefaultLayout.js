@@ -1,4 +1,4 @@
-import React, { Component, Suspense } from 'react';
+import React, { Component, Suspense, useContext } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import * as router from 'react-router-dom';
 import { Container } from 'reactstrap';
@@ -22,27 +22,22 @@ import navigation from '../../_nav';
 import routes from '../../routes';
 import { ROLES } from '../../constants';
 import { withFirebase } from '../../firebase';
-import { withAuthorization, withEmailVerification } from '../../session';
+import { AuthContext, withAuthorization } from '../../session';
 
 const DefaultAside = React.lazy(() => import('./DefaultAside'));
 const DefaultFooter = React.lazy(() => import('./DefaultFooter'));
 const DefaultHeader = React.lazy(() => import('./DefaultHeader'));
 
-class DefaultLayout extends Component {
+function DefaultLayout(props) {
+  const Auth = useContext(AuthContext);
 
-	loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>;
+	const loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>;
 
-	signOut(e) {
-		e.preventDefault();
-		this.props.firebase.doSignOut();
-	}
-
-	render() {
-		return (
+  return (
 		<div className="app">
 			<AppHeader fixed>
-				<Suspense  fallback={this.loading()}>
-					<DefaultHeader onLogout={e=>this.signOut(e)}/>
+				<Suspense  fallback={loading()}>
+					<DefaultHeader onLogout={() => Auth.logout()}/>
 				</Suspense>
 			</AppHeader>
 			<div className="app-body">
@@ -50,7 +45,7 @@ class DefaultLayout extends Component {
 					<AppSidebarHeader />
 					<AppSidebarForm />
 					<Suspense>
-						<AppSidebarNav navConfig={navigation} {...this.props} router={router}/>
+						<AppSidebarNav navConfig={navigation} {...props} router={router}/>
 					</Suspense>
 					<AppSidebarFooter />
 					<AppSidebarMinimizer />
@@ -58,7 +53,7 @@ class DefaultLayout extends Component {
 				<main className="main">
 					<AppBreadcrumb appRoutes={Object.values(routes)} router={router}/>
 					<Container fluid>
-						<Suspense fallback={this.loading()}>
+						<Suspense fallback={loading()}>
 							<Switch>
 								{Object.values(routes).map((route, idx) => {
 									return route.component
@@ -81,19 +76,18 @@ class DefaultLayout extends Component {
 					</Container>
 				</main>
 				<AppAside fixed>
-					<Suspense fallback={this.loading()}>
+					<Suspense fallback={loading()}>
 						<DefaultAside />
 					</Suspense>
 				</AppAside>
 			</div>
 			<AppFooter>
-				<Suspense fallback={this.loading()}>
+				<Suspense fallback={loading()}>
 					<DefaultFooter />
 				</Suspense>
 			</AppFooter>
 		</div>
-		);
-	}
+  );
 }
 
-export default DefaultLayout;
+export default withAuthorization(undefined, '/login')(DefaultLayout);
