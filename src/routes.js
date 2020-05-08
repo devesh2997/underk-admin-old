@@ -112,7 +112,7 @@ const EditBlog = React.lazy(() => import('./components/blogs/edit-blog'))
 const TestPlayground = React.lazy(() => import('./components/test-playground'))
 
 const TempDashboard = () => {
-	return <span>Dashboard</span>
+	return <div />
 }
 
 // https://github.com/ReactTraining/react-router/tree/master/packages/react-router-config
@@ -127,269 +127,269 @@ const routes = {
 		name: 'Dashboard',
 		component: TempDashboard
 	},
-	TEST_PLAYGROUND: {
-		path: '/test-playground',
-		name: 'Test Playground',
-		component: TestPlayground
-	},
-	STRATEGIES: {
-		path: '/strategies',
-		exact: true,
-		name: 'Strategies',
-		component: Strategies
-	},
-	HOME_WIDGETS: {
-		path: '/landing-widgets',
-		exact: true,
-		name: 'Home Widgets',
-		component: MobileHomeWidgetsManager
-	},
-	ADD_WIDGET: {
-		path: '/landing-widgets/add',
-		exact: true,
-		name: 'Add Widget',
-		component: AddWidget
-	},
-	ORDERS: {
-		path: '/orders',
-		exact: true,
-		name: 'Orders',
-		component: OrdersList
-	},
-	RETURNS: {
-		path: '/returns',
-		exact: true,
-		name: 'Returns',
-		component: ReturnsList
-	},
-	CUSTOM_ORDERS: {
-		path: '/custom-orders',
-		exact: true,
-		name: 'Custom Orders',
-		component: CustomOrders
-	},
-	INVENTORY: {
-		path: '/inventory',
-		exact: true,
-		name: 'Inventory',
-		component: Inventory
-	},
-	INVENTORY_TRANSACTIONS: {
-		path: '/inventory/transactions',
-		exact: true,
-		name: 'Inventory Transactions',
-		component: InventoryTransactionsList
-	},
-	EXPORT_INVENTORY: {
-		path: '/inventory/export',
-		exact: true,
-		name: 'Export Inventory',
-		component: ExportInventory
-	},
-	EMPLOYEE_LIST: {
-		path: '/employees',
-		exact: true,
-		name: 'Employees',
-		component: EmployeeList
-	},
-	ADD_EMPLOYEE: {
-		path: '/employees/add',
-		exact: true,
-		name: 'Add Employee',
-		component: AddEmployee
-	},
-	ADMINISTRATOR_LIST: {
-		path: '/administrators',
-		exact: true,
-		name: 'Administrators',
-		component: AdminList
-	},
-	ADD_ADMINISTRATOR: {
-		path: '/administrators/add',
-		exact: true,
-		name: 'Add Administrator',
-		component: AddAdminItem
-	},
-	ADMINISTRATOR_DETAILS: {
-		path: '/administrators/:id',
-		exact: true,
-		name: 'Administrator Details',
-		component: AdminItem
-	},
-	USER_LIST: {
-		path: '/users',
-		exact: true,
-		name: 'Users',
-		component: UserList
-	},
-	USER_DETAILS: {
-		path: '/users/:id',
-		exact: true,
-		name: 'User Details',
-		component: UserItem
-	},
-	CATEGORY_LIST: {
-		path: '/categories',
-		exact: true,
-		name: 'Categories',
-		component: CategoryList
-	},
-	CATEGORIES_BULK_UPLOAD: {
-		path: '/categories/bulk',
-		exact: true,
-		name: 'Categories Bulk Upload',
-		component: CategoriesBulkUpload
-	},
-	ADD_CATEGORY: {
-		path: '/categories/add',
-		exact: true,
-		name: 'Add Category',
-		component: AddCategoryItem
-	},
-	CATEGORY_DETAILS: {
-		path: '/categories/:cid',
-		exact: true,
-		name: 'Category Details',
-		component: CategoryItem
-	},
-	SUPPLIER_LIST: {
-		path: '/suppliers',
-		exact: true,
-		name: 'Suppliers',
-		component: SupplierList
-	},
-	ADD_SUPPLIER: {
-		path: '/suppliers/add',
-		exact: true,
-		name: 'Add Supplier',
-		component: AddSupplierItem
-	},
-	SUPPLIER_DETAILS: {
-		path: '/suppliers/:sid',
-		exact: true,
-		name: 'Supplier Details',
-		component: SupplierItem
-	},
-	PRODUCTS_HOME: {
-		path: '/products',
-		exact: true,
-		name: 'Products',
-		component: ProductsHome
-	},
-	PRODUCT_LIST: {
-		path: '/products/list',
-		exact: true,
-		name: 'Products',
-		component: ProductList
-	},
-	ACCOUNTING_PURCHASE_SALE_SHEET: {
-		path: '/accounting/purchase-sale-sheet',
-		exact: true,
-		name: 'Purchase Sale Sheet',
-		component: PurchaseSaleSheet
-	},
-	ACCOUNTING_CREATE_INVOICE: {
-		path: '/accounting/create-invoice',
-		exact: true,
-		name: 'Create Invoice',
-		component: CreateInvoice
-	},
-	MISCELLANEOUS_MAILS: {
-		path: '/miscellaneous/mails',
-		exact: true,
-		name: 'E-mails',
-		component: EmailsList
-	},
-	MISCELLANEOUS_SMS: {
-		path: '/miscellaneous/sms',
-		exact: true,
-		name: 'SMS',
-		component: SmsList
-	},
-	MISCELLANEOUS_URL_SHORTENER: {
-		path: '/miscellaneous/url-shortener',
-		exact: true,
-		name: 'URL Shortener',
-		component: UrlShortener
-	},
-	ATTRIBUTE_LIST: {
-		path: '/products/attributes',
-		exact: true,
-		name: 'Attributes',
-		component: AttributeList
-	},
-	ATTRIBUTES_BULK_UPLOAD: {
-		path: '/products/attributes/bulk',
-		exact: true,
-		name: 'Bulk Upload Attributes',
-		component: AttributesBulkUpload
-	},
-	ADD_ATTRIBUTE: {
-		path: '/products/attributes/add',
-		exact: true,
-		name: 'Add Collection',
-		component: AddAttribute
-	},
-	COLLECTION_LIST: {
-		path: '/products/collections',
-		exact: true,
-		name: 'Collections',
-		component: CollectionList
-	},
-	COLLECTIONS_BULK_UPLOAD: {
-		path: '/products/collections/bulk',
-		exact: true,
-		name: 'Bulk Upload Collections',
-		component: CollectionsBulkUpload
-	},
-	ADD_COLLECTION: {
-		path: '/products/collections/add',
-		exact: true,
-		name: 'Add Collection',
-		component: AddCollection
-	},
-	ADD_PRODUCT: {
-		path: '/products/add',
-		exact: true,
-		name: 'Add Product',
-		component: AddProductItem
-	},
-	BULK_UPLOAD: {
-		path: '/products/bulk',
-		exact: true,
-		name: 'Bulk Upload Products',
-		component: BulkUpload
-	},
-	PRODUCT_DETAILS: {
-		path: '/products/:pid',
-		exact: true,
-		name: 'Product Details',
-		component: ProductItem
-	},
-	EDIT_PRODUCT: {
-		path: '/products/:pid/edit',
-		exact: true,
-		name: 'Edit Product',
-		component: EditProductItem
-	},
-	BLOG_LIST: {
-		path: '/blogs',
-		exact: true,
-		name: 'Blogs',
-		component: BlogList
-	},
-	ADD_BLOG: {
-		path: '/blogs/add',
-		exact: true,
-		name: 'Blogs',
-		component: AddBlog
-	},
-	EDIT_BLOG: {
-		path: '/blogs/:bid/edit',
-		exact: true,
-		name: 'Blogs',
-		component: EditBlog
-	}
+	// TEST_PLAYGROUND: {
+	// 	path: '/test-playground',
+	// 	name: 'Test Playground',
+	// 	component: TestPlayground
+	// },
+	// STRATEGIES: {
+	// 	path: '/strategies',
+	// 	exact: true,
+	// 	name: 'Strategies',
+	// 	component: Strategies
+	// },
+	// HOME_WIDGETS: {
+	// 	path: '/landing-widgets',
+	// 	exact: true,
+	// 	name: 'Home Widgets',
+	// 	component: MobileHomeWidgetsManager
+	// },
+	// ADD_WIDGET: {
+	// 	path: '/landing-widgets/add',
+	// 	exact: true,
+	// 	name: 'Add Widget',
+	// 	component: AddWidget
+	// },
+	// ORDERS: {
+	// 	path: '/orders',
+	// 	exact: true,
+	// 	name: 'Orders',
+	// 	component: OrdersList
+	// },
+	// RETURNS: {
+	// 	path: '/returns',
+	// 	exact: true,
+	// 	name: 'Returns',
+	// 	component: ReturnsList
+	// },
+	// CUSTOM_ORDERS: {
+	// 	path: '/custom-orders',
+	// 	exact: true,
+	// 	name: 'Custom Orders',
+	// 	component: CustomOrders
+	// },
+	// INVENTORY: {
+	// 	path: '/inventory',
+	// 	exact: true,
+	// 	name: 'Inventory',
+	// 	component: Inventory
+	// },
+	// INVENTORY_TRANSACTIONS: {
+	// 	path: '/inventory/transactions',
+	// 	exact: true,
+	// 	name: 'Inventory Transactions',
+	// 	component: InventoryTransactionsList
+	// },
+	// EXPORT_INVENTORY: {
+	// 	path: '/inventory/export',
+	// 	exact: true,
+	// 	name: 'Export Inventory',
+	// 	component: ExportInventory
+	// },
+	// EMPLOYEE_LIST: {
+	// 	path: '/employees',
+	// 	exact: true,
+	// 	name: 'Employees',
+	// 	component: EmployeeList
+	// },
+	// ADD_EMPLOYEE: {
+	// 	path: '/employees/add',
+	// 	exact: true,
+	// 	name: 'Add Employee',
+	// 	component: AddEmployee
+	// },
+	// ADMINISTRATOR_LIST: {
+	// 	path: '/administrators',
+	// 	exact: true,
+	// 	name: 'Administrators',
+	// 	component: AdminList
+	// },
+	// ADD_ADMINISTRATOR: {
+	// 	path: '/administrators/add',
+	// 	exact: true,
+	// 	name: 'Add Administrator',
+	// 	component: AddAdminItem
+	// },
+	// ADMINISTRATOR_DETAILS: {
+	// 	path: '/administrators/:id',
+	// 	exact: true,
+	// 	name: 'Administrator Details',
+	// 	component: AdminItem
+	// },
+	// USER_LIST: {
+	// 	path: '/users',
+	// 	exact: true,
+	// 	name: 'Users',
+	// 	component: UserList
+	// },
+	// USER_DETAILS: {
+	// 	path: '/users/:id',
+	// 	exact: true,
+	// 	name: 'User Details',
+	// 	component: UserItem
+	// },
+	// CATEGORY_LIST: {
+	// 	path: '/categories',
+	// 	exact: true,
+	// 	name: 'Categories',
+	// 	component: CategoryList
+	// },
+	// CATEGORIES_BULK_UPLOAD: {
+	// 	path: '/categories/bulk',
+	// 	exact: true,
+	// 	name: 'Categories Bulk Upload',
+	// 	component: CategoriesBulkUpload
+	// },
+	// ADD_CATEGORY: {
+	// 	path: '/categories/add',
+	// 	exact: true,
+	// 	name: 'Add Category',
+	// 	component: AddCategoryItem
+	// },
+	// CATEGORY_DETAILS: {
+	// 	path: '/categories/:cid',
+	// 	exact: true,
+	// 	name: 'Category Details',
+	// 	component: CategoryItem
+	// },
+	// SUPPLIER_LIST: {
+	// 	path: '/suppliers',
+	// 	exact: true,
+	// 	name: 'Suppliers',
+	// 	component: SupplierList
+	// },
+	// ADD_SUPPLIER: {
+	// 	path: '/suppliers/add',
+	// 	exact: true,
+	// 	name: 'Add Supplier',
+	// 	component: AddSupplierItem
+	// },
+	// SUPPLIER_DETAILS: {
+	// 	path: '/suppliers/:sid',
+	// 	exact: true,
+	// 	name: 'Supplier Details',
+	// 	component: SupplierItem
+	// },
+	// PRODUCTS_HOME: {
+	// 	path: '/products',
+	// 	exact: true,
+	// 	name: 'Products',
+	// 	component: ProductsHome
+	// },
+	// PRODUCT_LIST: {
+	// 	path: '/products/list',
+	// 	exact: true,
+	// 	name: 'Products',
+	// 	component: ProductList
+	// },
+	// ACCOUNTING_PURCHASE_SALE_SHEET: {
+	// 	path: '/accounting/purchase-sale-sheet',
+	// 	exact: true,
+	// 	name: 'Purchase Sale Sheet',
+	// 	component: PurchaseSaleSheet
+	// },
+	// ACCOUNTING_CREATE_INVOICE: {
+	// 	path: '/accounting/create-invoice',
+	// 	exact: true,
+	// 	name: 'Create Invoice',
+	// 	component: CreateInvoice
+	// },
+	// MISCELLANEOUS_MAILS: {
+	// 	path: '/miscellaneous/mails',
+	// 	exact: true,
+	// 	name: 'E-mails',
+	// 	component: EmailsList
+	// },
+	// MISCELLANEOUS_SMS: {
+	// 	path: '/miscellaneous/sms',
+	// 	exact: true,
+	// 	name: 'SMS',
+	// 	component: SmsList
+	// },
+	// MISCELLANEOUS_URL_SHORTENER: {
+	// 	path: '/miscellaneous/url-shortener',
+	// 	exact: true,
+	// 	name: 'URL Shortener',
+	// 	component: UrlShortener
+	// },
+	// ATTRIBUTE_LIST: {
+	// 	path: '/products/attributes',
+	// 	exact: true,
+	// 	name: 'Attributes',
+	// 	component: AttributeList
+	// },
+	// ATTRIBUTES_BULK_UPLOAD: {
+	// 	path: '/products/attributes/bulk',
+	// 	exact: true,
+	// 	name: 'Bulk Upload Attributes',
+	// 	component: AttributesBulkUpload
+	// },
+	// ADD_ATTRIBUTE: {
+	// 	path: '/products/attributes/add',
+	// 	exact: true,
+	// 	name: 'Add Collection',
+	// 	component: AddAttribute
+	// },
+	// COLLECTION_LIST: {
+	// 	path: '/products/collections',
+	// 	exact: true,
+	// 	name: 'Collections',
+	// 	component: CollectionList
+	// },
+	// COLLECTIONS_BULK_UPLOAD: {
+	// 	path: '/products/collections/bulk',
+	// 	exact: true,
+	// 	name: 'Bulk Upload Collections',
+	// 	component: CollectionsBulkUpload
+	// },
+	// ADD_COLLECTION: {
+	// 	path: '/products/collections/add',
+	// 	exact: true,
+	// 	name: 'Add Collection',
+	// 	component: AddCollection
+	// },
+	// ADD_PRODUCT: {
+	// 	path: '/products/add',
+	// 	exact: true,
+	// 	name: 'Add Product',
+	// 	component: AddProductItem
+	// },
+	// BULK_UPLOAD: {
+	// 	path: '/products/bulk',
+	// 	exact: true,
+	// 	name: 'Bulk Upload Products',
+	// 	component: BulkUpload
+	// },
+	// PRODUCT_DETAILS: {
+	// 	path: '/products/:pid',
+	// 	exact: true,
+	// 	name: 'Product Details',
+	// 	component: ProductItem
+	// },
+	// EDIT_PRODUCT: {
+	// 	path: '/products/:pid/edit',
+	// 	exact: true,
+	// 	name: 'Edit Product',
+	// 	component: EditProductItem
+	// },
+	// BLOG_LIST: {
+	// 	path: '/blogs',
+	// 	exact: true,
+	// 	name: 'Blogs',
+	// 	component: BlogList
+	// },
+	// ADD_BLOG: {
+	// 	path: '/blogs/add',
+	// 	exact: true,
+	// 	name: 'Blogs',
+	// 	component: AddBlog
+	// },
+	// EDIT_BLOG: {
+	// 	path: '/blogs/:bid/edit',
+	// 	exact: true,
+	// 	name: 'Blogs',
+	// 	component: EditBlog
+	// }
 }
 
 export default routes

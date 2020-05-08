@@ -16,7 +16,7 @@ const Login = React.lazy(() => import('../views/Pages/Login'));
 const ForgotPassword = React.lazy(() => import('../views/Pages/ForgotPassword'));
 const Page404 = React.lazy(() => import('../views/Pages/Page404'));
 
-class App extends Component {
+export default class App extends Component {
 
 	render() {
 		return (
@@ -33,5 +33,3 @@ class App extends Component {
 		);
 	}
 }
-
-export default withAuthentication(App);
