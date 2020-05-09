@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
+
+import { URLS } from "../constants";
+import { axios } from "../utils";
 
 export const AuthContext = React.createContext(null);
 
@@ -24,21 +26,18 @@ export default function AuthProvider(props) {
 
   const login = async (alias, password) => {
     try {
-      const ADMIN_LOGIN_URL = "http://localhost:400/v1/admin-login";
-      const response = await axios.post(ADMIN_LOGIN_URL, {
-        alias,
-        password,
+      const response = await axios({
+        method: 'POST',
+        url: URLS.ADMIN_LOGIN_URL,
+        data: {
+          alias,
+          password
+        }
       });
-      setAuthUser(response.data.admin);
-      putSessionToStorage(response.data.admin);
-    } catch (err) {
-      if (err.response) {
-        throw new Error(err.response.data.error);
-      }
-      if (err.request) {
-        throw new Error(JSON.stringify(err.request));
-      }
-      throw err;
+      setAuthUser(response.admin);
+      putSessionToStorage(response.admin);
+    } catch (error) {
+      throw error;
     }
   };
 

@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Card, CardBody, Container, Button } from 'reactstrap';
-import { withFirebase } from '../../firebase';
+// import { withFirebase } from '../../firebase';
 import { tsExpressionWithTypeArguments } from '@babel/types';
 
 
@@ -113,7 +113,7 @@ class AssetsUploader extends React.Component {
 
 }
 
-export default withFirebase(AssetsUploader);
+export default AssetsUploader;
 
 export { AssetsSelector };
 

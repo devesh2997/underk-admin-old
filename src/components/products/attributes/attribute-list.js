@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Card, CardBody, CardHeader, Table } from 'reactstrap';
-import { withFirebase } from '../../../firebase';
+// import { withFirebase } from '../../../firebase';
 
 const clothingAttributes = ['colors', 'designs', 'sizes', 'styles'];
 
@@ -115,4 +115,4 @@ class AttributeListBase extends Component {
 	}
 }
 
-export default withFirebase(AttributeListBase);
+// export default withFirebase(AttributeListBase);

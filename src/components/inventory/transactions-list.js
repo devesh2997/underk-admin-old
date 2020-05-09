@@ -1,5 +1,5 @@
 import React from 'react'
-import { withFirebase } from '../../firebase'
+// import { withFirebase } from '../../firebase'
 import {
 	Card,
 	CardHeader,
@@ -24,7 +24,7 @@ import {
 import {
     timeStampToDateLocaleString,
 	timeStampToLocaleString,
-    
+
 	timeStampToTimeLocaleString
 } from '../../utils/index'
 
@@ -103,4 +103,4 @@ class TransactionsList extends React.Component {
 	}
 }
 
-export default withFirebase(TransactionsList)
+// export default withFirebase(TransactionsList)

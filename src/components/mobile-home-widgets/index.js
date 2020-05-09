@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
-import { withFirebase } from '../../firebase'
-import Firebase from '../../firebase/firebase'
+// import { withFirebase } from '../../firebase'
+// import Firebase from '../../firebase/firebase'
 
 import './style.css'
 
@@ -961,4 +961,4 @@ class EditChildView extends Component {
 	}
 }
 
-export default withFirebase(MobileHomeWidgetsManager)
+// export default withFirebase(MobileHomeWidgetsManager)

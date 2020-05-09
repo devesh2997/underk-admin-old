@@ -11,7 +11,7 @@ import {
 	UncontrolledTooltip
 } from 'reactstrap';
 
-import { firebase } from '../../index';
+// import { firebase } from '../../index';
 import ROUTES from '../../routes';
 import Employee from './models/employee';
 import MakeAdminModal from './MakeAdminModal';
@@ -31,23 +31,23 @@ export default class EmployeeList extends Component {
 	componentDidMount() {
 		this.setState({ isLoading: true });
 
-		this.unsubscribe = firebase.employees()
-			.onSnapshot(snapshot => {
-				let employees = [];
+		// this.unsubscribe = firebase.employees()
+		// 	.onSnapshot(snapshot => {
+		// 		let employees = [];
 
-				snapshot.forEach(doc => {
-					employees.push(new Employee({ ...doc.data(), id: doc.id }));
-				});
+		// 		snapshot.forEach(doc => {
+		// 			employees.push(new Employee({ ...doc.data(), id: doc.id }));
+		// 		});
 
-				this.setState({
-					isLoading: false,
-					employees
-				});
-			});
+		// 		this.setState({
+		// 			isLoading: false,
+		// 			employees
+		// 		});
+		// 	});
 	}
 
 	componentWillUnmount() {
-		this.unsubscribe();
+		// this.unsubscribe();
 	}
 
 	toggleModal = () => {

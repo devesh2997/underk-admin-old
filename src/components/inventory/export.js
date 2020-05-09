@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { withFirebase } from '../../firebase'
+// import { withFirebase } from '../../firebase'
 
 import {
 	getDateTimeStampFromDate,
@@ -169,4 +169,4 @@ class ExportInventory extends Component {
 	}
 }
 
-export default withFirebase(ExportInventory)
+// export default withFirebase(ExportInventory)

@@ -12,7 +12,7 @@ import {
   TabContent,
   TabPane
 } from 'reactstrap'
-import { withFirebase } from '../../firebase'
+// import { withFirebase } from '../../firebase'
 import {OrderItem} from './order-item'
 
 class OrderListBase extends Component {
@@ -191,4 +191,4 @@ const OrdersList = ({ orders }) => {
 
 
 
-export default withFirebase(OrderListBase)
+// export default withFirebase(OrderListBase)

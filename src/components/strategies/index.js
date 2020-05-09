@@ -10,7 +10,7 @@ import {
   Label,
   Spinner
 } from 'reactstrap'
-import { withFirebase } from '../../firebase'
+// import { withFirebase } from '../../firebase'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import Switch from 'react-switch'
@@ -128,6 +128,6 @@ class StrategiesBase extends Component {
 }
 
 export default compose(
-  withFirebase,
+  // withFirebase,
   withRouter
 )(StrategiesBase)

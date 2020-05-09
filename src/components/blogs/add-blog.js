@@ -1,6 +1,6 @@
 import React from 'react';
 import BlogForm from './blog-form';
-import { withFirebase } from '../../firebase';
+// import { withFirebase } from '../../firebase';
 import { Card, CardBody, CardHeader } from 'reactstrap';
 
 class AddBlog extends React.Component {
@@ -25,4 +25,4 @@ class AddBlog extends React.Component {
 	}
 }
 
-export default withFirebase(AddBlog);
+// export default withFirebase(AddBlog);

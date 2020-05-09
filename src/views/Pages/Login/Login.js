@@ -94,15 +94,15 @@ function Login(props) {
                         Login
                       </Button>
                     </Col>
-                    <Col xs="6" className="text-right">
+                    {/* <Col xs="6" className="text-right">
                       <Button type="button"
-                        // onClick={() => this.props.history.push('/forgot-password')}
+                        onClick={() => this.props.history.push('/forgot-password')}
                         color="link"
                         className="px-0"
                       >
                         Forgot password?
                       </Button>
-                    </Col>
+                    </Col> */}
                   </Row>
                 </Form>
               </CardBody>

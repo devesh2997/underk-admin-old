@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { withFirebase } from '../../firebase'
+// import { withFirebase } from '../../firebase'
 import './style.css'
 
 import {
@@ -171,4 +171,4 @@ class PurchaseSaleSheet extends Component {
 	}
 }
 
-export default withFirebase(PurchaseSaleSheet)
+// export default withFirebase(PurchaseSaleSheet)

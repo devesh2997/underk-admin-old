@@ -11,7 +11,7 @@ import {
 import ROUTES from '../../../routes'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
-import { withFirebase } from '../../../firebase'
+// import { withFirebase } from '../../../firebase'
 import { generateSKU } from '../../../utils/index'
 
 const INITIAL_STATE = ({ product }) => {
@@ -426,6 +426,6 @@ class ClothingForm extends Component {
 }
 
 export default compose(
-  withFirebase,
+  // withFirebase,
   withRouter
 )(ClothingForm)

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Button, Card, CardBody, CardHeader, Table } from 'reactstrap';
 import { Link } from 'react-router-dom';
 
-import { withFirebase } from '../../firebase';
+// import { withFirebase } from '../../firebase';
 
 import ROUTES from '../../routes';
 
@@ -106,4 +106,4 @@ class BlogList extends Component {
 	}
 }
 
-export default withFirebase(BlogList);
+// export default withFirebase(BlogList);

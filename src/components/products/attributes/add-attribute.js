@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Card, CardBody, CardHeader, Form, FormGroup, Input, Label } from 'reactstrap';
-import { withFirebase } from '../../../firebase';
+// import { withFirebase } from '../../../firebase';
 import { compose } from 'recompose';
 import { withRouter } from 'react-router-dom';
 import ROUTES from '../../../routes';
@@ -168,7 +168,7 @@ class AddAttributeBase extends Component {
 	}
 }
 
-export default compose(
-	withFirebase,
-	withRouter
-)(AddAttributeBase);
+// export default compose(
+// 	withFirebase,
+// 	withRouter
+// )(AddAttributeBase);

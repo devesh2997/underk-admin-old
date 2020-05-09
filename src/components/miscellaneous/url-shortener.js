@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { withFirebase } from '../../firebase'
+// import { withFirebase } from '../../firebase'
 import * as utils from '../../utils'
 import types from 'underk-types'
 
@@ -284,4 +284,4 @@ class UrlShortener extends Component {
 	}
 }
 
-export default withFirebase(UrlShortener)
+// export default withFirebase(UrlShortener)

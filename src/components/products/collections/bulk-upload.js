@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { withFirebase } from '../../../firebase'
+// import { withFirebase } from '../../../firebase'
 import { Card, CardBody, CardHeader } from 'reactstrap'
 import { Form, FormGroup, Input, Label, Button } from 'reactstrap'
 import CSVReader from 'react-csv-reader'
@@ -194,4 +194,4 @@ class CollectionsBulkUpload extends Component {
 	}
 }
 
-export default withFirebase(CollectionsBulkUpload)
+// export default withFirebase(CollectionsBulkUpload)

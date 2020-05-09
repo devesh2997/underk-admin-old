@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { withFirebase } from '../../firebase'
+// import { withFirebase } from '../../firebase'
 import {  isEmpty } from '../../utils'
 
 import {
@@ -58,7 +58,7 @@ class ProductsHome extends Component {
 							product.attributes[skuOrdering[j]]
 						)
 					}
-						
+
 				}
 				variants = await variants.get()
 				variants.forEach(async variant => {
@@ -105,4 +105,4 @@ class ProductsHome extends Component {
 	}
 }
 
-export default withFirebase(ProductsHome)
+// export default withFirebase(ProductsHome)

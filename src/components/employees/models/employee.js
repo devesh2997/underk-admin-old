@@ -1,5 +1,5 @@
 import { stringify, boolify } from '../../../utils';
-import { firebase } from '../../../index';
+// import { firebase } from '../../../index';
 
 export default class Employee {
 	constructor(employee) {
@@ -41,9 +41,9 @@ export default class Employee {
 			};
 
 			if(this.id.length > 0) {
-				await firebase.employee(this.id).set(data);
+				// await firebase.employee(this.id).set(data);
 			} else {
-				await firebase.employees().add(data);
+				// await firebase.employees().add(data);
 			}
 
 		} catch(error) {

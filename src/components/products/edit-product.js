@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Card, CardBody, CardHeader } from 'reactstrap'
 import BasicInfoForm from './forms/basic-info'
 import ClothingForm from './forms/clothing'
-import { withFirebase } from '../../firebase'
+// import { withFirebase } from '../../firebase'
 
 const INITIAL_STATE = {
   product: {
@@ -214,4 +214,4 @@ class EditProductBase extends Component {
   }
 }
 
-export default withFirebase(EditProductBase)
+// export default withFirebase(EditProductBase)

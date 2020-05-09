@@ -3,16 +3,16 @@ import { useHistory } from 'react-router-dom';
 
 import { AuthContext } from './AuthProvider';
 
-const withAuthorization = (locWhenAuthenticated, locWhenUnauthenticated) => Component => {
+const withAuthorization = (locWhenAuth, locWhenUnauth) => Component => {
 	function AuthorizationWrapperComponent(props) {
     const Auth = useContext(AuthContext);
     const history = useHistory();
 
     useEffect(() => {
       if(Auth.user) {
-        if(locWhenAuthenticated) history.replace(locWhenAuthenticated);
+        if(locWhenAuth) history.replace(locWhenAuth);
       } else {
-        if(locWhenUnauthenticated) history.replace(locWhenUnauthenticated);
+        if(locWhenUnauth) history.replace(locWhenUnauth);
       }
     }, [Auth]);
 

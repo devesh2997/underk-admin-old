@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { withFirebase } from '../../firebase'
+// import { withFirebase } from '../../firebase'
 import * as utils from '../../utils'
 import types from 'underk-types'
 
@@ -107,4 +107,4 @@ class TestPlayground extends Component {
 		)
 	}
 }
-export default withFirebase(TestPlayground)
+// export default withFirebase(TestPlayground)

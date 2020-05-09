@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Card, CardBody, CardHeader, Col, Form, FormGroup, Input, Label } from 'reactstrap';
 import { WIDGET_TYPES } from './index';
-import { withFirebase } from '../../firebase';
+// import { withFirebase } from '../../firebase';
 import ROUTES from '../../routes';
 
 class AddWidget extends React.Component {
@@ -380,7 +380,7 @@ class AddWidget extends React.Component {
 	}
 }
 
-export default withFirebase(AddWidget);
+// export default withFirebase(AddWidget);
 
 
 

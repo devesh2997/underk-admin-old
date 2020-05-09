@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Card, CardBody, CardHeader, Table } from 'reactstrap';
-import { withFirebase } from '../../firebase';
+// import { withFirebase } from '../../firebase';
 import { Link } from 'react-router-dom';
 import ROUTES from '../../routes';
 
@@ -82,5 +82,5 @@ class AdminListBase extends Component {
 	}
 }
 
-const AdminList = withFirebase(AdminListBase);
-export default AdminList;
+// const AdminList = withFirebase(AdminListBase);
+// export default AdminList;

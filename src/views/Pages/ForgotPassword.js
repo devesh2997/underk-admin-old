@@ -13,7 +13,7 @@ import {
 	InputGroupText,
 	Row
 } from 'reactstrap';
-import { withFirebase } from '../../firebase';
+// import { withFirebase } from '../../firebase';
 import { withAuthorization } from '../../session';
 import { compose } from 'recompose';
 import { ROLES } from '../../constants';

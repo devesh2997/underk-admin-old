@@ -7,7 +7,7 @@ import {
 	Table,
 	ListGroup
 } from 'reactstrap'
-import { withFirebase } from '../../firebase'
+// import { withFirebase } from '../../firebase'
 import {
 	parseOrdersToArrangeByDate,
 	timeStampToLocaleString
@@ -130,5 +130,5 @@ class UserItemBase extends Component {
 	}
 }
 
-const UserItem = withFirebase(UserItemBase)
-export default UserItem
+// const UserItem = withFirebase(UserItemBase)
+// export default UserItem

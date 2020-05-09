@@ -10,7 +10,7 @@ import {
 } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import ROUTES from '../../routes';
-import { withFirebase } from '../../firebase';
+// import { withFirebase } from '../../firebase';
 import Switch from 'react-switch';
 
 const siteURL = "https://master.dnznxvwoj6gri.amplifyapp.com";
@@ -313,4 +313,4 @@ class ProductCard extends React.Component {
 	}
 }
 
-export default withFirebase(ProductCard);
+export default ProductCard;

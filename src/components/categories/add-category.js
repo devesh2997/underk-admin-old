@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Alert, Button, Card, CardBody, CardHeader, Form, FormGroup, Input, Label } from 'reactstrap';
-import { withFirebase } from '../../firebase';
+// import { withFirebase } from '../../firebase';
 import ROUTES from '../../routes';
 
 const INITIAL_STATE = {
@@ -169,4 +169,4 @@ class AddCategoryItemBase extends Component {
 	}
 }
 
-export default withFirebase(AddCategoryItemBase);
+// export default withFirebase(AddCategoryItemBase);

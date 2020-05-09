@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Card, CardBody, CardHeader, Col, Row, Table } from 'reactstrap';
-import { withFirebase } from '../../firebase';
+// import { withFirebase } from '../../firebase';
 import { insertDemoCategories } from './utils.js';
 
 const deleteCategory = (cid, firebase) => {
@@ -150,4 +150,4 @@ class CategoryListBase extends Component {
 	}
 }
 
-export default withFirebase(CategoryListBase);
+// export default withFirebase(CategoryListBase);

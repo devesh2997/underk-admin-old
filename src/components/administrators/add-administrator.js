@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Alert, Button, Card, CardBody, CardHeader, Form, FormGroup, Input, Label } from 'reactstrap';
-import { withFirebase } from '../../firebase';
+// import { withFirebase } from '../../firebase';
 import ROUTES from '../../routes';
 import { ROLES } from '../../constants';
 
@@ -125,5 +125,5 @@ class AddAdminItemBase extends Component {
 	}
 }
 
-const AddAdminItem = withFirebase(AddAdminItemBase);
-export default AddAdminItem;
+// const AddAdminItem = withFirebase(AddAdminItemBase);
+// export default AddAdminItem;

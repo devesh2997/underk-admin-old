@@ -4,6 +4,7 @@ import isBoolean from 'lodash/fp/isBoolean';
 import isNumber from 'lodash/fp/isNumber';
 import isString from 'lodash/fp/isString';
 import isArray from 'lodash/fp/isArray';
+import Axios from 'axios';
 
 export const isPlainObjectWithKeys = (value) => isPlainObject(value) && !isNull(value);
 
@@ -12,6 +13,24 @@ export const numify = (value, defaultValue = 0) => isNumber(value) ? value : def
 export const stringify = (value, defaultValue = '') => isString(value) ? value : defaultValue;
 export const objectify = (value, defaultValue = {}) => isPlainObjectWithKeys(value) ? value : defaultValue;
 export const arrify = (value, defaultValue = []) => isArray(value) ? value : defaultValue;
+
+export const axios = async (config) => {
+  try {
+    const response = await Axios(config);
+    return response.data;
+  } catch (err) {
+    if (err.response) {
+      throw new Error(
+        err.response.data.error
+        || JSON.stringify(err.response.data)
+      );
+    }
+    if (err.request) {
+      throw new Error('Something went wrong. Please try again!');
+    }
+    throw err;
+  }
+};
 
 const paiseToRupeeString = paise => {
 	paise = Number(paise)

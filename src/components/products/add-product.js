@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { Card, CardBody, CardHeader, FormGroup } from 'reactstrap'
 import BasicInfoForm from './forms/basic-info'
 import ClothingForm from './forms/clothing'
-import { withFirebase } from '../../firebase'
+// import { withFirebase } from '../../firebase'
 import AssetsUploader from './add-assets'
 
 const INITIAL_STATE = {
@@ -231,4 +231,4 @@ class AddProductBase extends Component {
   }
 }
 
-export default withFirebase(AddProductBase)
+// export default withFirebase(AddProductBase)

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Card, CardBody, CardHeader, Table } from 'reactstrap';
-import { withFirebase } from '../../firebase';
+// import { withFirebase } from '../../firebase';
 
 class CategoryItemBase extends Component {
 	constructor(props) {
@@ -83,4 +83,4 @@ class CategoryItemBase extends Component {
 	}
 }
 
-export default withFirebase(CategoryItemBase);
+// export default withFirebase(CategoryItemBase);

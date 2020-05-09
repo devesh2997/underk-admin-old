@@ -5,7 +5,7 @@ import {
   CardHeader,
   Row
 } from 'reactstrap'
-import { withFirebase } from '../../firebase'
+// import { withFirebase } from '../../firebase'
 import ProductCard from './product-card'
 
 class ProductListBase extends Component {
@@ -62,4 +62,4 @@ class ProductListBase extends Component {
   }
 }
 
-export default withFirebase(ProductListBase)
+// export default withFirebase(ProductListBase)

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Card, CardBody, CardHeader, Table } from 'reactstrap';
-import { withFirebase } from '../../firebase';
+// import { withFirebase } from '../../firebase';
 
 const DeleteSupplier = ({ sid, firebase }) => (
 	<Button type="button"
@@ -91,4 +91,4 @@ class SupplierListBase extends Component {
 	}
 }
 
-export default withFirebase(SupplierListBase);
+// export default withFirebase(SupplierListBase);

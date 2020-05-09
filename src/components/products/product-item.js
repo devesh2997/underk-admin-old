@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Badge,Button, Card, CardBody, CardHeader, Table, Row, Col } from 'reactstrap';
-import { withFirebase } from '../../firebase';
+// import { withFirebase } from '../../firebase';
 import { DeleteProduct, VariantModal, InventoryModal } from './product-card';
 import { Link } from 'react-router-dom';
 import ROUTES from '../../routes';
@@ -222,5 +222,5 @@ class ProductItemBase extends Component {
 	}
 }
 
-const ProductItem = withFirebase(ProductItemBase);
-export default ProductItem
+// const ProductItem = withFirebase(ProductItemBase);
+// export default ProductItem

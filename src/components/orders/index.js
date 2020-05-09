@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import { withFirebase } from '../../firebase'
+// import { withFirebase } from '../../firebase'
 
 import OrdersOnDate from './orders-by-date'
 
@@ -299,4 +299,4 @@ class OrdersList extends Component {
 	}
 }
 
-export default withFirebase(OrdersList)
+// export default withFirebase(OrdersList)

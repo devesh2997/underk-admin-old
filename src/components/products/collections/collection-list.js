@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Button, Card, CardBody, CardHeader, Table } from 'reactstrap'
-import { withFirebase } from '../../../firebase'
+// import { withFirebase } from '../../../firebase'
 
 const DeleteCollection = ({ collectionPath, firebase }) => (
   <Button
@@ -120,4 +120,4 @@ class CollectionListBase extends Component {
   }
 }
 
-export default withFirebase(CollectionListBase)
+// export default withFirebase(CollectionListBase)

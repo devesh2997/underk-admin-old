@@ -11,7 +11,7 @@ import {
 	Label,
 	Container
 } from 'reactstrap'
-import { withFirebase } from '../../firebase'
+// import { withFirebase } from '../../firebase'
 import { Link } from 'react-router-dom'
 import ROUTES from '../../routes'
 import { isEmpty, timeStampToLocaleString } from '../../utils'
@@ -264,5 +264,5 @@ class UserListBase extends Component {
 	}
 }
 
-const UserList = withFirebase(UserListBase)
-export default UserList
+// const UserList = withFirebase(UserListBase)
+// export default UserList

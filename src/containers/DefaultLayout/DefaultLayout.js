@@ -1,8 +1,7 @@
-import React, { Component, Suspense, useContext } from 'react';
+import React, { Suspense, useContext } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import * as router from 'react-router-dom';
 import { Container } from 'reactstrap';
-import { compose } from 'recompose';
 
 import {
 	AppAside,
@@ -16,12 +15,13 @@ import {
 	AppBreadcrumb2 as AppBreadcrumb,
 	AppSidebarNav2 as AppSidebarNav,
 } from '@coreui/react';
+
 // sidebar nav config
 import navigation from '../../_nav';
+
 // routes config
 import routes from '../../routes';
-import { ROLES } from '../../constants';
-import { withFirebase } from '../../firebase';
+
 import { AuthContext, withAuthorization } from '../../session';
 
 const DefaultAside = React.lazy(() => import('./DefaultAside'));
@@ -37,7 +37,7 @@ function DefaultLayout(props) {
 		<div className="app">
 			<AppHeader fixed>
 				<Suspense  fallback={loading()}>
-					<DefaultHeader onLogout={() => Auth.logout()}/>
+					<DefaultHeader onLogout={Auth.logout}/>
 				</Suspense>
 			</AppHeader>
 			<div className="app-body">
@@ -75,17 +75,17 @@ function DefaultLayout(props) {
 						</Suspense>
 					</Container>
 				</main>
-				<AppAside fixed>
+				{/* <AppAside fixed>
 					<Suspense fallback={loading()}>
 						<DefaultAside />
 					</Suspense>
-				</AppAside>
+				</AppAside> */}
 			</div>
-			<AppFooter>
+			{/* <AppFooter>
 				<Suspense fallback={loading()}>
 					<DefaultFooter />
 				</Suspense>
-			</AppFooter>
+			</AppFooter> */}
 		</div>
   );
 }

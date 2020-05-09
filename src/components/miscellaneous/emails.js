@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { withFirebase } from '../../firebase'
+// import { withFirebase } from '../../firebase'
 
 import {
 	getDateTimeStampFromDate,
@@ -322,4 +322,4 @@ class EmailsOnDate extends Component {
 	}
 }
 
-export default withFirebase(EmailsList)
+// export default withFirebase(EmailsList)
