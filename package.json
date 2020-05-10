@@ -44,6 +44,7 @@
     "reactstrap": "^7.1.0",
     "recompose": "^0.30.0",
     "simple-line-icons": "^2.4.1",
+    "underk-policies": "git+https://github.com/devesh2997/underk-policies.git#master",
     "underk-types": "github:devesh2997/underk-types#master"
   },
   "devDependencies": {

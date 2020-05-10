@@ -1,37 +1,48 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect, useRef } from "react";
 import {
-	Alert,
-	Button,
-	Card,
-	CardBody,
-	Col,
-	Container,
-	Form,
-	Input,
-	InputGroup,
-	InputGroupAddon,
-	InputGroupText,
-	Row
-} from 'reactstrap';
+  Alert,
+  Button,
+  Card,
+  CardBody,
+  Col,
+  Container,
+  Form,
+  Input,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupText,
+  Row,
+} from "reactstrap";
 
-import { AuthContext, withAuthorization } from '../../../session';
+import { AuthUserContext, withAuthorization } from "../../../session";
 
 function Login(props) {
-  const [alias, setAlias] = useState('');
-  const [password, setPassword] = useState('');
+  let isMounted = useRef(true);
+
+  const authUser = useContext(AuthUserContext);
+
+  const [alias, setAlias] = useState("");
+  const [password, setPassword] = useState("");
   const [isPasswordVisible, setPasswordVisibility] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const Auth = useContext(AuthContext);
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  });
 
-	const handleSubmit = async (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setLoading(true);
     try {
-      await Auth.login(alias, password);
-    } catch(error) {
+      await authUser.login(alias, password);
+    } catch (error) {
       setError(error);
     }
-	};
+    isMounted.current && setLoading(false);
+  };
 
   return (
     <div className="app flex-row align-items-center">
@@ -66,7 +77,7 @@ function Login(props) {
                       </InputGroupText>
                     </InputGroupAddon>
                     <Input
-                      type={isPasswordVisible ? 'text' : 'password'}
+                      type={isPasswordVisible ? "text" : "password"}
                       name="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -75,12 +86,15 @@ function Login(props) {
                     />
                     <InputGroupAddon addonType="append">
                       <InputGroupText
-                        onClick={() => setPasswordVisibility(!isPasswordVisible)}
-                      >
-                        {isPasswordVisible
-                          ? <i className="fa fa-eye-slash"></i>
-                          : <i className="fa fa-eye"></i>
+                        onClick={() =>
+                          setPasswordVisibility(!isPasswordVisible)
                         }
+                      >
+                        {isPasswordVisible ? (
+                          <i className="fa fa-eye-slash"></i>
+                        ) : (
+                          <i className="fa fa-eye"></i>
+                        )}
                       </InputGroupText>
                     </InputGroupAddon>
                   </InputGroup>
@@ -90,8 +104,13 @@ function Login(props) {
                         type="submit"
                         color="primary"
                         className="px-4"
+                        disabled={isLoading}
                       >
-                        Login
+                        {isLoading ? (
+                          <i className="fa fa-refresh fa-spin fa-fw" />
+                        ) : (
+                          "Login"
+                        )}
                       </Button>
                     </Col>
                     {/* <Col xs="6" className="text-right">
@@ -114,4 +133,4 @@ function Login(props) {
   );
 }
 
-export default withAuthorization('/')(Login);
+export default withAuthorization("/")(Login);

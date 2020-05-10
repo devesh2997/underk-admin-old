@@ -25,9 +25,9 @@ export const axios = async (config) => {
         || JSON.stringify(err.response.data)
       );
     }
-    if (err.request) {
-      throw new Error('Something went wrong. Please try again!');
-    }
+    // if (err.request) {
+    //   throw new Error('Something went wrong. Please try again!');
+    // }
     throw err;
   }
 };

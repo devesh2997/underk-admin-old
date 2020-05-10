@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import { URLS } from "../constants";
 import { axios } from "../utils";
 
-export const AuthContext = React.createContext(null);
+export const AuthUserContext = React.createContext(null);
 
-export default function AuthProvider(props) {
+export default function AuthUserProvider(props) {
   const getSessionFromStorage = () => {
     let authUser = localStorage.getItem("authUser");
     if (authUser) {
@@ -27,12 +27,12 @@ export default function AuthProvider(props) {
   const login = async (alias, password) => {
     try {
       const response = await axios({
-        method: 'POST',
+        method: "POST",
         url: URLS.ADMIN_LOGIN_URL,
         data: {
           alias,
-          password
-        }
+          password,
+        },
       });
       setAuthUser(response.admin);
       putSessionToStorage(response.admin);
@@ -47,14 +47,14 @@ export default function AuthProvider(props) {
   };
 
   return (
-    <AuthContext.Provider
+    <AuthUserContext.Provider
       value={{
-        user: authUser,
+        data: authUser,
         login,
         logout,
       }}
     >
       {props.children}
-    </AuthContext.Provider>
+    </AuthUserContext.Provider>
   );
 }

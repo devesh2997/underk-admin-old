@@ -1,25 +1,25 @@
-import React, { useContext, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useContext, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 
-import { AuthContext } from './AuthProvider';
+import { AuthUserContext } from "./AuthUserProvider";
 
-const withAuthorization = (locWhenAuth, locWhenUnauth) => Component => {
-	function AuthorizationWrapperComponent(props) {
-    const Auth = useContext(AuthContext);
+const withAuthorization = (locWhenAuth, locWhenUnauth) => (Component) => {
+  function AuthorizationWrapperComponent(props) {
+    const authUser = useContext(AuthUserContext);
     const history = useHistory();
 
     useEffect(() => {
-      if(Auth.user) {
-        if(locWhenAuth) history.replace(locWhenAuth);
+      if (authUser.data) {
+        if (locWhenAuth) history.replace(locWhenAuth);
       } else {
-        if(locWhenUnauth) history.replace(locWhenUnauth);
+        if (locWhenUnauth) history.replace(locWhenUnauth);
       }
-    }, [Auth]);
+    }, [authUser]);
 
     return <Component {...props} />;
-	}
+  }
 
-	return AuthorizationWrapperComponent;
+  return AuthorizationWrapperComponent;
 };
 
 export default withAuthorization;
