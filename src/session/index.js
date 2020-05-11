@@ -3,4 +3,4 @@ export {
   AuthUserContext,
 } from "./AuthUserProvider";
 export { default as withAuthorization } from "./withAuthorization";
-export { default as withPolicyMatch } from "./withPolicyMatch";
+export { default as withAllowedPolicies } from "./withAllowedPolicies";

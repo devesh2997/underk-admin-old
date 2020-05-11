@@ -65,11 +65,7 @@ function DefaultLayout(props) {
                       exact={route.exact}
                       name={route.name}
                       render={(props) => (
-                        <route.component
-                          {...props}
-                          policyReqToView={route.policyReqToView}
-                          policyReqToPublish={route.policyReqToPublish}
-                        />
+                        <route.component {...props} />
                       )}
                     />
                   ) : null;
