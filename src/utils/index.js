@@ -34,6 +34,7 @@ export const arrify = (value, defaultValue = []) => {
 export const axios = async (config) => {
   try {
     const response = await Axios(config);
+    // TODO: can also check success property
     return response.data;
   } catch (err) {
     if (err.response) {

@@ -31,15 +31,15 @@ function Login(props) {
     return () => {
       isMounted.current = false;
     };
-  });
+  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setLoading(true);
+    isMounted.current && setLoading(true);
     try {
       await authUser.login(alias, password);
     } catch (error) {
-      setError(error);
+      isMounted.current && setError(error);
     }
     isMounted.current && setLoading(false);
   };

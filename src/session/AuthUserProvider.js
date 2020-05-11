@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 import { URLS } from "../constants";
 import { axios } from "../utils";
@@ -6,6 +6,8 @@ import { axios } from "../utils";
 export const AuthUserContext = React.createContext(null);
 
 export default function AuthUserProvider(props) {
+  let isMounted = useRef(true);
+
   const getSessionFromStorage = () => {
     let authUser = localStorage.getItem("authUser");
     if (authUser) {
@@ -15,6 +17,12 @@ export default function AuthUserProvider(props) {
   };
 
   const [authUser, setAuthUser] = useState(getSessionFromStorage());
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   const putSessionToStorage = (value) => {
     localStorage.setItem("authUser", JSON.stringify(value));
@@ -34,7 +42,7 @@ export default function AuthUserProvider(props) {
           password,
         },
       });
-      setAuthUser(response.admin);
+      isMounted.current && setAuthUser(response.admin);
       putSessionToStorage(response.admin);
     } catch (error) {
       throw error;
@@ -42,8 +50,27 @@ export default function AuthUserProvider(props) {
   };
 
   const logout = () => {
-    setAuthUser(null);
+    isMounted.current && setAuthUser(null);
     deleteSessionFromStorage();
+  };
+
+  const makeRequest = async (config) => {
+    if (!authUser) {
+      throw new Error("Unauthorized Access");
+    }
+
+    try {
+      const response = await axios({
+        ...config,
+        headers: {
+          Authorization: `Bearer ${authUser.token}`,
+        },
+      });
+      return response;
+    } catch (error) {
+      // TODO: logout if token expired
+      throw error;
+    }
   };
 
   return (
@@ -52,6 +79,7 @@ export default function AuthUserProvider(props) {
         data: authUser,
         login,
         logout,
+        makeRequest,
       }}
     >
       {props.children}
