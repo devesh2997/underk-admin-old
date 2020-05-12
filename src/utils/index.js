@@ -7,6 +7,8 @@ import isArray from "lodash/fp/isArray";
 import Axios from "axios";
 import * as POLICIES from "underk-policies";
 
+import { MONTHS } from "../constants";
+
 export const isPlainObjectWithKeys = (value) => {
   return isPlainObject(value) && !isNull(value);
 };
@@ -35,11 +37,12 @@ export const axios = async (config) => {
   try {
     const response = await Axios(config);
     // TODO: can also check success property
-    return response.data;
+    return objectify(response.data);
   } catch (err) {
     if (err.response) {
       throw new Error(
-        err.response.data.error || JSON.stringify(err.response.data)
+        (isPlainObjectWithKeys(err.response.data) && err.response.data.error) ||
+          err.response.statusText
       );
     }
     // if (err.request) {
@@ -53,6 +56,20 @@ export const doPoliciesMatch = (userPolicies, allowedPolicies) => {
   return (
     userPolicies.includes(POLICIES.SUPER) ||
     allowedPolicies.every((policy) => userPolicies.includes(policy))
+  );
+};
+
+export const beautifyDate = (date) => {
+  date = new Date(date);
+  if (!date.getTime()) {
+    return "unknown";
+  }
+  return (
+    MONTHS[date.getMonth()].substring(0, 3) +
+    " " +
+    date.getDate() +
+    ", " +
+    date.getFullYear()
   );
 };
 

@@ -68,7 +68,9 @@ export default function AuthUserProvider(props) {
       });
       return response;
     } catch (error) {
-      // TODO: logout if token expired
+      if (error.message === "Unauthorized") {
+        logout();
+      }
       throw error;
     }
   };

@@ -9,16 +9,16 @@ const withAllowedPolicies = (allowedPolicies) => (Component) => {
 
     const authUser = useContext(AuthUserContext);
 
-    const [isRenderAllowed, setPermissionToRender] = useState(false);
+    const [shouldRender, toggleRender] = useState(false);
 
     useEffect(() => {
       if (
         authUser.data &&
         doPoliciesMatch(authUser.data.policies, allowedPolicies)
       ) {
-        isMounted.current && setPermissionToRender(true);
+        isMounted.current && toggleRender(true);
       } else {
-        isMounted.current && setPermissionToRender(false);
+        isMounted.current && toggleRender(false);
       }
 
       // return () => {
@@ -32,7 +32,7 @@ const withAllowedPolicies = (allowedPolicies) => (Component) => {
       };
     }, []);
 
-    return isRenderAllowed ? <Component {...props} /> : null;
+    return shouldRender ? <Component {...props} /> : null;
   }
 
   return PolicyWrapperComponent;

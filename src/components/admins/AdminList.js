@@ -1,20 +1,25 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
-import { Card, CardBody, CardHeader, Table } from "reactstrap";
+import { Card, CardBody, CardHeader, Spinner, Table } from "reactstrap";
+import * as POLICIES from "underk-policies";
 
-import { Admin } from "../../models";
-import { AuthUserContext } from "../../session";
-import { timeStampToDateLocaleString } from '../../utils';
+import { Admin, Role, Policy } from "../../models";
+import { AuthUserContext, withAllowedPolicies } from "../../session";
+import AdminItem from "./AdminItem";
 
-export default function AdminList(props) {
+function AdminList(props) {
   const isMounted = useRef(true);
 
   const authUser = useContext(AuthUserContext);
 
   const [isLoading, setLoading] = useState(true);
   const [admins, setAdmins] = useState([]);
+  const [roles, setRoles] = useState([]);
+  const [policies, setPolicies] = useState([]);
 
   useEffect(() => {
     getAdmins();
+    getRoles();
+    getPolicies();
 
     return () => {
       isMounted.current = false;
@@ -24,13 +29,43 @@ export default function AdminList(props) {
   const getAdmins = async () => {
     isMounted.current && setLoading(true);
     try {
-      const adms = await Admin.getAll(authUser);
-      isMounted.current && setAdmins(adms);
-    } catch(error) {
+      const admins = await Admin.getAll(authUser);
+      isMounted.current && setAdmins(admins);
+    } catch (error) {
       console.log(error);
     }
     isMounted.current && setLoading(false);
-  }
+  };
+
+  const getRoles = async () => {
+    try {
+      const roles = await Role.getAll(authUser);
+      isMounted.current && setRoles(roles);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getPolicies = async () => {
+    try {
+      const policies = await Policy.getAll(authUser);
+      isMounted.current && setPolicies(policies);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteAdmin = async (auid) => {
+    let message = "";
+    try {
+      message = await Admin.delete({ auid }, authUser);
+      await getAdmins();
+    } catch (error) {
+      message = error.message;
+    }
+    // TODO: display message
+    console.log(message);
+  };
 
   return (
     <Card>
@@ -39,32 +74,39 @@ export default function AdminList(props) {
       </CardHeader>
       <CardBody>
         {isLoading ? (
-          <div className="animated fadeIn pt-3 text-center">Loading...</div>
-        ) : null}
-        <Table striped responsive>
-          <thead>
-            <tr>
-              <th>Alias</th>
-              <th>Created At</th>
-              <th>Roles</th>
-              <th>Policies</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {admins.map((admin) => (
-              <tr key={admin.auid}>
-                <td>{admin.alias}</td>
-                <td>{timeStampToDateLocaleString(admin.createdAt)}</td>
-                <td><pre>{JSON.stringify(admin.roles, null, 2)}</pre></td>
-                <td><pre>{JSON.stringify(admin.policies, null, 2)}</pre></td>
-                <td>
-                </td>
+          <center>
+            <Spinner type="grow" color="primary" />
+          </center>
+        ) : (
+          <Table
+            hover
+            responsive
+            className="table-outline mb-0 d-none d-sm-table"
+          >
+            <thead className="thead-light">
+              <tr>
+                <th>Admin</th>
+                <th className="text-center">Roles</th>
+                <th className="text-center">Policies</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {admins.map((admin) => (
+                <AdminItem
+                  key={admin.auid}
+                  admin={admin}
+                  roles={roles}
+                  policies={policies}
+                  deleteAdmin={deleteAdmin}
+                />
+              ))}
+            </tbody>
+          </Table>
+        )}
       </CardBody>
     </Card>
   );
 }
+
+export default withAllowedPolicies([POLICIES.ADMIN_VIEW])(AdminList);

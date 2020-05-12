@@ -1,7 +1,4 @@
 import React from "react";
-import { withAllowedPolicies } from "./session";
-
-import * as POLICIES from "underk-policies";
 
 const AdminList = React.lazy(() => import("./components/admins/AdminList"));
 
@@ -133,7 +130,7 @@ const routes = {
     path: "/admins",
     exact: true,
     name: "Admins",
-    component: withAllowedPolicies([POLICIES.ADMIN_VIEW])(AdminList),
+    component: AdminList,
   },
   // TEST_PLAYGROUND: {
   // 	path: '/test-playground',
