@@ -33,7 +33,7 @@ function Login(props) {
     };
   }, []);
 
-  const handleSubmit = async (event) => {
+  async function handleSubmit(event) {
     event.preventDefault();
     isMounted.current && setLoading(true);
     try {
@@ -42,7 +42,7 @@ function Login(props) {
       isMounted.current && setError(error);
     }
     isMounted.current && setLoading(false);
-  };
+  }
 
   return (
     <div className="app flex-row align-items-center">

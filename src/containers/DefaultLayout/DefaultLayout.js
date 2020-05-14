@@ -31,9 +31,9 @@ const DefaultHeader = React.lazy(() => import("./DefaultHeader"));
 function DefaultLayout(props) {
   const authUser = useContext(AuthUserContext);
 
-  const loading = () => (
-    <div className="animated fadeIn pt-1 text-center">Loading...</div>
-  );
+  function loading() {
+    return <div className="animated fadeIn pt-1 text-center">Loading...</div>;
+  }
 
   return (
     <div className="app">
@@ -64,9 +64,7 @@ function DefaultLayout(props) {
                       path={route.path}
                       exact={route.exact}
                       name={route.name}
-                      render={(props) => (
-                        <route.component {...props} />
-                      )}
+                      render={(props) => <route.component {...props} />}
                     />
                   ) : null;
                 })}

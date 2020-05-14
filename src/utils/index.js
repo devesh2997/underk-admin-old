@@ -33,28 +33,47 @@ export const arrify = (value, defaultValue = []) => {
   return isArray(value) ? value : defaultValue;
 };
 
+export const HTTPResponses = {
+  isInformational: (status) => {
+    return status >= 100 && status < 200;
+  },
+  isSuccessful: (status) => {
+    return status >= 200 && status < 300;
+  },
+  isRedirect: (status) => {
+    return status >= 300 && status < 400;
+  },
+  isClientError: (status) => {
+    return status >= 400 && status < 500;
+  },
+  isServerError: (status) => {
+    return status >= 500 && status < 600;
+  },
+
+  isUnauthorized: (status) => {
+    return status === 401;
+  },
+};
+
 export const axios = async (config) => {
   try {
     const response = await Axios(config);
-    // TODO: can also check success property
-    return objectify(response.data);
-  } catch (err) {
-    if (err.response) {
-      throw new Error(
-        (isPlainObjectWithKeys(err.response.data) && err.response.data.error) ||
-          err.response.statusText
-      );
+    return response;
+  } catch (error) {
+    if (error.response) {
+      return error.response;
     }
-    // if (err.request) {
+    // if (error.request) {
     //   throw new Error('Something went wrong. Please try again!');
     // }
-    throw err;
+    throw error;
   }
 };
 
 export const doPoliciesMatch = (userPolicies, allowedPolicies) => {
   return (
     userPolicies.includes(POLICIES.SUPER) ||
+    // allowedPolicies.some((policy) => userPolicies.includes(policy))
     allowedPolicies.every((policy) => userPolicies.includes(policy))
   );
 };

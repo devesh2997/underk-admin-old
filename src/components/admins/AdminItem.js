@@ -18,7 +18,7 @@ function AdminDeleteBtn({ admin, deleteAdmin }) {
     };
   }, []);
 
-  const onClick = async () => {
+  async function onClick() {
     isMounted.current && toggleLoading(true);
     const isConfirmed = window.confirm(
       `Are you sure you want to remove ${admin.alias} from Admins?`
@@ -27,7 +27,7 @@ function AdminDeleteBtn({ admin, deleteAdmin }) {
       await deleteAdmin(admin.auid);
     }
     isMounted.current && toggleLoading(false);
-  };
+  }
 
   return (
     <Button

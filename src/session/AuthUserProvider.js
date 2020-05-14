@@ -1,20 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
 
-import { URLS } from "../constants";
-import { axios } from "../utils";
+import { URLS, HTTPMethods } from "../constants";
+import {
+  axios,
+  isPlainObjectWithKeys,
+  HTTPResponses,
+  objectify,
+  stringify,
+} from "../utils";
 
 export const AuthUserContext = React.createContext(null);
 
 export default function AuthUserProvider(props) {
   let isMounted = useRef(true);
-
-  const getSessionFromStorage = () => {
-    let authUser = localStorage.getItem("authUser");
-    if (authUser) {
-      return JSON.parse(authUser);
-    }
-    return null;
-  };
 
   const [authUser, setAuthUser] = useState(getSessionFromStorage());
 
@@ -24,39 +22,55 @@ export default function AuthUserProvider(props) {
     };
   }, []);
 
-  const putSessionToStorage = (value) => {
+  function getSessionFromStorage() {
+    let authUser = localStorage.getItem("authUser");
+    if (authUser) {
+      return JSON.parse(authUser);
+    }
+    return null;
+  }
+
+  function putSessionToStorage(value) {
     localStorage.setItem("authUser", JSON.stringify(value));
-  };
+  }
 
-  const deleteSessionFromStorage = () => {
+  function deleteSessionFromStorage() {
     localStorage.removeItem("authUser");
-  };
+  }
 
-  const login = async (alias, password) => {
+  async function login(alias, password) {
     try {
       const response = await axios({
-        method: "POST",
+        method: HTTPMethods.POST,
         url: URLS.ADMIN_LOGIN_URL,
         data: {
           alias,
           password,
         },
       });
-      isMounted.current && setAuthUser(response.admin);
-      putSessionToStorage(response.admin);
+      if (HTTPResponses.isSuccessful(response.status)) {
+        isMounted.current && setAuthUser(objectify(response.data).admin);
+        putSessionToStorage(objectify(response.data).admin);
+      } else {
+        throw new Error(
+          (isPlainObjectWithKeys(response.data) &&
+            stringify(response.data.error)) ||
+            response.statusText
+        );
+      }
     } catch (error) {
       throw error;
     }
-  };
+  }
 
-  const logout = () => {
+  function logout() {
     isMounted.current && setAuthUser(null);
     deleteSessionFromStorage();
-  };
+  }
 
-  const makeRequest = async (config) => {
+  async function makeRequest(config) {
     if (!authUser) {
-      throw new Error("Unauthorized Access");
+      throw new Error("Not Authenticated");
     }
 
     try {
@@ -66,14 +80,22 @@ export default function AuthUserProvider(props) {
           Authorization: `Bearer ${authUser.token}`,
         },
       });
-      return response;
-    } catch (error) {
-      if (error.message === "Unauthorized") {
-        logout();
+      if (HTTPResponses.isSuccessful(response.status)) {
+        return objectify(response.data);
+      } else {
+        if (HTTPResponses.isUnauthorized(response.status)) {
+          logout();
+        }
+        throw new Error(
+          (isPlainObjectWithKeys(response.data) &&
+            stringify(response.data.error)) ||
+            response.statusText
+        );
       }
+    } catch (error) {
       throw error;
     }
-  };
+  }
 
   return (
     <AuthUserContext.Provider
