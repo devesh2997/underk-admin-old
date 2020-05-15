@@ -4,7 +4,7 @@ import { URLS, HTTPMethods } from "../constants";
 import {
   axios,
   isPlainObjectWithKeys,
-  HTTPResponses,
+  getResponseStatus,
   objectify,
   stringify,
 } from "../utils";
@@ -48,7 +48,8 @@ export default function AuthUserProvider(props) {
           password,
         },
       });
-      if (HTTPResponses.isSuccessful(response.status)) {
+      const responseStatus = getResponseStatus(response.status);
+      if (responseStatus.isSuccessful) {
         isMounted.current && setAuthUser(objectify(response.data).admin);
         putSessionToStorage(objectify(response.data).admin);
       } else {
@@ -68,7 +69,7 @@ export default function AuthUserProvider(props) {
     deleteSessionFromStorage();
   }
 
-  async function makeRequest(config) {
+  async function doRequest(config) {
     if (!authUser) {
       throw new Error("Not Authenticated");
     }
@@ -80,10 +81,11 @@ export default function AuthUserProvider(props) {
           Authorization: `Bearer ${authUser.token}`,
         },
       });
-      if (HTTPResponses.isSuccessful(response.status)) {
+      const responseStatus = getResponseStatus(response.status);
+      if (responseStatus.isSuccessful) {
         return objectify(response.data);
       } else {
-        if (HTTPResponses.isUnauthorized(response.status)) {
+        if (responseStatus.isUnauthorized) {
           logout();
         }
         throw new Error(
@@ -103,7 +105,7 @@ export default function AuthUserProvider(props) {
         data: authUser,
         login,
         logout,
-        makeRequest,
+        doRequest,
       }}
     >
       {props.children}

@@ -22,7 +22,7 @@ const withAllowedPolicies = (allowedPolicies) => (Component) => {
       }
 
       // return () => {
-      //   isMounted.current && setPermissionToRender(false);
+      //   isMounted.current && toggleRender(false);
       // };
     }, [authUser]);
 

@@ -33,26 +33,16 @@ export const arrify = (value, defaultValue = []) => {
   return isArray(value) ? value : defaultValue;
 };
 
-export const HTTPResponses = {
-  isInformational: (status) => {
-    return status >= 100 && status < 200;
-  },
-  isSuccessful: (status) => {
-    return status >= 200 && status < 300;
-  },
-  isRedirect: (status) => {
-    return status >= 300 && status < 400;
-  },
-  isClientError: (status) => {
-    return status >= 400 && status < 500;
-  },
-  isServerError: (status) => {
-    return status >= 500 && status < 600;
-  },
+export const getResponseStatus = (status) => {
+  return {
+    isInformational: status >= 100 && status < 200,
+    isSuccessful: status >= 200 && status < 300,
+    isRedirect: status >= 300 && status < 400,
+    isClientError: status >= 400 && status < 500,
+    isServerError: status >= 500 && status < 600,
 
-  isUnauthorized: (status) => {
-    return status === 401;
-  },
+    isUnauthorized: status === 401,
+  };
 };
 
 export const axios = async (config) => {
@@ -71,6 +61,10 @@ export const axios = async (config) => {
 };
 
 export const doPoliciesMatch = (userPolicies, allowedPolicies) => {
+  if (!isArray(userPolicies) || !isArray(allowedPolicies)) {
+    return false;
+  }
+
   return (
     userPolicies.includes(POLICIES.SUPER) ||
     // allowedPolicies.some((policy) => userPolicies.includes(policy))
