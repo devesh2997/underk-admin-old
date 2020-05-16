@@ -8,4 +8,11 @@ export default class Policy {
     this.name = stringify(policy.name);
     this.description = stringify(policy.description);
   }
+
+  toSelectableOptMap = () => {
+    return {
+      value: this.id,
+      label: this.name,
+    };
+  };
 }

@@ -10,4 +10,11 @@ export default class Role {
     this.description = stringify(role.description);
     this.policies = arrify(role.policies).map((policy) => new Policy(policy));
   }
+
+  toSelectableOptMap = () => {
+    return {
+      value: this.id,
+      label: this.name,
+    };
+  };
 }

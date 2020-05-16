@@ -1,13 +1,54 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
-import { Card, CardBody, CardHeader, Spinner, Table, Row, Col, Button } from "reactstrap";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Spinner,
+  Table,
+  Row,
+  Col,
+  Button,
+} from "reactstrap";
 import * as POLICIES from "underk-policies";
 
 import { AdminRepository, RoleRepository, PolicyRepository } from "../../data";
 import { AuthUserContext, withAllowedPolicies } from "../../session";
 import AdminItem from "./AdminItem";
-import NewPolicyForm from './NewPolicyForm';
-import NewRoleForm from './NewRoleForm';
-import NewAdminForm from './NewAdminForm';
+import NewPolicyForm from "./NewPolicyForm";
+import NewRoleForm from "./NewRoleForm";
+import NewAdminForm from "./NewAdminForm";
+
+const FORMS = [
+  {
+    name: "New Policy",
+    component: NewPolicyForm,
+  },
+  {
+    name: "New Role",
+    component: NewRoleForm,
+  },
+  {
+    name: "New Admin",
+    component: NewAdminForm,
+  },
+];
+
+function FormToggler({ name, onClick }) {
+  return (
+    <Button
+      type="button"
+      color="secondary"
+      style={{ margin: 3 }}
+      onClick={onClick}
+    >
+      <i className="fa fa-plus" /> {name}
+    </Button>
+  );
+}
+
+const ControlledFormToggler = withAllowedPolicies([POLICIES.ADMIN_PUBLISH])(
+  FormToggler
+);
 
 function AdminList(props) {
   const isMounted = useRef(true);
@@ -22,9 +63,7 @@ function AdminList(props) {
   const [admins, setAdmins] = useState([]);
   const [roles, setRoles] = useState([]);
   const [policies, setPolicies] = useState([]);
-  const [isPolicyFormOpen, togglePolicyForm] = useState(false);
-  const [isRoleFormOpen, toggleRoleForm] = useState(false);
-  const [isAdminFormOpen, toggleAdminForm] = useState(false);
+  const [visibleFormId, setVisibleFormId] = useState(-1);
 
   useEffect(() => {
     getAdmins();
@@ -85,59 +124,32 @@ function AdminList(props) {
             <h4>Admins</h4>
           </Col>
           <Col sm={9} className="text-right">
-            <Button
-              type="button"
-              color="secondary"
-              style={{ margin: 3 }}
-              onClick={() => togglePolicyForm(!isPolicyFormOpen)}
-            >
-              <i className="fa fa-plus" /> New Policy
-            </Button>
-            <Button
-              type="button"
-              color="secondary"
-              style={{ margin: 3 }}
-              onClick={() => toggleRoleForm(!isRoleFormOpen)}
-            >
-              <i className="fa fa-plus" /> New Role
-            </Button>
-            <Button
-              type="button"
-              color="secondary"
-              style={{ margin: 3 }}
-              onClick={() => toggleAdminForm(!isAdminFormOpen)}
-            >
-              <i className="fa fa-plus" /> New Admin
-            </Button>
+            {FORMS.map((form, id) => (
+              <ControlledFormToggler
+                key={id}
+                name={form.name}
+                onClick={() => setVisibleFormId(visibleFormId === id ? -1 : id)}
+              />
+            ))}
           </Col>
         </Row>
       </CardHeader>
       <CardBody>
-        <NewPolicyForm
-          isOpen={isPolicyFormOpen}
-          toggle={() => togglePolicyForm(!isPolicyFormOpen)}
-        />
-        <NewRoleForm
-          isOpen={isRoleFormOpen}
-          toggle={() => toggleRoleForm(!isRoleFormOpen)}
-          policies={policies}
-        />
-        <NewAdminForm
-          isOpen={isAdminFormOpen}
-          toggle={() => toggleAdminForm(!isAdminFormOpen)}
-          roles={roles}
-          policies={policies}
-        />
+        {FORMS.map((form, id) => (
+          <form.component
+            key={id}
+            isFormOpen={visibleFormId === id}
+            toggleForm={() => visibleFormId === id && setVisibleFormId(-1)}
+            roles={roles}
+            policies={policies}
+          />
+        ))}
         {isLoading ? (
           <center>
             <Spinner type="grow" color="primary" />
           </center>
         ) : (
-          <Table
-            hover
-            responsive
-            className="table-outline mb-0"
-          >
+          <Table hover responsive className="table-outline mb-0">
             <thead className="thead-light">
               <tr>
                 <th>Admin</th>

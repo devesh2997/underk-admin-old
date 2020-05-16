@@ -1,21 +1,15 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
-import {
-  Collapse,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  Button,
-  Alert,
-} from "reactstrap";
+import { Collapse, Form, FormGroup, Label, Input, Alert } from "reactstrap";
 import * as POLICIES from "underk-policies";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
 
 import { AdminRepository } from "../../data";
 import { AuthUserContext, withAllowedPolicies } from "../../session";
+import { PasswordInput, LoadingButton } from "../common";
+import { prepareMultiOptsForRequest } from "../../utils";
 
-function NewAdminForm({ isOpen, toggle, roles, policies }) {
+function NewAdminForm({ isFormOpen, toggleForm, roles, policies }) {
   const isMounted = useRef(true);
 
   const authUser = useContext(AuthUserContext);
@@ -44,19 +38,37 @@ function NewAdminForm({ isOpen, toggle, roles, policies }) {
         alias,
         password,
         euid: euid || undefined,
-        roleIds: JSON.stringify(roleIds.map((option) => option.value)),
-        policyIds: JSON.stringify(policyIds.map((option) => option.value)),
+        roleIds: prepareMultiOptsForRequest(roleIds),
+        policyIds: prepareMultiOptsForRequest(policyIds),
       });
-      toggle();
+      // TODO: getAdmins()
+      setInitialState();
+      toggleForm();
     } catch (error) {
       isMounted.current && setError(error);
     }
     isMounted.current && toggleLoading(false);
   }
 
+  function setInitialState() {
+    setAlias("");
+    setPassword("");
+    setEuid("");
+    setRoleIds([]);
+    setPolicyIds([]);
+    setError(null);
+  }
+
   return (
-    <Collapse isOpen={isOpen}>
-      <Form onSubmit={onSubmit}>
+    <Collapse isOpen={isFormOpen}>
+      <Form
+        onSubmit={onSubmit}
+        style={{
+          padding: "1rem",
+          marginBottom: "1rem",
+          border: "1px solid #c8ced3",
+        }}
+      >
         <h5>New Admin</h5>
         <FormGroup>
           <Label>Alias</Label>
@@ -71,9 +83,7 @@ function NewAdminForm({ isOpen, toggle, roles, policies }) {
         </FormGroup>
         <FormGroup>
           <Label>Password</Label>
-          <Input
-            type="password"
-            name="password"
+          <PasswordInput
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter password"
@@ -97,10 +107,7 @@ function NewAdminForm({ isOpen, toggle, roles, policies }) {
             closeMenuOnSelect={false}
             components={makeAnimated()}
             isMulti
-            options={roles.map((role) => ({
-              value: role.id,
-              label: role.name,
-            }))}
+            options={roles.map((role) => role.toSelectableOptMap())}
             value={roleIds}
             onChange={(value) => setRoleIds(value)}
           />
@@ -111,25 +118,14 @@ function NewAdminForm({ isOpen, toggle, roles, policies }) {
             closeMenuOnSelect={false}
             components={makeAnimated()}
             isMulti
-            options={policies.map((policy) => ({
-              value: policy.id,
-              label: policy.name,
-            }))}
+            options={policies.map((policy) => policy.toSelectableOptMap())}
             value={policyIds}
             onChange={(value) => setPolicyIds(value)}
           />
         </FormGroup>
         {error && <Alert color="danger">{error.message}</Alert>}
         <FormGroup>
-          <Button type="submit" color="primary" disabled={isLoading}>
-            {isLoading ? (
-              <i className="fa fa-refresh fa-spin fa-fw" />
-            ) : (
-              <span>
-                <i className="fa fa-check" /> Save
-              </span>
-            )}
-          </Button>
+          <LoadingButton type="submit" color="primary" isLoading={isLoading} />
         </FormGroup>
       </Form>
     </Collapse>

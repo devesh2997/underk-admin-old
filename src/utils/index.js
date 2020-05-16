@@ -86,6 +86,11 @@ export const beautifyDate = (date) => {
   );
 };
 
+export const prepareMultiOptsForRequest = (options) => {
+  options = arrify(options);
+  return JSON.stringify(options.map(option => option.value));
+}
+
 const paiseToRupeeString = (paise) => {
   paise = Number(paise);
   if (paise % 100 === 0) {

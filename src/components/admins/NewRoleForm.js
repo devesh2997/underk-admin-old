@@ -1,21 +1,15 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
-import {
-  Collapse,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  Button,
-  Alert,
-} from "reactstrap";
+import { Collapse, Form, FormGroup, Label, Input, Alert } from "reactstrap";
 import * as POLICIES from "underk-policies";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
 
 import { RoleRepository } from "../../data";
 import { AuthUserContext, withAllowedPolicies } from "../../session";
+import { LoadingButton } from "../common";
+import { prepareMultiOptsForRequest } from "../../utils";
 
-function NewRoleForm({ isOpen, toggle, policies }) {
+function NewRoleForm({ isFormOpen, toggleForm, policies }) {
   const isMounted = useRef(true);
 
   const authUser = useContext(AuthUserContext);
@@ -41,18 +35,34 @@ function NewRoleForm({ isOpen, toggle, policies }) {
       await roleRepository.create({
         name,
         description,
-        policyIds: JSON.stringify(policyIds.map((option) => option.value)),
+        policyIds: prepareMultiOptsForRequest(policyIds),
       });
-      toggle();
+      // TODO: getRoles()
+      setInitialState();
+      toggleForm();
     } catch (error) {
       isMounted.current && setError(error);
     }
     isMounted.current && toggleLoading(false);
   }
 
+  function setInitialState() {
+    setName("");
+    setDescription("");
+    setPolicyIds([]);
+    setError(null);
+  }
+
   return (
-    <Collapse isOpen={isOpen}>
-      <Form onSubmit={onSubmit}>
+    <Collapse isOpen={isFormOpen}>
+      <Form
+        onSubmit={onSubmit}
+        style={{
+          padding: "1rem",
+          marginBottom: "1rem",
+          border: "1px solid #c8ced3",
+        }}
+      >
         <h5>New Role</h5>
         <FormGroup>
           <Label>Name</Label>
@@ -82,25 +92,14 @@ function NewRoleForm({ isOpen, toggle, policies }) {
             closeMenuOnSelect={false}
             components={makeAnimated()}
             isMulti
-            options={policies.map((policy) => ({
-              value: policy.id,
-              label: policy.name,
-            }))}
+            options={policies.map((policy) => policy.toSelectableOptMap())}
             value={policyIds}
             onChange={(value) => setPolicyIds(value)}
           />
         </FormGroup>
         {error && <Alert color="danger">{error.message}</Alert>}
         <FormGroup>
-          <Button type="submit" color="primary" disabled={isLoading}>
-            {isLoading ? (
-              <i className="fa fa-refresh fa-spin fa-fw" />
-            ) : (
-              <span>
-                <i className="fa fa-check" /> Save
-              </span>
-            )}
-          </Button>
+          <LoadingButton type="submit" color="primary" isLoading={isLoading} />
         </FormGroup>
       </Form>
     </Collapse>

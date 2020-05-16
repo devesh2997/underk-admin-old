@@ -1,19 +1,12 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
-import {
-  Collapse,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  Button,
-  Alert,
-} from "reactstrap";
+import { Collapse, Form, FormGroup, Label, Input, Alert } from "reactstrap";
 import * as POLICIES from "underk-policies";
 
 import { PolicyRepository } from "../../data";
 import { AuthUserContext, withAllowedPolicies } from "../../session";
+import { LoadingButton } from "../common";
 
-function NewPolicyForm({ isOpen, toggle }) {
+function NewPolicyForm({ isFormOpen, toggleForm }) {
   const isMounted = useRef(true);
 
   const authUser = useContext(AuthUserContext);
@@ -36,16 +29,31 @@ function NewPolicyForm({ isOpen, toggle }) {
     isMounted.current && toggleLoading(true);
     try {
       await policyRepository.create({ name, description });
-      toggle();
+      // TODO: getPolicies()
+      setInitialState();
+      toggleForm();
     } catch (error) {
       isMounted.current && setError(error);
     }
     isMounted.current && toggleLoading(false);
   }
 
+  function setInitialState() {
+    setName("");
+    setDescription("");
+    setError(null);
+  }
+
   return (
-    <Collapse isOpen={isOpen}>
-      <Form onSubmit={onSubmit}>
+    <Collapse isOpen={isFormOpen}>
+      <Form
+        onSubmit={onSubmit}
+        style={{
+          padding: "1rem",
+          marginBottom: "1rem",
+          border: "1px solid #c8ced3",
+        }}
+      >
         <h5>New Policy</h5>
         <FormGroup>
           <Label>Name</Label>
@@ -71,19 +79,7 @@ function NewPolicyForm({ isOpen, toggle }) {
         </FormGroup>
         {error && <Alert color="danger">{error.message}</Alert>}
         <FormGroup>
-          <Button
-            type="submit"
-            color="primary"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <i className="fa fa-refresh fa-spin fa-fw" />
-            ) : (
-              <span>
-                <i className="fa fa-check" /> Save
-              </span>
-            )}
-          </Button>
+          <LoadingButton type="submit" color="primary" isLoading={isLoading} />
         </FormGroup>
       </Form>
     </Collapse>
