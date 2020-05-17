@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 
-import { URLS, HTTPMethods } from "../constants";
+import { URLS, HTTP_METHODS } from "../constants";
 import {
   axios,
   isPlainObjectWithKeys,
@@ -41,7 +41,7 @@ export default function AuthUserProvider(props) {
   async function login(alias, password) {
     try {
       const response = await axios({
-        method: HTTPMethods.POST,
+        method: HTTP_METHODS.POST,
         url: URLS.ADMIN_LOGIN_URL,
         data: {
           alias,

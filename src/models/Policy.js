@@ -9,7 +9,7 @@ export default class Policy {
     this.description = stringify(policy.description);
   }
 
-  toSelectableOptMap = () => {
+  toMapForSelectableOpt = () => {
     return {
       value: this.id,
       label: this.name,

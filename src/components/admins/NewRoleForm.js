@@ -6,7 +6,7 @@ import makeAnimated from "react-select/animated";
 
 import { RoleRepository } from "../../data";
 import { AuthUserContext, withAllowedPolicies } from "../../session";
-import { LoadingButton } from "../common";
+import { ButtonWithLoader } from "../common";
 import { prepareMultiOptsForRequest } from "../../utils";
 
 function NewRoleForm({ isFormOpen, toggleForm, policies }) {
@@ -37,7 +37,6 @@ function NewRoleForm({ isFormOpen, toggleForm, policies }) {
         description,
         policyIds: prepareMultiOptsForRequest(policyIds),
       });
-      // TODO: getRoles()
       setInitialState();
       toggleForm();
     } catch (error) {
@@ -92,14 +91,21 @@ function NewRoleForm({ isFormOpen, toggleForm, policies }) {
             closeMenuOnSelect={false}
             components={makeAnimated()}
             isMulti
-            options={policies.map((policy) => policy.toSelectableOptMap())}
+            options={policies.map((policy) => policy.toMapForSelectableOpt())}
             value={policyIds}
             onChange={(value) => setPolicyIds(value)}
           />
         </FormGroup>
         {error && <Alert color="danger">{error.message}</Alert>}
         <FormGroup>
-          <LoadingButton type="submit" color="primary" isLoading={isLoading} />
+          <ButtonWithLoader
+            type="submit"
+            color="primary"
+            icon="fa fa-check"
+            label="Save"
+            loadingText="Processing"
+            isLoading={isLoading}
+          />
         </FormGroup>
       </Form>
     </Collapse>

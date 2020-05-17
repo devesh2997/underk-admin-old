@@ -1,6 +1,8 @@
 import * as COLORS from "./colors";
 import * as ROLES from "./roles";
 import * as URLS from "./urls";
+import * as EVENTS from "./events";
+import * as REPO_CHANGES from "./repo-changes";
 
 export const MONTHS = [
   "January",
@@ -17,11 +19,11 @@ export const MONTHS = [
   "December",
 ];
 
-export const HTTPMethods = {
-  GET: 'GET',
-  POST: 'POST',
-  PUT: 'PUT',
-  DELETE: 'DELETE'
+export const HTTP_METHODS = {
+  GET: "GET",
+  POST: "POST",
+  PUT: "PUT",
+  DELETE: "DELETE",
 };
 
-export { COLORS, ROLES, URLS };
+export { COLORS, ROLES, URLS, EVENTS, REPO_CHANGES };

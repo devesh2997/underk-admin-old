@@ -1,11 +1,12 @@
 import React from "react";
 import { Button } from "reactstrap";
 
-function LoadingButton({
-  label = "Save",
-  loadingText = "Processing",
+function ButtonWithLoader({
+  icon = null,
+  label = null,
+  loadingText = null,
   isLoading,
-  showCheck = true,
+  children,
   ...props
 }) {
   return (
@@ -15,10 +16,13 @@ function LoadingButton({
           <i className="fa fa-refresh fa-spin fa-fw" /> {loadingText}
         </span>
       ) : (
-        <span>{showCheck && <i className="fa fa-check" />} Save</span>
+        <span>
+          {icon && <i className={icon} />} {label}
+        </span>
       )}
+      {children}
     </Button>
   );
 }
 
-export default LoadingButton;
+export default ButtonWithLoader;

@@ -6,53 +6,11 @@ import * as POLICIES from "underk-policies";
 
 import { beautifyDate } from "../../utils";
 import { withAllowedPolicies } from "../../session";
+import { ButtonWithConfirmation } from "../common";
 
-function AdminDeleteBtn({ admin, deleteAdmin }) {
-  let isMounted = useRef(true);
-
-  const [isLoading, toggleLoading] = useState(false);
-
-  useEffect(() => {
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
-  async function onClick() {
-    isMounted.current && toggleLoading(true);
-    const isConfirmed = window.confirm(
-      `Are you sure you want to remove ${admin.alias} from Admins?`
-    );
-    if (isConfirmed) {
-      await deleteAdmin(admin.auid);
-    }
-    isMounted.current && toggleLoading(false);
-  }
-
-  return (
-    <Button
-      id={`delAdmBtn-${admin.auid}`}
-      type="button"
-      color="danger"
-      style={{ margin: 3 }}
-      onClick={onClick}
-      disabled={isLoading}
-    >
-      {isLoading ? (
-        <i className="fa fa-refresh fa-spin fa-fw" />
-      ) : (
-        <i className="fa fa-trash" />
-      )}
-      <UncontrolledTooltip placement="top" target={`delAdmBtn-${admin.auid}`}>
-        Delete Admin
-      </UncontrolledTooltip>
-    </Button>
-  );
-}
-
-const ControlledAdminDeleteBtn = withAllowedPolicies([POLICIES.ADMIN_PUBLISH])(
-  AdminDeleteBtn
-);
+const ControlledButtonWithConfirmation = withAllowedPolicies([
+  POLICIES.ADMIN_PUBLISH,
+])(ButtonWithConfirmation);
 
 function AdminItem({ admin, roles, policies, deleteAdmin }) {
   // const [isOpen1, setIsOpen1] = useState(false);
@@ -153,7 +111,21 @@ function AdminItem({ admin, roles, policies, deleteAdmin }) {
             View Employee Profile
           </UncontrolledTooltip>
         </Button>
-        <ControlledAdminDeleteBtn admin={admin} deleteAdmin={deleteAdmin} />
+        <ControlledButtonWithConfirmation
+          id={`delAdmBtn-${admin.auid}`}
+          type="button"
+          color="danger"
+          icon="fa fa-trash"
+          confirmationText={`Are you sure you want to remove ${admin.alias} from Admins?`}
+          onConfirmation={() => deleteAdmin(admin.auid)}
+        >
+          <UncontrolledTooltip
+            placement="top"
+            target={`delAdmBtn-${admin.auid}`}
+          >
+            Delete Admin
+          </UncontrolledTooltip>
+        </ControlledButtonWithConfirmation>
       </td>
     </tr>
   );

@@ -1,5 +1,5 @@
 import { Admin } from "../models";
-import { URLS, HTTPMethods } from "../constants";
+import { URLS, HTTP_METHODS, EVENTS, REPO_CHANGES } from "../constants";
 import { stringify, arrify } from "../utils";
 
 export default class AdminRepository {
@@ -17,7 +17,7 @@ export default class AdminRepository {
     this.get = async (params) => {
       try {
         const response = await _request({
-          method: HTTPMethods.GET,
+          method: HTTP_METHODS.GET,
           url: URLS.ADMIN_GET_URL,
           params,
         });
@@ -30,7 +30,7 @@ export default class AdminRepository {
     this.getAll = async () => {
       try {
         const response = await _request({
-          method: HTTPMethods.GET,
+          method: HTTP_METHODS.GET,
           url: URLS.ADMIN_GET_ALL_URL,
         });
         return arrify(response.admins).map((admin) => new Admin(admin));
@@ -42,7 +42,7 @@ export default class AdminRepository {
     this.create = async ({ alias, password, euid, policyIds, roleIds }) => {
       try {
         const response = await _request({
-          method: HTTPMethods.POST,
+          method: HTTP_METHODS.POST,
           url: URLS.ADMIN_CREATE_URL,
           data: {
             alias,
@@ -52,6 +52,7 @@ export default class AdminRepository {
             roleIds,
           },
         });
+        this.triggerStateChange(REPO_CHANGES.ADMIN_CREATE);
         // return new Admin(response.admin);
         return stringify(response.message);
       } catch (error) {
@@ -70,14 +71,22 @@ export default class AdminRepository {
     this.delete = async (params) => {
       try {
         const response = await _request({
-          method: HTTPMethods.DELETE,
+          method: HTTP_METHODS.DELETE,
           url: URLS.ADMIN_DELETE_URL,
           params,
         });
+        this.triggerStateChange(REPO_CHANGES.ADMIN_DELETE);
         return stringify(response.message);
       } catch (error) {
         throw error;
       }
+    };
+
+    this.triggerStateChange = (changeType) => {
+      const event = new CustomEvent(EVENTS.ADMIN_STATE_CHANGE, {
+        detail: changeType,
+      });
+      window.dispatchEvent(event);
     };
   }
 }

@@ -4,7 +4,7 @@ import * as POLICIES from "underk-policies";
 
 import { PolicyRepository } from "../../data";
 import { AuthUserContext, withAllowedPolicies } from "../../session";
-import { LoadingButton } from "../common";
+import { ButtonWithLoader } from "../common";
 
 function NewPolicyForm({ isFormOpen, toggleForm }) {
   const isMounted = useRef(true);
@@ -29,7 +29,6 @@ function NewPolicyForm({ isFormOpen, toggleForm }) {
     isMounted.current && toggleLoading(true);
     try {
       await policyRepository.create({ name, description });
-      // TODO: getPolicies()
       setInitialState();
       toggleForm();
     } catch (error) {
@@ -79,7 +78,14 @@ function NewPolicyForm({ isFormOpen, toggleForm }) {
         </FormGroup>
         {error && <Alert color="danger">{error.message}</Alert>}
         <FormGroup>
-          <LoadingButton type="submit" color="primary" isLoading={isLoading} />
+          <ButtonWithLoader
+            type="submit"
+            color="primary"
+            icon="fa fa-check"
+            label="Save"
+            loadingText="Processing"
+            isLoading={isLoading}
+          />
         </FormGroup>
       </Form>
     </Collapse>

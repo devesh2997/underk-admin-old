@@ -11,7 +11,7 @@ export default class Role {
     this.policies = arrify(role.policies).map((policy) => new Policy(policy));
   }
 
-  toSelectableOptMap = () => {
+  toMapForSelectableOpt = () => {
     return {
       value: this.id,
       label: this.name,

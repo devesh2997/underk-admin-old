@@ -6,7 +6,7 @@ import makeAnimated from "react-select/animated";
 
 import { AdminRepository } from "../../data";
 import { AuthUserContext, withAllowedPolicies } from "../../session";
-import { PasswordInput, LoadingButton } from "../common";
+import { PasswordInput, ButtonWithLoader } from "../common";
 import { prepareMultiOptsForRequest } from "../../utils";
 
 function NewAdminForm({ isFormOpen, toggleForm, roles, policies }) {
@@ -41,7 +41,6 @@ function NewAdminForm({ isFormOpen, toggleForm, roles, policies }) {
         roleIds: prepareMultiOptsForRequest(roleIds),
         policyIds: prepareMultiOptsForRequest(policyIds),
       });
-      // TODO: getAdmins()
       setInitialState();
       toggleForm();
     } catch (error) {
@@ -107,7 +106,7 @@ function NewAdminForm({ isFormOpen, toggleForm, roles, policies }) {
             closeMenuOnSelect={false}
             components={makeAnimated()}
             isMulti
-            options={roles.map((role) => role.toSelectableOptMap())}
+            options={roles.map((role) => role.toMapForSelectableOpt())}
             value={roleIds}
             onChange={(value) => setRoleIds(value)}
           />
@@ -118,14 +117,21 @@ function NewAdminForm({ isFormOpen, toggleForm, roles, policies }) {
             closeMenuOnSelect={false}
             components={makeAnimated()}
             isMulti
-            options={policies.map((policy) => policy.toSelectableOptMap())}
+            options={policies.map((policy) => policy.toMapForSelectableOpt())}
             value={policyIds}
             onChange={(value) => setPolicyIds(value)}
           />
         </FormGroup>
         {error && <Alert color="danger">{error.message}</Alert>}
         <FormGroup>
-          <LoadingButton type="submit" color="primary" isLoading={isLoading} />
+          <ButtonWithLoader
+            type="submit"
+            color="primary"
+            icon="fa fa-check"
+            label="Save"
+            loadingText="Processing"
+            isLoading={isLoading}
+          />
         </FormGroup>
       </Form>
     </Collapse>
