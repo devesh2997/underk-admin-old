@@ -6,3 +6,7 @@ export const ROLE_DELETE = "role_delete";
 
 export const POLICY_CREATE = "policy_create";
 export const POLICY_DELETE = "policy_delete";
+
+export const EMPLOYEE_CREATE = "employee_create";
+export const EMPLOYEE_DELETE = "employee_delete";
+export const EMPLOYEE_UPDATE = "employee_update";

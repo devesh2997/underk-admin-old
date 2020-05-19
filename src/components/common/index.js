@@ -1,3 +1,3 @@
 export { default as PasswordInput } from "./PasswordInput";
-export { default as ButtonWithLoader } from "./ButtonWithLoader";
-export { default as ButtonWithConfirmation } from "./ButtonWithConfirmation";
+export { default as LoadingButton } from "./LoadingButton";
+export { default as ConfirmationButton } from "./ConfirmationButton";

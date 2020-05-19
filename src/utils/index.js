@@ -67,8 +67,8 @@ export const doPoliciesMatch = (userPolicies, allowedPolicies) => {
 
   return (
     userPolicies.includes(POLICIES.SUPER) ||
-    // allowedPolicies.some((policy) => userPolicies.includes(policy))
-    allowedPolicies.every((policy) => userPolicies.includes(policy))
+    allowedPolicies.some((policy) => userPolicies.includes(policy))
+    // allowedPolicies.every((policy) => userPolicies.includes(policy))
   );
 };
 

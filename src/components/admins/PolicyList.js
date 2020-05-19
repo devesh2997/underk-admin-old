@@ -16,12 +16,12 @@ import { PolicyRepository } from "../../data";
 import { AuthUserContext, withAllowedPolicies } from "../../session";
 import NewPolicyForm from "./NewPolicyForm";
 import { EVENTS } from "../../constants";
-import { ButtonWithConfirmation } from "../common";
+import { ConfirmationButton } from "../common";
 
 const ControlledButton = withAllowedPolicies([POLICIES.ADMIN_PUBLISH])(Button);
-const ControlledButtonWithConfirmation = withAllowedPolicies([
+const ControlledConfirmationButton = withAllowedPolicies([
   POLICIES.ADMIN_PUBLISH,
-])(ButtonWithConfirmation);
+])(ConfirmationButton);
 
 function PolicyList(props) {
   const isMounted = useRef(true);
@@ -108,7 +108,7 @@ function PolicyList(props) {
                   <td>{policy.name}</td>
                   <td className="text-center">{policy.description}</td>
                   <td>
-                    <ControlledButtonWithConfirmation
+                    <ControlledConfirmationButton
                       id={`delPolBtn-${policy.id}`}
                       type="button"
                       color="danger"
@@ -122,7 +122,7 @@ function PolicyList(props) {
                       >
                         Delete Policy
                       </UncontrolledTooltip>
-                    </ControlledButtonWithConfirmation>
+                    </ControlledConfirmationButton>
                   </td>
                 </tr>
               ))}

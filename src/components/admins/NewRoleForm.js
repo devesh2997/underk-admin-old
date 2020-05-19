@@ -6,7 +6,7 @@ import makeAnimated from "react-select/animated";
 
 import { RoleRepository } from "../../data";
 import { AuthUserContext, withAllowedPolicies } from "../../session";
-import { ButtonWithLoader } from "../common";
+import { LoadingButton } from "../common";
 import { prepareMultiOptsForRequest } from "../../utils";
 
 function NewRoleForm({ isFormOpen, toggleForm, policies }) {
@@ -98,7 +98,7 @@ function NewRoleForm({ isFormOpen, toggleForm, policies }) {
         </FormGroup>
         {error && <Alert color="danger">{error.message}</Alert>}
         <FormGroup>
-          <ButtonWithLoader
+          <LoadingButton
             type="submit"
             color="primary"
             icon="fa fa-check"

@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 
-import ButtonWithLoader from "./ButtonWithLoader";
+import LoadingButton from "./LoadingButton";
 
-function ButtonWithConfirmation({
+function ConfirmationButton({
   confirmationText,
   onConfirmation,
   children,
@@ -19,7 +19,7 @@ function ButtonWithConfirmation({
   }, []);
 
   return (
-    <ButtonWithLoader
+    <LoadingButton
       isLoading={isLoading}
       onClick={async () => {
         isMounted.current && toggleLoading(true);
@@ -32,8 +32,8 @@ function ButtonWithConfirmation({
       {...props}
     >
       {children}
-    </ButtonWithLoader>
+    </LoadingButton>
   );
 }
 
-export default ButtonWithConfirmation;
+export default ConfirmationButton;

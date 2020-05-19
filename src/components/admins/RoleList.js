@@ -17,12 +17,12 @@ import { RoleRepository, PolicyRepository } from "../../data";
 import { AuthUserContext, withAllowedPolicies } from "../../session";
 import NewRoleForm from "./NewRoleForm";
 import { EVENTS } from "../../constants";
-import { ButtonWithConfirmation } from "../common";
+import { ConfirmationButton } from "../common";
 
 const ControlledButton = withAllowedPolicies([POLICIES.ADMIN_PUBLISH])(Button);
-const ControlledButtonWithConfirmation = withAllowedPolicies([
+const ControlledConfirmationButton = withAllowedPolicies([
   POLICIES.ADMIN_PUBLISH,
-])(ButtonWithConfirmation);
+])(ConfirmationButton);
 
 function RoleList(props) {
   const isMounted = useRef(true);
@@ -135,7 +135,7 @@ function RoleList(props) {
                   </td>
                   <td className="text-center">{role.description}</td>
                   <td>
-                    <ControlledButtonWithConfirmation
+                    <ControlledConfirmationButton
                       id={`delRolBtn-${role.id}`}
                       type="button"
                       color="danger"
@@ -149,7 +149,7 @@ function RoleList(props) {
                       >
                         Delete Role
                       </UncontrolledTooltip>
-                    </ControlledButtonWithConfirmation>
+                    </ControlledConfirmationButton>
                   </td>
                 </tr>
               ))}

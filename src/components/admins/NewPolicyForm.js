@@ -4,7 +4,7 @@ import * as POLICIES from "underk-policies";
 
 import { PolicyRepository } from "../../data";
 import { AuthUserContext, withAllowedPolicies } from "../../session";
-import { ButtonWithLoader } from "../common";
+import { LoadingButton } from "../common";
 
 function NewPolicyForm({ isFormOpen, toggleForm }) {
   const isMounted = useRef(true);
@@ -78,7 +78,7 @@ function NewPolicyForm({ isFormOpen, toggleForm }) {
         </FormGroup>
         {error && <Alert color="danger">{error.message}</Alert>}
         <FormGroup>
-          <ButtonWithLoader
+          <LoadingButton
             type="submit"
             color="primary"
             icon="fa fa-check"

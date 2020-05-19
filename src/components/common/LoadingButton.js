@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "reactstrap";
 
-function ButtonWithLoader({
+function LoadingButton({
   icon = null,
   label = null,
   loadingText = null,
@@ -25,4 +25,4 @@ function ButtonWithLoader({
   );
 }
 
-export default ButtonWithLoader;
+export default LoadingButton;

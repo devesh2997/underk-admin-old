@@ -1,164 +1,121 @@
-import React, { Component } from 'react';
+import React, { useState, useRef, useEffect, useContext } from "react";
 import {
-	Button,
-	Card,
-	CardBody,
-	CardHeader,
-	Col,
-	Row,
-	Spinner,
-	Table,
-	UncontrolledTooltip
-} from 'reactstrap';
+  Card,
+  CardBody,
+  CardHeader,
+  Spinner,
+  Table,
+  Row,
+  Col,
+  Button,
+} from "reactstrap";
+import * as POLICIES from "underk-policies";
 
-// import { firebase } from '../../index';
-import ROUTES from '../../routes';
-import Employee from './models/employee';
-import MakeAdminModal from './MakeAdminModal';
+import { EmployeeRepository } from "../../data";
+import { AuthUserContext, withAllowedPolicies } from "../../session";
+import EmployeeItem from "./EmployeeItem";
+// import NewAdminForm from "./NewAdminForm";
+import { EVENTS } from '../../constants';
 
-export default class EmployeeList extends Component {
-	constructor(props) {
-		super(props);
+const ControlledButton = withAllowedPolicies([POLICIES.EMPLOYEE_PUBLISH])(Button);
 
-		this.state = {
-			isLoading: false,
-			employees: [],
-			isModalOpen: false,
-			selectedEmployee: {}
-		};
-	}
+function EmployeeList(props) {
+  const isMounted = useRef(true);
 
-	componentDidMount() {
-		this.setState({ isLoading: true });
+  const authUser = useContext(AuthUserContext);
 
-		// this.unsubscribe = firebase.employees()
-		// 	.onSnapshot(snapshot => {
-		// 		let employees = [];
+  const employeeRepository = new EmployeeRepository(authUser.doRequest);
 
-		// 		snapshot.forEach(doc => {
-		// 			employees.push(new Employee({ ...doc.data(), id: doc.id }));
-		// 		});
+  const [isLoading, setLoading] = useState(true);
+  const [employees, setEmployees] = useState([]);
+  // const [isFormOpen, toggleForm] = useState(false);
 
-		// 		this.setState({
-		// 			isLoading: false,
-		// 			employees
-		// 		});
-		// 	});
-	}
+  useEffect(() => {
+    getEmployees();
+    window.addEventListener(EVENTS.EMPLOYEE_STATE_CHANGE, getEmployees);
 
-	componentWillUnmount() {
-		// this.unsubscribe();
-	}
+    return () => {
+      window.removeEventListener(EVENTS.EMPLOYEE_STATE_CHANGE, getEmployees);
+      isMounted.current = false;
+    };
+  }, []);
 
-	toggleModal = () => {
-		this.setState(prevState => ({
-			isModalOpen: !prevState.isModalOpen
-		}));
-	}
+  async function getEmployees() {
+    isMounted.current && setLoading(true);
+    try {
+      const employees = await employeeRepository.getAll();
+      isMounted.current && setEmployees(employees);
+    } catch (error) {
+      console.log(error);
+    }
+    isMounted.current && setLoading(false);
+  }
 
-	render() {
-		const {
-			isLoading,
-			employees,
-			selectedEmployee,
-			isModalOpen
-		} = this.state;
+  async function deleteEmployee(euid) {
+    let message = "";
+    try {
+      message = await employeeRepository.delete(euid);
+    } catch (error) {
+      message = error.message;
+    }
+    // TODO: display message
+    console.log(message);
+  }
 
-		return (
-			<Card>
-				<CardHeader>
-					<Row className="align-items-center">
-						<Col md={6}>
-							<h4>Employees</h4>
-						</Col>
-						<Col md="6" className="text-right">
-							<Button type="button"
-								color="primary"
-								onClick={() => this.props.history.push(ROUTES.ADD_EMPLOYEE.path)}
-							>
-								<i className="fa fa-plus" /> Add Employee
-							</Button>
-						</Col>
-					</Row>
-				</CardHeader>
-				<CardBody>
-					{isLoading
-						? (
-							<center>
-								<Spinner type="grow" color="primary" />
-							</center>
-						)
-						: (
-							<Table striped responsive>
-								<thead>
-									<tr>
-										<th>ID</th>
-										<th>Name</th>
-										<th>isAdmin</th>
-										<th>Email</th>
-										<th>Mobile</th>
-										<th>Address</th>
-										<th>Actions</th>
-									</tr>
-								</thead>
-								<tbody>
-									{employees.map((employee, idx) => (
-										<tr key={employee.id}>
-											<td>{employee.id}</td>
-											<td>{employee.name}</td>
-											<td>{employee.isAdmin.toString()}</td>
-											<td>{employee.email}</td>
-											<td>{employee.mobile}</td>
-											<td>{employee.address}</td>
-											<td>
-												<Button
-													id={`makAdmBtn-${employee.id}`}
-													type="button"
-													color="success"
-													style={{ margin: 3 }}
-													onClick={() => {
-														this.setState({
-															isModalOpen: true,
-															selectedEmployee: employee
-														});
-													}}
-												>
-													<i className="fa fa-user-secret" />
-													<UncontrolledTooltip
-														placement="top"
-														target={`makAdmBtn-${employee.id}`}
-													>
-														Make Admin
-													</UncontrolledTooltip>
-	  												</Button>
-												<Button
-													id={`remEmpBtn-${employee.id}`}
-													type="button"
-													color="danger"
-													style={{ margin: 3 }}
-												>
-													<i className="fa fa-trash" />
-													<UncontrolledTooltip
-														placement="top"
-														target={`remEmpBtn-${employee.id}`}
-													>
-														Remove Employee
-													</UncontrolledTooltip>
-												</Button>
-											</td>
-										</tr>
-									))}
-								</tbody>
-							</Table>
-						)
-					}
-				</CardBody>
-				<MakeAdminModal
-					isOpen={isModalOpen}
-					toggle={this.toggleModal}
-					employee={selectedEmployee}
-				/>
-			</Card>
-		);
-	}
+  return (
+    <Card>
+      <CardHeader>
+        <Row className="align-items-center">
+          <Col sm={6}>
+            <h4>Employees</h4>
+          </Col>
+          <Col sm={6} className="text-right">
+            {/* <ControlledButton
+              type="button"
+              color="secondary"
+              onClick={() => toggleForm(!isFormOpen)}
+            >
+              <i className="fa fa-plus" /> New Admin
+            </ControlledButton> */}
+          </Col>
+        </Row>
+      </CardHeader>
+      <CardBody>
+        {/* <NewAdminForm
+          isFormOpen={isFormOpen}
+          toggleForm={() => toggleForm(!isFormOpen)}
+          roles={roles}
+          policies={policies}
+        /> */}
+        {isLoading ? (
+          <center>
+            <Spinner type="grow" color="primary" />
+          </center>
+        ) : (
+          <Table hover responsive className="table-outline mb-0">
+            <thead className="thead-light">
+              <tr>
+                <th>Employee</th>
+                <th className="text-center">Email</th>
+                <th className="text-center">Mobile</th>
+                <th className="text-center">Address</th>
+                <th className="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {employees.map((employee) => (
+                <EmployeeItem
+                  key={employee.euid}
+                  employee={employee}
+                  deleteEmployee={deleteEmployee}
+                />
+              ))}
+            </tbody>
+          </Table>
+        )}
+      </CardBody>
+    </Card>
+  );
 }
+
+export default withAllowedPolicies([POLICIES.EMPLOYEE_VIEW])(EmployeeList);

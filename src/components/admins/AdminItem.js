@@ -6,11 +6,11 @@ import * as POLICIES from "underk-policies";
 
 import { beautifyDate } from "../../utils";
 import { withAllowedPolicies } from "../../session";
-import { ButtonWithConfirmation } from "../common";
+import { ConfirmationButton } from "../common";
 
-const ControlledButtonWithConfirmation = withAllowedPolicies([
+const ControlledConfirmationButton = withAllowedPolicies([
   POLICIES.ADMIN_PUBLISH,
-])(ButtonWithConfirmation);
+])(ConfirmationButton);
 
 function AdminItem({ admin, roles, policies, deleteAdmin }) {
   // const [isOpen1, setIsOpen1] = useState(false);
@@ -111,7 +111,7 @@ function AdminItem({ admin, roles, policies, deleteAdmin }) {
             View Employee Profile
           </UncontrolledTooltip>
         </Button>
-        <ControlledButtonWithConfirmation
+        <ControlledConfirmationButton
           id={`delAdmBtn-${admin.auid}`}
           type="button"
           color="danger"
@@ -125,7 +125,7 @@ function AdminItem({ admin, roles, policies, deleteAdmin }) {
           >
             Delete Admin
           </UncontrolledTooltip>
-        </ControlledButtonWithConfirmation>
+        </ControlledConfirmationButton>
       </td>
     </tr>
   );

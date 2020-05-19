@@ -6,7 +6,7 @@ import makeAnimated from "react-select/animated";
 
 import { AdminRepository } from "../../data";
 import { AuthUserContext, withAllowedPolicies } from "../../session";
-import { PasswordInput, ButtonWithLoader } from "../common";
+import { PasswordInput, LoadingButton } from "../common";
 import { prepareMultiOptsForRequest } from "../../utils";
 
 function NewAdminForm({ isFormOpen, toggleForm, roles, policies }) {
@@ -124,7 +124,7 @@ function NewAdminForm({ isFormOpen, toggleForm, roles, policies }) {
         </FormGroup>
         {error && <Alert color="danger">{error.message}</Alert>}
         <FormGroup>
-          <ButtonWithLoader
+          <LoadingButton
             type="submit"
             color="primary"
             icon="fa fa-check"
