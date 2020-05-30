@@ -10,6 +10,8 @@ import DatePicker from 'react-datepicker'
 
 import types from 'underk-types'
 
+import { CSVLink } from 'react-csv';
+
 import './style.css'
 
 import {
@@ -40,7 +42,9 @@ class OrdersList extends Component {
 			withStatus: 'all',
 			withStartDate: addDays(new Date(), -14),
 			withEndDate: new Date(),
-			withPaymentMode: 'all'
+			withPaymentMode: 'all',
+			generatingCsvData: false,
+			csvData: []
 		}
 	}
 
@@ -196,6 +200,39 @@ class OrdersList extends Component {
 
 	onSubmit = event => {}
 
+	generateContactInfo = async () => {
+		if(this.state.csvData.length > 0) {
+			return;
+		}
+		this.setState({ generatingCsvData: true });
+		try {
+			let snapshot = await this.props.firebase.orders().get();
+			let orders = [];
+			snapshot.docs.forEach((doc) => {
+				orders.push({ ...doc.data(), id: doc.id });
+			});
+			snapshot = await this.props.firebase.users().get();
+			let users = {};
+			snapshot.docs.forEach((doc) => {
+				users[doc.id] = doc.data();
+			});
+			const csvData = orders.map((order) => {
+				return {
+					oid: order.id,
+					status: order.status,
+					uid: order.uid,
+					name: users[order.uid].name,
+					mobile: users[order.uid].mobile,
+					email: users[order.uid].email
+				};
+			});
+			this.setState({ csvData });
+		} catch(error) {
+			console.error("generateContactInfo", error);
+		}
+		this.setState({ generatingCsvData: false });
+	}
+
 	render () {
 		let {
 			loading,
@@ -203,12 +240,61 @@ class OrdersList extends Component {
 			withStatus,
 			withPaymentMode,
 			withStartDate,
-			withEndDate
+			withEndDate,
+			generatingCsvData,
+			csvData
 		} = this.state
 
 		return (
 			<Card>
-				<CardHeader>Orders</CardHeader>
+				<CardHeader>
+					<Row className="align-items-center">
+						<Col>
+							Orders
+						</Col>
+						<Col className="text-right">
+							<Button
+								type="button"
+								color="primary"
+								onClick={this.generateContactInfo}
+								disabled={generatingCsvData}
+							>
+								{generatingCsvData
+									? (
+										<span>
+											<i className='fa fa-refresh fa-spin fa-fw' /> Generating
+										</span>
+									)
+									: (
+										<span>Generate Contact Info</span>
+									)
+								}
+							</Button>
+							{csvData.length > 0
+								? (
+									<CSVLink
+										data={csvData}
+										headers={[
+											{ label: "Order Id", key: "oid" },
+											{ label: "Order Status", key: "status" },
+											{ label: "User Id", key: "uid" },
+											{ label: "Name", key: "name" },
+											{ label: "Mobile", key: "mobile" },
+											{ label: "Email", key: "email" },
+										]}
+										filename="order_contact_info.csv"
+										style={{
+											marginLeft: 5
+										}}
+									>
+										<i className="fa fa-download" />
+									</CSVLink>
+								)
+								: null
+							}
+						</Col>
+					</Row>
+				</CardHeader>
 				<CardBody>
 					<Row>
 						<Col>

@@ -280,12 +280,12 @@ class Firebase {
 			.orderBy('time', 'desc')
 	placedOrders = () =>
 		this.db
-			.collections('orders')
+			.collection('orders')
 			.where('status', '==', 'placed')
 			.orderBy('time', 'desc')
 	createdOrders = () =>
 		this.db
-			.collections('orders')
+			.collection('orders')
 			.where('status', '==', 'created')
 			.orderBy('time', 'desc')
 
