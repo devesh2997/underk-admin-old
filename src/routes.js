@@ -6,6 +6,9 @@ const ReturnsList = React.lazy(() => import('./components/orders/returns'))
 const CustomOrders = React.lazy(() =>
 	import('./components/orders/custom-orders')
 )
+const InventoryBulkUpdate = React.lazy(() =>
+	import('./components/inventory/bulk-update')
+)
 const InventoryTransactionsList = React.lazy(() =>
 	import('./components/inventory/transactions-list')
 )
@@ -173,6 +176,12 @@ const routes = {
 		exact: true,
 		name: 'Inventory',
 		component: Inventory
+	},
+	INVENTORY_UPDATE_BULK: {
+		path: '/update-bulk',
+		exact: true,
+		name: 'Inventory Bulk Update',
+		component: InventoryBulkUpdate
 	},
 	INVENTORY_TRANSACTIONS: {
 		path: '/inventory/transactions',

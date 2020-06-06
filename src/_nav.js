@@ -35,6 +35,11 @@ export default {
 			icon: 'fa fa-user-secret',
 			children: [
 				{
+					name: 'Invenotry Bulk Upload',
+					url: ROUTES.INVENTORY_UPDATE_BULK.path,
+					icon: 'fa fa-list-alt',
+				},
+				{
 					name: 'Transactions',
 					url: ROUTES.INVENTORY_TRANSACTIONS.path,
 					icon: 'fa fa-list-alt',

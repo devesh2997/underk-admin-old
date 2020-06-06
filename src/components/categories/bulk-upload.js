@@ -151,7 +151,6 @@ class CategoriesBulkUpload extends Component {
 			errors,
 			validCategories
 		} = this.state
-		console.log(categories)
 		let errorTexts = []
 		for (let i = 0; i < errors.length; i++) {
 			errorTexts.push(<div key={i}>{errors[i]}</div>)

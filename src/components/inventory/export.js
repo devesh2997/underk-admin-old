@@ -3,8 +3,7 @@ import { withFirebase } from '../../firebase'
 
 import {
 	getDateTimeStampFromDate,
-	timeStampToTimeLocaleString,
-	timeStampToDateLocaleString,
+	timeStampToLocaleString,
 	isEmpty
 } from '../../utils/index'
 import DatePicker from 'react-datepicker'
@@ -47,13 +46,12 @@ class ExportInventory extends Component {
 
 		this.unsubscribe = this.props.firebase.db
 			.collection('actions')
-			.where('type', '==', 'EXPORT_INVENTORY')
+			.where('type', '==', 'EXPORT_INVENTORY').orderBy('processingStartedOn', 'desc')
 			.onSnapshot(snapshot => {
 				let sheets = []
 				snapshot.forEach(doc =>
 					sheets.push({ ...doc.data(), id: doc.id })
 				)
-				console.log(sheets)
 				this.setState({ sheets, loading: false })
 			})
 
@@ -64,7 +62,6 @@ class ExportInventory extends Component {
 				snapshot.forEach(doc =>
 					categories.push({ ...doc.data(), cid: doc.id })
 				)
-				console.log(categories)
 				this.setState({ categories, loadingCategories: false })
 			})
 	}
@@ -90,7 +87,6 @@ class ExportInventory extends Component {
 			loadingCategories,
 			categories
 		} = this.state
-		console.log(category_id)
 		return (
 			<Card>
 				<CardHeader>Export Inventory as CSV</CardHeader>
@@ -138,6 +134,9 @@ class ExportInventory extends Component {
 											<Col sm='2'>{index + 1 + ') '}</Col>
 											<Col>
 												Category ID: {sheet.category_id}
+											</Col>
+											<Col>
+												Request created on {timeStampToLocaleString(sheet.processingStartedOn)}
 											</Col>
 											{sheet.status === 'completed' && (
 												<Col>
