@@ -1,17 +1,38 @@
-import isPlainObject from 'lodash/fp/isPlainObject';
-import isNull from 'lodash/fp/isNull';
-import isBoolean from 'lodash/fp/isBoolean';
-import isNumber from 'lodash/fp/isNumber';
-import isString from 'lodash/fp/isString';
-import isArray from 'lodash/fp/isArray';
+import isPlainObject from 'lodash/fp/isPlainObject'
+import isNull from 'lodash/fp/isNull'
+import isBoolean from 'lodash/fp/isBoolean'
+import isNumber from 'lodash/fp/isNumber'
+import isString from 'lodash/fp/isString'
+import isArray from 'lodash/fp/isArray'
+import { useState } from "react"
 
-export const isPlainObjectWithKeys = (value) => isPlainObject(value) && !isNull(value);
+export const isPlainObjectWithKeys = value =>
+	isPlainObject(value) && !isNull(value)
 
-export const boolify = (value, defaultValue = false) => isBoolean(value) ? value : defaultValue;
-export const numify = (value, defaultValue = 0) => isNumber(value) ? value : defaultValue;
-export const stringify = (value, defaultValue = '') => isString(value) ? value : defaultValue;
-export const objectify = (value, defaultValue = {}) => isPlainObjectWithKeys(value) ? value : defaultValue;
-export const arrify = (value, defaultValue = []) => isArray(value) ? value : defaultValue;
+export const boolify = (value, defaultValue = false) =>
+	isBoolean(value) ? value : defaultValue
+export const numify = (value, defaultValue = 0) =>
+	isNumber(value) ? value : defaultValue
+export const stringify = (value, defaultValue = '') =>
+	isString(value) ? value : defaultValue
+export const objectify = (value, defaultValue = {}) =>
+	isPlainObjectWithKeys(value) ? value : defaultValue
+export const arrify = (value, defaultValue = []) =>
+	isArray(value) ? value : defaultValue
+
+//hook for input fields
+export const useFormInput = initialValue => {
+	const [value, setValue] = useState(initialValue)
+
+	const handleChange = e => {
+		setValue(e.currentTarget.value)
+	}
+
+	return {
+		value,
+		onChange: handleChange
+	}
+}
 
 const paiseToRupeeString = paise => {
 	paise = Number(paise)

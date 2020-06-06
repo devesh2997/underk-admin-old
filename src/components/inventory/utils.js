@@ -1,4 +1,4 @@
-import * as utils from "../../utils"
+import * as utils from '../../utils'
 
 const INVENTORY_TRANSACTION_TYPE = {
 	INCREASE: 'INCREASE',
@@ -15,15 +15,11 @@ const getInventoryTransactionRef = firestore => {
 }
 
 const getInventoryRef = (firestore, pid) => {
-	return firestore
-		.collection('inventory')
-		.doc(pid)
+	return firestore.collection('inventory').doc(pid)
 }
 
 const getProductRef = (firestore, pid) => {
-	return firestore
-		.collection('products')
-		.doc(pid)
+	return firestore.collection('products').doc(pid)
 }
 
 //stockSet is an object {'sku':<sku>,'set':{<supp_id:<num>>:<quantity>,<supp_id:<num>>:<quantity>}}
@@ -140,7 +136,6 @@ export const increaseStock = async (firestore, pid, stockIncrease, reason) => {
 	})
 }
 
-
 //stockDecrease is an object {'sku':<sku>,'decrease':{<supp_id:<num>>:<quantity>,<supp_id:<num>>:<quantity>}}
 export const decreaseStock = async (firestore, pid, stockDecrease, reason) => {
 	if (utils.isEmpty(reason)) reason = ''
@@ -190,10 +185,10 @@ export const decreaseStock = async (firestore, pid, stockDecrease, reason) => {
 					},
 					{ merge: true }
 				)
+				transaction.set(productRef, product, { merge: true })
 			}
 		}
 
 		transaction.set(inventoryRef, inventory, { merge: true })
 	})
 }
-
