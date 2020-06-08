@@ -170,6 +170,18 @@ class Firebase {
 	// *** Product API ***
 	product = product_id => this.db.doc(`products/${product_id}`)
 	products = () => this.db.collection('products')
+	productsWithCategory = categoryId => {
+		let query = this.db.collection('products')
+		if (categoryId !== 'all') {
+			query = query.where(
+				'category.slugFamily',
+				'array-contains',
+				categoryId
+			)
+		}
+		query = query.orderBy('category.cid')
+		return query
+	}
 	productVariants = product_id =>
 		this.db.doc(`products/${product_id}`).collection('variants')
 
