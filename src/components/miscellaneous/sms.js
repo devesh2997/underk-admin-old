@@ -39,7 +39,7 @@ class SmsList extends Component {
 		this.state = {
 			loading: false,
 			sms: [],
-			withStartDate: addDays(new Date(), -14),
+			withStartDate: addDays(new Date(), -2),
 			withEndDate: new Date()
 		}
 	}

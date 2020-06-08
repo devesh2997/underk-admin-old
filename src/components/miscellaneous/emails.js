@@ -39,7 +39,7 @@ class EmailsList extends Component {
 		this.state = {
 			loading: false,
 			emails: [],
-			withStartDate: addDays(new Date(), -14),
+			withStartDate: addDays(new Date(), -2),
 			withEndDate: new Date()
 		}
 	}
