@@ -102,9 +102,33 @@ class Firebase {
 	// *** User API ***
 	user = uid => this.db.doc(`users/${uid}`)
 	users = () => this.db.collection('users').orderBy('created_at', 'desc')
+	usersWithStartAndEndDate = (startDate, endDate) => {
+		startDate = new Date(
+			startDate.getFullYear(),
+			startDate.getMonth(),
+			startDate.getDate()
+		)
+		let startMilliSecondsSinceEpoch = startDate.getTime()
+		endDate = new Date(
+			endDate.getFullYear(),
+			endDate.getMonth(),
+			endDate.getDate() + 1
+		)
+		let endMilliSecondsSinceEpoch = endDate.getTime()
+		console.log(
+			'with',
+			startMilliSecondsSinceEpoch,
+			endMilliSecondsSinceEpoch
+		)
+		let query = this.db.collection('users')
+		query = query
+			.where('created_at', '>=', startMilliSecondsSinceEpoch)
+			.where('created_at', '<=', endMilliSecondsSinceEpoch)
+		return query.orderBy('created_at', 'desc')
+	}
 	admin = uid => this.db.doc(`admins/${uid}`)
 	admins = () => this.db.collection('admins')
-	employee = (id) => this.db.doc(`employees/${id}`)
+	employee = id => this.db.doc(`employees/${id}`)
 	employees = () => this.db.collection('employees')
 
 	// *** shortURLs API ***

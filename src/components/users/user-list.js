@@ -1,20 +1,28 @@
 import React, { Component } from 'react'
 import {
 	Card,
-	CardBody,
 	CardHeader,
-	Table,
-	Input,
-	Button,
-	Row,
-	Col,
+	CardBody,
+	CardFooter,
+	Container,
 	Label,
-	Container
+	Button,
+	InputGroup,
+	Input,
+	InputGroupAddon,
+	InputGroupText,
+	Col,
+	Row,
+	ListGroup,
+	ListGroupItem,
+	Collapse,
+	Table
 } from 'reactstrap'
+import DatePicker from 'react-datepicker'
 import { withFirebase } from '../../firebase'
 import { Link } from 'react-router-dom'
 import ROUTES from '../../routes'
-import { isEmpty, timeStampToLocaleString } from '../../utils'
+import { addDays, timeStampToLocaleString } from '../../utils'
 
 class UserListBase extends Component {
 	constructor (props) {
@@ -24,6 +32,8 @@ class UserListBase extends Component {
 			users: [],
 			selectedUsers: [],
 			sendingEmail: false,
+			withStartDate: addDays(new Date(), -3),
+			withEndDate: new Date(),
 			emailSubject: '',
 			emailBody: '',
 			emailFrom: 'no-reply@underk.in'
@@ -33,8 +43,54 @@ class UserListBase extends Component {
 	componentDidMount () {
 		this.setState({ loading: true })
 
+		const { withStartDate, withEndDate } = this.state
+
 		this.unsubscribe = this.props.firebase
-			.users()
+			.usersWithStartAndEndDate(withStartDate, withEndDate)
+			.onSnapshot(async snapshot => {
+				let users = []
+
+				snapshot.forEach(doc =>
+					users.push({ ...doc.data(), uid: doc.id })
+				)
+
+				this.setState({
+					users,
+					loading: false
+				})
+			})
+	}
+
+	handleStartDateChange = date => {
+		this.setState({
+			withStartDate: date,
+			loading: true
+		})
+		let { withStartDate, withEndDate } = this.state
+		this.unsubscribe = this.props.firebase
+			.usersWithStartAndEndDate(withStartDate, withEndDate)
+			.onSnapshot(async snapshot => {
+				let users = []
+
+				snapshot.forEach(doc =>
+					users.push({ ...doc.data(), uid: doc.id })
+				)
+
+				this.setState({
+					users,
+					loading: false
+				})
+			})
+	}
+
+	handleEndDateChange = date => {
+		this.setState({
+			withEndDate: date,
+			loading: true
+		})
+		let { withEndDate, withStartDate } = this.state
+		this.unsubscribe = this.props.firebase
+			.usersWithStartAndEndDate(withStartDate, withEndDate)
 			.onSnapshot(async snapshot => {
 				let users = []
 
@@ -120,7 +176,9 @@ class UserListBase extends Component {
 			sendingEmail,
 			emailSubject,
 			emailBody,
-			emailFrom
+			emailFrom,
+			withStartDate,
+			withEndDate
 		} = this.state
 
 		return (
@@ -183,10 +241,43 @@ class UserListBase extends Component {
 							</Row>
 							<Row>
 								<Col>
-									<Button onClick={this.sendEmail} color='primary'>Send</Button>
+									<Button
+										onClick={this.sendEmail}
+										color='primary'
+									>
+										Send
+									</Button>
 								</Col>
 							</Row>
 						</Container>
+					)}
+					{!loading && (
+						<Row>
+							<Col>
+								<InputGroup>
+									<InputGroupAddon addonType='prepend'>
+										<InputGroupText>From</InputGroupText>
+									</InputGroupAddon>
+									<DatePicker
+										endDate={withEndDate}
+										selected={withStartDate}
+										onChange={this.handleStartDateChange}
+									/>
+								</InputGroup>
+							</Col>
+							<Col>
+								<InputGroup>
+									<InputGroupAddon addonType='prepend'>
+										<InputGroupText>To</InputGroupText>
+									</InputGroupAddon>
+									<DatePicker
+										endDate={withStartDate}
+										selected={withEndDate}
+										onChange={this.handleEndDateChange}
+									/>
+								</InputGroup>
+							</Col>
+						</Row>
 					)}
 					<Row>
 						<Table striped responsive>
