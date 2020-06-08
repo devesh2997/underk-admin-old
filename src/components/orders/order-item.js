@@ -99,6 +99,7 @@ class OrderItem extends Component {
 		let order = this.props.order
 		this.setState({ loading: true, errors: [], selectingInventory: false })
 		let skus = []
+		let errors = []
 		Object.keys(selectedInventory).map((sku, index) => {
 			let f = {}
 			f['sku'] = sku
@@ -110,14 +111,18 @@ class OrderItem extends Component {
 		console.log('prepared skkus', skus)
 		let err, _r
 		;[err, _r] = await to(initDelivery(order.oid, skus, 'ahmedabad'))
-		if (_r['status'] === 'success') {
+		if (typeof err !== 'undefined' || err !== null) {
+			errors.push(err)
+		}
+		if (_r['data']['status'] === 'success') {
 			//TODO
 		} else {
+			errors.push(JSON.stringify(_r['data']['error']))
 		}
 		console.log(_r)
 		this.setState({
 			loading: false,
-			errors: [err],
+			errors: errors,
 			selectedInventory: {},
 			selectedSKUs: [],
 			selecting: false
@@ -132,6 +137,9 @@ class OrderItem extends Component {
 		for (let i = 0; i < selectedSKUs.length; i++) {
 			let err, _r
 			;[err, _r] = await to(cancelProduct(order.oid, selectedSKUs[i]))
+			if (_r['data']['status'] === 'error') {
+				errors.push(JSON.stringify(_r['data']['error']))
+			}
 			console.log(_r)
 			if (err) errors.push(err)
 		}
