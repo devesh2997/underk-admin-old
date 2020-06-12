@@ -147,6 +147,10 @@ class Firebase {
 		return action.id
 	}
 
+	// *** Addresses API */
+	addresses = () => this.db.collection('addresses')
+	address = id => this.db.collection('addresses').doc(id)
+
 	//*** Action API */
 	actions = () => this.db.collection('actions')
 	action = actionId => this.db.collection('actions').doc(actionId)
@@ -169,6 +173,10 @@ class Firebase {
 
 	// *** Product API ***
 	product = product_id => this.db.doc(`products/${product_id}`)
+	productWithSku = sku =>
+		this.db
+			.collection('products')
+			.where('options.skus.' + sku + '.exists', '==', true)
 	products = () => this.db.collection('products')
 	productsWithCategory = categoryId => {
 		let query = this.db.collection('products')
@@ -196,6 +204,9 @@ class Firebase {
 	attributesOfType = type => this.db.collection('attributes').doc(type)
 	clothingAttributes = () => this.db.collection('attributes').doc('CLTH')
 
+	// *** Cart API ***
+	cart = uid => this.db.collection('carts').doc(uid)
+
 	// ** Returns API ***
 	returnsByDate = (startDate, endDate) => {
 		try {
@@ -216,13 +227,15 @@ class Firebase {
 				startMilliSecondsSinceEpoch,
 				endMilliSecondsSinceEpoch
 			)
-			let query = this.db
-				.collection('orders')
-				.where('hasReturns', '==', true)
+			let query = this.db.collection('returns')
 			query = query
-				.where('time', '>=', startMilliSecondsSinceEpoch)
-				.where('time', '<=', endMilliSecondsSinceEpoch)
-			return query.orderBy('time', 'desc')
+				.where(
+					'lastRequestCreatedOn',
+					'>=',
+					startMilliSecondsSinceEpoch
+				)
+				.where('lastRequestCreatedOn', '<=', endMilliSecondsSinceEpoch)
+			return query.orderBy('lastRequestCreatedOn', 'desc')
 		} catch (error) {
 			console.log(error)
 			return null

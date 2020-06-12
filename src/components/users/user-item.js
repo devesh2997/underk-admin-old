@@ -5,13 +5,16 @@ import {
 	CardBody,
 	CardHeader,
 	Table,
-	ListGroup
+	ListGroup,
+	ListGroupItem,
 } from 'reactstrap'
 import { withFirebase } from '../../firebase'
 import {
 	parseOrdersToArrangeByDate,
 	timeStampToLocaleString
 } from '../../utils'
+
+import './style.css'
 
 import OrdersOnDate from '../orders/orders-by-date'
 
@@ -22,6 +25,9 @@ class UserItemBase extends Component {
 			loading: false,
 			user: null,
 			orders: [],
+			cart: [],
+			wishlist: [],
+			loadingCart: false,
 			loadingOrders: false,
 			...props.location.state
 		}
@@ -55,15 +61,55 @@ class UserItemBase extends Component {
 					loadingOrders: false
 				})
 			})
+
+		this.setState({ loadingCart: true })
+		this.getCart = this.props.firebase
+			.cart(this.props.match.params.id)
+			.onSnapshot(async snapshot => {
+				let cart
+				if (snapshot.exists) {
+					cart = snapshot.data()
+					const cartProductSkus = Object.keys(cart.products)
+
+					let products = []
+					for (let i = 0; i < cartProductSkus.length; i++) {
+						const sku = cartProductSkus[i]
+						const product = await this.props.firebase
+							.productWithSku(sku)
+							.get()
+						if (!product.empty) {
+							const pid = product.docs[0].id
+							product = product.docs[0].data()
+							product['pid'] = pid
+							product['cartSku'] = sku
+							products.push(product)
+						}
+					}
+					cart['products'] = products
+				}
+
+				this.setState({
+					cart,
+					loadingCart: false
+				})
+			})
 	}
 
 	componentWillUnmount () {
 		this.unsubscribe && this.unsubscribe()
 		this.getOrders && this.getOrders()
+		this.getCart && this.getCart()
 	}
 
 	render () {
-		const { user, loading, loadingOrders, orders } = this.state
+		const {
+			user,
+			loading,
+			loadingOrders,
+			orders,
+			cart,
+			loadingCart
+		} = this.state
 
 		return (
 			<Card>
@@ -123,6 +169,29 @@ class UserItemBase extends Component {
 								)
 							})}
 						</ListGroup>
+					)}
+					{loadingCart && (
+						<i className='fa fa-refresh fa-spin fa-3x fa-fw' />
+					)}
+					{!loadingCart && cart && cart.products && (
+						<Card>
+							<CardHeader>Cart</CardHeader>
+							<CardBody>
+								<ListGroup style={{ marginTop: '20px' }}>
+									{cart['products'].map((product, index) => {
+										return (
+											<ListGroupItem key={product.pid}>
+												{product.title +
+													' - ' +
+													product.category.name +
+													' - ' +
+													product.cartSku}
+											</ListGroupItem>
+										)
+									})}
+								</ListGroup>
+							</CardBody>
+						</Card>
 					)}
 				</CardBody>
 			</Card>

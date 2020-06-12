@@ -4,7 +4,7 @@ import { withFirebase } from '../../firebase'
 
 import ReturnsOnDate from './returns-by-date'
 
-import { parseOrdersToArrangeByDate, addDays } from '../../utils/index'
+import { parseReturnsToArrangeByDate, addDays } from '../../utils/index'
 
 import DatePicker from 'react-datepicker'
 
@@ -55,7 +55,8 @@ class ReturnsList extends Component {
 					returns.push({ ...doc.data(), oid: doc.id })
 				)
 
-				returns = parseOrdersToArrangeByDate(returns)
+				console.log(returns)
+				returns = parseReturnsToArrangeByDate(returns)
 
 				this.setState({ returns, loading: false })
 			})
@@ -79,7 +80,7 @@ class ReturnsList extends Component {
 					returns.push({ ...doc.data(), oid: doc.id })
 				)
 
-				returns = parseOrdersToArrangeByDate(returns)
+				returns = parseReturnsToArrangeByDate(returns)
 
 				this.setState({ returns, loading: false })
 			})
@@ -99,7 +100,7 @@ class ReturnsList extends Component {
 					returns.push({ ...doc.data(), oid: doc.id })
 				)
 
-				returns = parseOrdersToArrangeByDate(returns)
+				returns = parseReturnsToArrangeByDate(returns)
 
 				this.setState({ returns, loading: false })
 			})
@@ -147,7 +148,7 @@ class ReturnsList extends Component {
 								return (
 									<ReturnsOnDate
 										key={index}
-										orders={returnOrder.orders}
+										returns={returnOrder.returns}
 										date={returnOrder.date}
 										firebase={this.props.firebase}
 									/>

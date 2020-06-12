@@ -22,7 +22,7 @@ import DatePicker from 'react-datepicker'
 import { withFirebase } from '../../firebase'
 import { Link } from 'react-router-dom'
 import ROUTES from '../../routes'
-import { addDays, timeStampToLocaleString } from '../../utils'
+import { addDays, timeStampToLocaleString, getAge } from '../../utils'
 
 class UserListBase extends Component {
 	constructor (props) {
@@ -297,6 +297,8 @@ class UserListBase extends Component {
 									<th>Name</th>
 									<th>Email</th>
 									<th>Mobile</th>
+									<th>Gender</th>
+									<th>Age</th>
 									<th>Created At</th>
 									<th>Action</th>
 								</tr>
@@ -329,6 +331,8 @@ class UserListBase extends Component {
 												<i className='fa fa-check'></i>
 											)}
 										</td>
+										<td>{user.gender}</td>
+										<td>{getAge(user.dob)}</td>
 										<td>
 											{timeStampToLocaleString(
 												user.created_at

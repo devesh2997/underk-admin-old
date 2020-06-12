@@ -4,7 +4,21 @@ import isBoolean from 'lodash/fp/isBoolean'
 import isNumber from 'lodash/fp/isNumber'
 import isString from 'lodash/fp/isString'
 import isArray from 'lodash/fp/isArray'
-import { useState } from "react"
+import { useState } from 'react'
+
+//get age from dob
+export const getAge = date => {
+	if (isEmpty(date)) return
+	date = new Date(date)
+	let today = new Date()
+	let birthDate = new Date(date)
+	let age = today.getFullYear() - birthDate.getFullYear()
+	let m = today.getMonth() - birthDate.getMonth()
+	if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+		age--
+	}
+	return age
+}
 
 export const isPlainObjectWithKeys = value =>
 	isPlainObject(value) && !isNull(value)
@@ -274,6 +288,31 @@ const parseOrdersToArrangeByDate = orders => {
 		})
 	}
 	return arrangedOrders
+}
+
+export const parseReturnsToArrangeByDate = returns => {
+	let returnsByDate = {}
+	for (let i = 0; i < returns.length; i++) {
+		let returnRequest = returns[i]
+
+		let returnsDate = getDateTimeStampFromDate(
+			new Date(parseInt(returnRequest.lastRequestCreatedOn))
+		).toString()
+		if (!returnsByDate[returnsDate]) {
+			returnsByDate[returnsDate] = []
+		}
+		returnsByDate[returnsDate].push(returnRequest)
+	}
+	let arrangedReturns = []
+	let returnsDates = Object.keys(returnsByDate).sort()
+	returnsDates.reverse()
+	for (let i = 0; i < returnsDates.length; i++) {
+		arrangedReturns.push({
+			date: returnsDates[i],
+			returns: returnsByDate[returnsDates[i]]
+		})
+	}
+	return arrangedReturns
 }
 
 export {

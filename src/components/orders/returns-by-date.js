@@ -43,7 +43,7 @@ class ReturnsOnDate extends Component {
 	}
 
 	render () {
-		let { orders, date, showUid } = this.props
+		let { returns, date, showUid } = this.props
 
 		return (
 			<Card>
@@ -68,11 +68,11 @@ class ReturnsOnDate extends Component {
 				<Collapse isOpen={!this.state.collapsed}>
 					<CardBody style={{ margin: '0px', padding: '0px' }}>
 						<ListGroup>
-							{orders.map((order, index) => {
+							{returns.map((returnRequest, index) => {
 								return (
 									<ReturnOrderItem
 										key={index}
-										order={order}
+										returnRequest={returnRequest}
 										index={index}
 										firebase={this.props.firebase}
 										showUid={showUid}

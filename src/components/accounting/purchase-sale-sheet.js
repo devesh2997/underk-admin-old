@@ -6,7 +6,8 @@ import {
 	getDateTimeStampFromDate,
 	timeStampToTimeLocaleString,
 	timeStampToDateLocaleString,
-	isEmpty
+	isEmpty,
+	timeStampToLocaleString
 } from '../../utils/index'
 import DatePicker from 'react-datepicker'
 
@@ -49,6 +50,7 @@ class PurchaseSaleSheet extends Component {
 			.collection('accounting')
 			.doc('purchase-sale-sheets')
 			.collection('purchase-sale-sheets')
+			.orderBy('time', 'desc')
 			.onSnapshot(snapshot => {
 				let sheets = []
 				snapshot.forEach(doc =>
@@ -80,7 +82,8 @@ class PurchaseSaleSheet extends Component {
 			.add({
 				status: 'init',
 				startTime: withStartDate.getTime(),
-				endTime: withEndDate.getTime()
+				endTime: withEndDate.getTime(),
+				time: new Date().getTime()
 			})
 	}
 
@@ -132,6 +135,12 @@ class PurchaseSaleSheet extends Component {
 									<ListGroupItem key={index}>
 										<Row>
 											<Col sm='2'>{index + 1 + ') '}</Col>
+											<Col>
+												Time :{' '}
+												{timeStampToLocaleString(
+													sheet.time
+												)}
+											</Col>
 											<Col>
 												From :{' '}
 												{timeStampToDateLocaleString(

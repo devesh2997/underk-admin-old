@@ -24,64 +24,95 @@ import {
 	Collapse,
 	Alert
 } from 'reactstrap'
+import isString from 'lodash/fp/isString'
 
 class TestPlayground extends Component {
 	constructor (props) {
 		super(props)
 		this.state = {
 			loading: false,
-			products: []
+			orders: [],
+			addresses: []
 		}
 	}
 
 	componentDidMount () {
 		this.setState({ loading: true })
 
-		this.unsubscribe = this.props.firebase
-			.products()
-			.onSnapshot(snapshot => {
-				let products = []
+		// this.unsubscribe = this.props.firebase
+		// 	.orders()
+		// 	.get()
+		// 	.then(snapshot => {
+		// 		let orders = []
+		// 		snapshot.forEach(doc =>
+		// 			orders.push({ ...doc.data(), id: doc.id })
+		// 		)
+		// 		console.log(orders)
+
+		// 		this.setState({
+		// 			orders,
+		// 			loading: false
+		// 		})
+		// 	})
+		this.props.firebase
+			.addresses()
+			.get()
+			.then(snapshot => {
+				let addresses = []
 				snapshot.forEach(doc =>
-					products.push({ ...doc.data(), id: doc.id })
-                )
-                console.log(products)
+					addresses.push({ ...doc.data(), id: doc.id })
+				)
+				console.log(addresses)
 
 				this.setState({
-					products,
+					addresses,
 					loading: false
 				})
 			})
 	}
 
-	componentWillUnmount () {
-		this.unsubscribe()
-	}
+	componentWillUnmount () {}
 
 	clickMe = async event => {
-		let products = this.state.products
+		let orders = this.state.orders
 		this.setState({ loading: true })
-		for (let i = 0; i < products.length; i++) {
-			let product = products[i]
-			if (utils.isEmpty(product.category.slugFamilyMap)) {
-				let map = {}
-				for (let j = 0; j < product.category.slugFamily.length; j++) {
-					const slug = product.category.slugFamily[j]
-					map[slug] = true
-				}
-				product.category.slugFamilyMap = map
+		let count = 0
+		for (let i = 0; i < orders.length; i++) {
+			let order = orders[i]
+			let address = order.address
+			if (isString(address.pincode)) {
+				console.log(address.pincode)
+				order.address.pincode = Number(address.pincode)
+				console.log(order.id)
+				await this.props.firebase
+					.order(order.id)
+					.set(order, { merge: true })
 			}
-			if (utils.isEmpty(product.collectionsMap)) {
-				let map = {}
-				for (let i = 0; i < product.collections.length; i++) {
-					const collection = product.collections[i]
-					map[collection] = true
-				}
-				product.collectionsMap = map
-			}
-			await this.props.firebase
-				.product(product.id)
-				.set(product, { merge: true })
 		}
+		console.log(count)
+
+		this.setState({ loading: false })
+
+		return
+	}
+
+	clickMe2 = async event => {
+		let addresses = this.state.addresses
+		this.setState({ loading: true })
+		let count = 0
+		for (let i = 0; i < addresses.length; i++) {
+			let address = addresses[i]
+			if (isString(address.pincode)) {
+				count++
+				console.log(address.pincode)
+				address.pincode = Number(address.pincode)
+				console.log(address.id)
+				await this.props.firebase
+					.address(address.id)
+					.set(address, { merge: true })
+			}
+		}
+		console.log(count)
 
 		this.setState({ loading: false })
 
@@ -98,9 +129,14 @@ class TestPlayground extends Component {
 						<i className='fa fa-refresh fa-spin fa-3x fa-fw' />
 					)}
 					{!loading && (
-						<Button color='danger' onClick={this.clickMe}>
-							Click Me only if you know what you are doing
-						</Button>
+						<>
+							<Button color='danger' onClick={this.clickMe}>
+								Click Me only if you know what you are doing
+							</Button>
+							<Button color='danger' onClick={this.clickMe2}>
+								Click Me only if you know what you are doing
+							</Button>
+						</>
 					)}
 				</CardBody>
 			</Card>
