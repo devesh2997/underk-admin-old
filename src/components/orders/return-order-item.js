@@ -107,13 +107,9 @@ class ReturnOrderItem extends Component {
 	}
 
 	render () {
-		let { showUid, index, returnRequest } = this.props
+		let { index, returnRequest } = this.props
 		const { order, loadingOrder } = this.state
 		const returnedProductSkus = Object.keys(returnRequest.skus)
-
-		if (utils.isEmpty(showUid)) {
-			showUid = true
-		}
 
 		return (
 			<ListGroupItem
