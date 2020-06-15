@@ -23,6 +23,7 @@ import { withFirebase } from '../../firebase'
 import { Link } from 'react-router-dom'
 import ROUTES from '../../routes'
 import { addDays, timeStampToLocaleString, getAge } from '../../utils'
+import './style.css'
 
 class UserListBase extends Component {
 	constructor (props) {
