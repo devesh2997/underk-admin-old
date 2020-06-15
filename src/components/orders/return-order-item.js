@@ -73,6 +73,11 @@ class ReturnOrderItem extends Component {
 
 	manifestReturn = async (sku) => {
 		this.setState({ processing: true })
+		let returnTrackingId = window.prompt('Please enter returnTrackingId.')
+		if (!returnTrackingId) {
+			this.setState({ processing: false })
+			return
+		}
 		const { returnRequest } = this.props
 		try {
 			let response = await axios({
@@ -80,7 +85,8 @@ class ReturnOrderItem extends Component {
 				url: 'https://us-central1-underk-firebase.cloudfunctions.net/adminApp/manifestReturn',
 				data: {
 					orderId: returnRequest.oid,
-					productSKU: sku
+					productSKU: sku,
+					returnTrackingId
 				}
 			})
 			console.log(response.data);
@@ -228,19 +234,26 @@ class ReturnOrderItem extends Component {
 											</Button>
 										}
 										{orderItem.delivery.status === types.DELIVERY_STATUS_RETURN_MANIFESTED &&
-											<Button type="button"
-												outline
-												color="primary"
-												onClick={() => {
-													let isConfirmed = window.confirm('Are you sure');
-													if(isConfirmed) {
-														this.initiateRefund(sku);
-													}
-												}}
-												disabled={processing}
-											>
-												{processing && <i className="fa fa-refresh fa-spin" />} Initiate Refund
-											</Button>
+											<div>
+												<div>
+													returnTrackingId: {returnItem.returnTrackingId}
+												</div>
+												<div>
+													<Button type="button"
+														outline
+														color="primary"
+														onClick={() => {
+															let isConfirmed = window.confirm('Are you sure');
+															if(isConfirmed) {
+																this.initiateRefund(sku);
+															}
+														}}
+														disabled={processing}
+													>
+														{processing && <i className="fa fa-refresh fa-spin" />} Initiate Refund
+													</Button>
+												</div>
+											</div>
 										}
 									</Col>
 								</Row>
