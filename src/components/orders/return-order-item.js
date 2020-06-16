@@ -39,6 +39,8 @@ import {
 
 import types from 'underk-types'
 
+import axios from 'axios'
+
 class ReturnOrderItem extends Component {
 	constructor (props) {
 		super(props)
@@ -65,50 +67,51 @@ class ReturnOrderItem extends Component {
 			})
 	}
 
-	// componentWillUnmount(){
-	// 	this.unsubscribe
-	// }
+	componentWillUnmount(){
+		this.unsubscribe && this.unsubscribe();
+	}
 
-	manifestReturn = async (sku, returnTrackingId) => {
+	manifestReturn = async (sku) => {
 		this.setState({ processing: true })
-		let returnRequest = this.props.returnRequest
-		let order = this.state.order
-		order.products[sku]['delivery']['status'] =
-			types.DELIVERY_STATUS_RETURN_MANIFESTED
-		order.products[sku]['delivery']['returnTrackingId'] = returnTrackingId
-		await this.props.firebase
-			.order(returnRequest.oid)
-			.set(order, { merge: true })
-		await this.sendMessage(
-			order.address.mobile,
-			`Your return request for ${order.products[sku].product.name} has been accepted. The product(s) will be picked up in 4-5 days. Refund towards your return shall be processed soon.`
-		)
+		const { returnRequest } = this.props
+		try {
+			let response = await axios({
+				method: 'POST',
+				url: 'https://us-central1-underk-firebase.cloudfunctions.net/adminApp/manifestReturn',
+				data: {
+					orderId: returnRequest.oid,
+					productSKU: sku
+				}
+			})
+			console.log(response.data);
+		} catch(error) {
+			console.log(error);
+		}
 		this.setState({ processing: false })
 	}
 
-	sendMessage = async (number, message) => {
-		const smsRef = this.props.firebase.sms()
-		let errors = []
-		this.setState({ processing: true, errors })
-
+	initiateRefund = async (sku) => {
+		this.setState({ processing: true })
+		const { returnRequest } = this.props
 		try {
-			await smsRef.add({
-				number,
-				message,
-				status: types.ACTION_STATUS_INIT,
-				time: new Date().getTime()
+			let response = await axios({
+				method: 'POST',
+				url: 'https://us-central1-underk-firebase.cloudfunctions.net/adminApp/initiateRefund',
+				data: {
+					orderId: returnRequest.oid,
+					productSKU: sku
+				}
 			})
-		} catch (e) {
-			console.log(e)
-			errors.push(e)
+			console.log(response.data);
+		} catch(error) {
+			console.log(error);
 		}
-
-		this.setState({ errors, processing: false })
+		this.setState({ processing: false })
 	}
 
 	render () {
 		let { index, returnRequest } = this.props
-		const { order, loadingOrder } = this.state
+		const { order, loadingOrder, processing } = this.state
 		const returnedProductSkus = Object.keys(returnRequest.skus)
 
 		return (
@@ -207,7 +210,38 @@ class ReturnOrderItem extends Component {
 												/>
 											</Col>
 										</Row>
-										{/* {orderItem.delivery.status === types.DELIRET} */}
+									</Col>
+									<Col sm="2">
+										{orderItem.delivery.status === types.DELIVERY_STATUS_RETURN_REQUESTED &&
+											<Button type="button"
+												outline
+												color="primary"
+												onClick={() => {
+													let isConfirmed = window.confirm('Are you sure?');
+													if(isConfirmed) {
+														this.manifestReturn(sku);
+													}
+												}}
+												disabled={processing}
+											>
+												{processing && <i className="fa fa-refresh fa-spin" />} Manifest Return
+											</Button>
+										}
+										{orderItem.delivery.status === types.DELIVERY_STATUS_RETURN_MANIFESTED &&
+											<Button type="button"
+												outline
+												color="primary"
+												onClick={() => {
+													let isConfirmed = window.confirm('Are you sure');
+													if(isConfirmed) {
+														this.initiateRefund(sku);
+													}
+												}}
+												disabled={processing}
+											>
+												{processing && <i className="fa fa-refresh fa-spin" />} Initiate Refund
+											</Button>
+										}
 									</Col>
 								</Row>
 							)
