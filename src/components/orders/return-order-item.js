@@ -60,10 +60,8 @@ class ReturnOrderItem extends Component {
 			.order(returnRequest.oid)
 			.onSnapshot(snapshot => {
 				if (snapshot.exists) {
-					snapshot = snapshot.data()
+					this.setState({ order: snapshot.data(), loadingOrder: false })
 				}
-
-				this.setState({ order: snapshot, loadingOrder: false })
 			})
 	}
 
@@ -152,6 +150,7 @@ class ReturnOrderItem extends Component {
 						order &&
 						returnedProductSkus.map(sku => {
 							const returnItem = returnRequest.skus[sku]
+							console.log(order)
 							const orderItem = order.products[sku]
 							return (
 								<Row
