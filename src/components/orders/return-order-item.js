@@ -171,6 +171,7 @@ class ReturnOrderItem extends Component {
 									</Col>
 									<Col>
 										<Row>{sku}</Row>
+										<Row>Reason: {returnItem.reason.id} - {returnItem.reason.reason}</Row>
 										<Row>
 											{'Pickup Address : ' +
 												beautifyAddress(
