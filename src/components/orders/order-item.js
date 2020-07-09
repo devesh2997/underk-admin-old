@@ -47,6 +47,7 @@ class OrderItem extends Component {
 			selecting: false,
 			selectedSKUs: [],
 			selectedInventory: {},
+			selectedWarehouse: '',
 			loading: false,
 			errors: [],
 			inventory: {},
@@ -95,6 +96,7 @@ class OrderItem extends Component {
 	onManifest = async () => {
 		let selectedSKUs = this.state.selectedSKUs
 		let selectedInventory = this.state.selectedInventory
+		let selectedWarehouse = this.state.selectedWarehouse
 		let inventory = this.state.inventory
 		let order = this.props.order
 		this.setState({ loading: true, errors: [], selectingInventory: false })
@@ -110,7 +112,7 @@ class OrderItem extends Component {
 		})
 		console.log('prepared skkus', skus)
 		let err, _r
-		;[err, _r] = await to(initDelivery(order.oid, skus, 'ahmedabad'))
+		;[err, _r] = await to(initDelivery(order.oid, skus, selectedWarehouse))
 		if (typeof err !== 'undefined' || err !== null) {
 			errors.push(err)
 		} else {
@@ -126,7 +128,10 @@ class OrderItem extends Component {
 			errors: errors,
 			selectedInventory: {},
 			selectedSKUs: [],
-			selecting: false
+			selecting: false,
+			selectedWarehouse: '',
+			selectingInventory: false,
+			inventory: {}
 		})
 	}
 
@@ -189,7 +194,14 @@ class OrderItem extends Component {
 	}
 
 	onCancelSelectingInventory = () => {
-		this.setState({ selectingInventory: false })
+		this.setState({
+			selectingInventory: false,
+			selectedInventory: {},
+			selectedSKUs: [],
+			selectedWarehouse: '',
+			selecting: false,
+			inventory: {}
+		})
 	}
 
 	onSelectInventory = event => {
@@ -197,6 +209,10 @@ class OrderItem extends Component {
 		selectedInventory[event.target.name] = event.target.value
 		console.log('tri', selectedInventory)
 		this.setState({ selectedInventory })
+	}
+
+	onSelectWarehouse = event => {
+		this.setState({ selectedWarehouse: event.target.value })
 	}
 
 	render () {
@@ -214,7 +230,8 @@ class OrderItem extends Component {
 			loading,
 			errors,
 			inventory,
-			selectingInventory
+			selectingInventory,
+			selectedWarehouse
 		} = this.state
 
 		let canSelectInventory = selectedSKUs.length > 0
@@ -225,6 +242,10 @@ class OrderItem extends Component {
 			let product = order.products[sku]
 			let productStatus = product.status
 			let productDeliveryStatus = product.delivery.status
+
+			if (utils.isEmpty(selectedWarehouse)) {
+				canManifest = false
+			}
 
 			if (utils.isEmpty(selectedInventory[sku])) {
 				canManifest = false
@@ -263,8 +284,8 @@ class OrderItem extends Component {
 								<Col>
 									{order.product_count +
 										(order.product_count > 1
-											? ' items '
-											: ' item ')}
+											? ' products '
+											: ' product ')}
 								</Col>
 								<Col>
 									{paiseToRupeeString(order.summary.total)}
@@ -350,6 +371,27 @@ class OrderItem extends Component {
 				<Collapse isOpen={!collapsed}>
 					{selectingInventory && (
 						<ListGroup style={{ marginTop: '20px' }}>
+							<ListGroupItem>
+								<Row>
+									<Col>
+										<Input
+											type='select'
+											value={selectedWarehouse}
+											onChange={this.onSelectWarehouse}
+										>
+											<option value={''}>
+												Select Warehouse
+											</option>
+											<option value={'siddhpur'}>
+												Siddhpur
+											</option>
+											<option value={'ahmedabad'}>
+												Ahmedabad
+											</option>
+										</Input>
+									</Col>
+								</Row>
+							</ListGroupItem>
 							{selectedSKUs.map((sku, index) => {
 								const orderProduct = order.products[sku]
 								const product = orderProduct.product
@@ -388,7 +430,7 @@ class OrderItem extends Component {
 														this.onSelectInventory
 													}
 												>
-													<option value={null}>
+													<option value={''}>
 														Select Supplier
 													</option>
 													{Object.keys(
@@ -521,6 +563,22 @@ class OrderItem extends Component {
 											)}
 									</Col>
 									<Col>
+										{summary &&
+											summary.onlinePaymentDiscountApplied && (
+												<InputGroup>
+													<Label>
+														Online Pay Discount :
+													</Label>
+													<Label>
+														{' ' +
+															paiseToRupeeString(
+																summary.onlinePaymentDiscount
+															)}
+													</Label>
+												</InputGroup>
+											)}
+									</Col>
+									<Col>
 										<InputGroup>
 											<Label>Total : </Label>
 											<Label>
@@ -546,6 +604,8 @@ class OrderItem extends Component {
 											orderProduct.delivery.status
 										let trackingId =
 											orderProduct.delivery.trackingId
+										let warehouse =
+											orderProduct.delivery.warehouse
 										let enabled =
 											productStatus !==
 												types.PRODUCT_STATUS_USER_CANCELLED &&
@@ -589,7 +649,7 @@ class OrderItem extends Component {
 																	}
 																/>
 															</Col>
-															<Col sm='4'>
+															<Col sm='3'>
 																<Row
 																	style={{
 																		fontSize:
@@ -649,7 +709,7 @@ class OrderItem extends Component {
 																		</Row>
 																	)}
 															</Col>
-															<Col sm='6'>
+															<Col sm='8'>
 																<Row>
 																	<Col>
 																		{'Price: ' +
@@ -689,7 +749,6 @@ class OrderItem extends Component {
 																					'20px'
 																			}}
 																		>
-																			Product
 																			Status
 																			:
 																		</Label>
@@ -708,7 +767,6 @@ class OrderItem extends Component {
 																			}}
 																		>
 																			Delivery
-																			Status
 																			:
 																		</Label>
 
@@ -718,6 +776,25 @@ class OrderItem extends Component {
 																			}
 																		/>
 																	</Col>
+																	{warehouse && (
+																		<Col>
+																			<Label
+																				style={{
+																					marginRight:
+																						'20px'
+																				}}
+																			>
+																				Warehouse
+																				:
+																			</Label>
+
+																			<StatusBadge
+																				status={
+																					warehouse
+																				}
+																			/>
+																		</Col>
+																	)}
 																	{trackingId && (
 																		<Col>
 																			<a

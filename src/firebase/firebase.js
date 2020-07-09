@@ -197,7 +197,30 @@ class Firebase {
 	inventory = () => this.db.collection('inventory')
 	inventoryOfProduct = product_id =>
 		this.db.collection('inventory').doc(product_id)
-	inventoryTransactions = () => this.db.collection('inventory_transactions')
+	inventoryTransactions = (startDate, endDate) => {
+		startDate = new Date(
+			startDate.getFullYear(),
+			startDate.getMonth(),
+			startDate.getDate()
+		)
+		let startMilliSecondsSinceEpoch = startDate.getTime()
+		endDate = new Date(
+			endDate.getFullYear(),
+			endDate.getMonth(),
+			endDate.getDate() + 1
+		)
+		let endMilliSecondsSinceEpoch = endDate.getTime()
+		console.log(
+			'with',
+			startMilliSecondsSinceEpoch,
+			endMilliSecondsSinceEpoch
+		)
+		let query = this.db.collection('inventory_transactions')
+		query = query
+			.where('time', '>=', startMilliSecondsSinceEpoch)
+			.where('time', '<=', endMilliSecondsSinceEpoch)
+			return query.orderBy('time', 'desc')
+	}
 
 	// *** Attributes API ***
 	attributesAll = () => this.db.collection('attributes')

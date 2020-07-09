@@ -22,26 +22,32 @@ import {
 } from 'reactstrap'
 
 import {
-    timeStampToDateLocaleString,
+	timeStampToDateLocaleString,
 	timeStampToLocaleString,
-    
-	timeStampToTimeLocaleString
+	timeStampToTimeLocaleString,
+	addDays
 } from '../../utils/index'
+
+import './style.css'
+
+import DatePicker from 'react-datepicker'
 
 class TransactionsList extends React.Component {
 	constructor (props) {
 		super(props)
 		this.state = {
 			loading: false,
-			transactions: []
+			transactions: [],
+			withStartDate: addDays(new Date(), -14),
+			withEndDate: new Date()
 		}
 	}
 
 	componentDidMount () {
 		this.setState({ loading: true })
-		this.props.firebase
-			.inventoryTransactions()
-			.orderBy('time', 'desc')
+		let { withStartDate, withEndDate } = this.state
+		this.unsubscribe = this.props.firebase
+			.inventoryTransactions(withStartDate, withEndDate)
 			.onSnapshot(snapshot => {
 				let transactions = []
 				if (!snapshot.empty) {
@@ -53,12 +59,78 @@ class TransactionsList extends React.Component {
 			})
 	}
 
+	componentWillUnmount () {
+		this.unsubscribe()
+	}
+
+	handleStartDateChange = date => {
+		this.setState({
+			withStartDate: date,
+			loading: true
+		})
+		let { withEndDate } = this.state
+		this.unsubscribe = this.props.firebase
+			.inventoryTransactions(date, withEndDate)
+			.onSnapshot(snapshot => {
+				let transactions = []
+				if (!snapshot.empty) {
+					snapshot = snapshot.docs
+					snapshot.forEach(s => transactions.push(s.data()))
+				}
+				this.setState({ loading: false, transactions })
+			})
+	}
+
+	handleEndDateChange = date => {
+		this.setState({
+			withEndDate: date,
+			loading: true
+		})
+		let { withStartDate } = this.state
+		this.unsubscribe = this.props.firebase
+			.inventoryTransactions(withStartDate, date)
+			.onSnapshot(snapshot => {
+				let transactions = []
+				if (!snapshot.empty) {
+					snapshot = snapshot.docs
+					snapshot.forEach(s => transactions.push(s.data()))
+				}
+				this.setState({ loading: false, transactions })
+			})
+	}
+
 	render () {
-		const { loading, transactions } = this.state
+		const { loading, transactions, withStartDate, withEndDate } = this.state
 		return (
 			<Card>
 				<CardHeader>Transactions</CardHeader>
 				<CardBody>
+					<Row>
+						<Col>
+							<InputGroup>
+								<InputGroupAddon addonType='prepend'>
+									<InputGroupText>From</InputGroupText>
+								</InputGroupAddon>
+								<DatePicker
+									endDate={withEndDate}
+									selected={withStartDate}
+									onChange={this.handleStartDateChange}
+								/>
+							</InputGroup>
+						</Col>
+						<Col>
+							<InputGroup>
+								<InputGroupAddon addonType='prepend'>
+									<InputGroupText>To</InputGroupText>
+								</InputGroupAddon>
+								<DatePicker
+									endDate={withStartDate}
+									selected={withEndDate}
+									onChange={this.handleEndDateChange}
+								/>
+							</InputGroup>
+						</Col>
+					</Row>
 					{loading && (
 						<i className='fa fa-refresh fa-spin fa-3x fa-fw' />
 					)}
@@ -88,7 +160,7 @@ class TransactionsList extends React.Component {
 											<Col>
 												{'sku : ' + transaction.sku}
 											</Col>
-                                            <Col>
+											<Col>
 												{'pid : ' + transaction.pid}
 											</Col>
 										</Row>
