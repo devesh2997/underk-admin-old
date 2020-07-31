@@ -138,6 +138,11 @@ export default {
 					icon: 'fa fa-plus',
 				},
 				{
+					name: 'Bulk Update Assets',
+					url: ROUTES.BULK_UPDATET_ASSETS.path,
+					icon: 'fa fa-plus',
+				},
+				{
 					name: 'Attribute List',
 					url: ROUTES.ATTRIBUTE_LIST.path,
 					icon: 'fa fa-list-alt',

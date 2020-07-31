@@ -77,6 +77,9 @@ const AddProductItem = React.lazy(() =>
 const BulkUpload = React.lazy(() =>
 	import('./components/products/bulk-upload/index')
 )
+const BulkUpdateAssets = React.lazy(() =>
+	import('./components/products/bulk-upload/bulk-update-assets')
+)
 const EditProductItem = React.lazy(() =>
 	import('./components/products/edit-product')
 )
@@ -368,6 +371,12 @@ const routes = {
 		exact: true,
 		name: 'Bulk Upload Products',
 		component: BulkUpload
+	},
+	BULK_UPDATET_ASSETS: {
+		path: '/products/bulk-update-assets',
+		exact: true,
+		name: 'Bulk Update Assets',
+		component: BulkUpdateAssets
 	},
 	PRODUCT_DETAILS: {
 		path: '/products/:pid',

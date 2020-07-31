@@ -37,8 +37,7 @@ class TestPlayground extends Component {
 	}
 
 	componentDidMount () {
-		this.setState({ loading: true })
-
+		// this.setState({ loading: true })
 		// this.unsubscribe = this.props.firebase
 		// 	.orders()
 		// 	.get()
@@ -48,76 +47,83 @@ class TestPlayground extends Component {
 		// 			orders.push({ ...doc.data(), id: doc.id })
 		// 		)
 		// 		console.log(orders)
-
 		// 		this.setState({
 		// 			orders,
 		// 			loading: false
 		// 		})
 		// 	})
-		this.props.firebase
-			.addresses()
-			.get()
-			.then(snapshot => {
-				let addresses = []
-				snapshot.forEach(doc =>
-					addresses.push({ ...doc.data(), id: doc.id })
-				)
-				console.log(addresses)
-
-				this.setState({
-					addresses,
-					loading: false
-				})
-			})
+		// this.props.firebase
+		// 	.addresses()
+		// 	.get()
+		// 	.then(snapshot => {
+		// 		let addresses = []
+		// 		snapshot.forEach(doc =>
+		// 			addresses.push({ ...doc.data(), id: doc.id })
+		// 		)
+		// 		console.log(addresses)
+		// 		this.setState({
+		// 			addresses,
+		// 			loading: false
+		// 		})
+		// 	})
 	}
 
 	componentWillUnmount () {}
 
-	clickMe = async event => {
-		let orders = this.state.orders
+	generateProductsCSV = async event => {
 		this.setState({ loading: true })
-		let count = 0
-		for (let i = 0; i < orders.length; i++) {
-			let order = orders[i]
-			let address = order.address
-			if (isString(address.pincode)) {
-				console.log(address.pincode)
-				order.address.pincode = Number(address.pincode)
-				console.log(order.id)
-				await this.props.firebase
-					.order(order.id)
-					.set(order, { merge: true })
-			}
-		}
-		console.log(count)
 
+		let products = await this.props.firebase.products().get()
+		products = products.docs
+		
 		this.setState({ loading: false })
-
-		return
 	}
 
-	clickMe2 = async event => {
-		let addresses = this.state.addresses
-		this.setState({ loading: true })
-		let count = 0
-		for (let i = 0; i < addresses.length; i++) {
-			let address = addresses[i]
-			if (isString(address.pincode)) {
-				count++
-				console.log(address.pincode)
-				address.pincode = Number(address.pincode)
-				console.log(address.id)
-				await this.props.firebase
-					.address(address.id)
-					.set(address, { merge: true })
-			}
-		}
-		console.log(count)
+	// clickMe = async event => {
+	// 	let orders = this.state.orders
+	// 	this.setState({ loading: true })
+	// 	let count = 0
+	// 	for (let i = 0; i < orders.length; i++) {
+	// 		let order = orders[i]
+	// 		let address = order.address
+	// 		if (isString(address.pincode)) {
+	// 			console.log(address.pincode)
+	// 			order.address.pincode = Number(address.pincode)
+	// 			console.log(order.id)
+	// 			await this.props.firebase
+	// 				.order(order.id)
+	// 				.set(order, { merge: true })
+	// 		}
+	// 	}
+	// 	console.log(count)
 
-		this.setState({ loading: false })
+	// 	this.setState({ loading: false })
 
-		return
-	}
+	// 	return
+	// }
+
+	// clickMe2 = async event => {
+	// 	let addresses = this.state.addresses
+	// 	this.setState({ loading: true })
+	// 	let count = 0
+	// 	for (let i = 0; i < addresses.length; i++) {
+	// 		let address = addresses[i]
+	// 		if (isString(address.pincode)) {
+	// 			count++
+	// 			console.log(address.pincode)
+	// 			address.pincode = Number(address.pincode)
+	// 			console.log(address.id)
+	// 			await this.props.firebase
+	// 				.address(address.id)
+	// 				.set(address, { merge: true })
+	// 		}
+	// 	}
+	// 	console.log(count)
+
+	// 	this.setState({ loading: false })
+
+	// 	return
+	// }
 
 	render () {
 		let { loading } = this.state
@@ -130,10 +136,10 @@ class TestPlayground extends Component {
 					)}
 					{!loading && (
 						<>
-							<Button color='danger' onClick={this.clickMe}>
-								Click Me only if you know what you are doing
-							</Button>
-							<Button color='danger' onClick={this.clickMe2}>
+							<Button
+								color='danger'
+								onClick={this.generateProductsCSV}
+							>
 								Click Me only if you know what you are doing
 							</Button>
 						</>

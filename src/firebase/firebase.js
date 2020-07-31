@@ -173,6 +173,8 @@ class Firebase {
 
 	// *** Product API ***
 	product = product_id => this.db.doc(`products/${product_id}`)
+	productWithSlug = slug =>
+		this.db.collection('products').where('slug', '==', slug)
 	productWithSku = sku =>
 		this.db
 			.collection('products')
@@ -219,7 +221,7 @@ class Firebase {
 		query = query
 			.where('time', '>=', startMilliSecondsSinceEpoch)
 			.where('time', '<=', endMilliSecondsSinceEpoch)
-			return query.orderBy('time', 'desc')
+		return query.orderBy('time', 'desc')
 	}
 
 	// *** Attributes API ***

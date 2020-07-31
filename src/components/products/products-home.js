@@ -24,32 +24,14 @@ class ProductsHome extends Component {
 		this.state = {
 			generatingVariants: false,
 			preparingProductPriceCSV: false,
+			preparingProductInfoCSV: false,
 			productPriceCSVData: [],
-			preparingProductsForUpdate: false,
+			productInfoCSVData: [],
 			loading: false,
 			products: null,
 			errors: [],
 			validProducts: []
 		}
-	}
-
-	componentDidMount () {
-		this.setState({ loading: true })
-		this.getProducts = this.props.firebase
-			.products()
-			.get()
-			.then(snapshot => {
-				let products = []
-
-				snapshot.forEach(doc =>
-					products.push({ ...doc.data(), pid: doc.id })
-				)
-
-				this.setState({
-					products,
-					loading: false
-				})
-			})
 	}
 
 	updateProductsPrice = async () => {
@@ -78,7 +60,13 @@ class ProductsHome extends Component {
 		let validProducts = []
 		let errors = []
 
-		const products = this.state.products
+		let snapshots = await this.props.firebase.products().get()
+		snapshots = snapshots.docs
+
+		let products = []
+		snapshots.forEach(snapshot =>
+			products.push({ ...snapshot.data(), pid: snapshot.id })
+		)
 
 		for (let i in csvdata) {
 			let row = csvdata[i]
@@ -127,13 +115,17 @@ class ProductsHome extends Component {
 
 		let snapshots = await this.props.firebase.products().get()
 		snapshots = snapshots.docs
-		let csvData = this.state.products.map(prdouct => {
-			const pid = prdouct.pid
-			const title = prdouct.title
-			const category = prdouct.category.name
-			const slug = prdouct.slug
-			const listPrice = prdouct.listPrice
-			const sellingPrice = prdouct.sellingPrice
+		let products = []
+		snapshots.forEach(snapshot =>
+			products.push({ ...snapshot.data(), pid: snapshot.id })
+		)
+		let csvData = products.map(product => {
+			const pid = product.pid
+			const title = product.title
+			const category = product.category.name
+			const slug = product.slug
+			const listPrice = product.listPrice
+			const sellingPrice = product.sellingPrice
 			return {
 				pid,
 				title,
@@ -149,6 +141,53 @@ class ProductsHome extends Component {
 		})
 	}
 
+	prepareProductInfoCSV = async () => {
+		this.setState({ preparingProductInfoCSV: true })
+
+		let snapshots = await this.props.firebase.products().get()
+		snapshots = snapshots.docs
+		let products = []
+		snapshots.forEach(snapshot =>
+			products.push({ ...snapshot.data(), pid: snapshot.id })
+		)
+		let csvData = products.map(product => {
+			const pid = product.pid
+			const title = product.title
+			const category = product.category.name
+			const slug = product.slug
+			const listPrice = product.listPrice
+			const sellingPrice = product.sellingPrice
+			const type = product.type.name
+			const subtype = product.subtype.name
+
+			let data = {
+				pid,
+				title,
+				slug,
+				category,
+				listPrice,
+				sellingPrice
+			}
+
+			const attributes = Object.keys(product.attributes)
+
+			for (let i = 0; i < attributes.length; i++) {
+				data = {
+					...data,
+					[attributes[i]]:
+						product['attributes'][attributes[i]]['name']
+				}
+			}
+
+			return data
+		})
+
+		this.setState({
+			preparingProductInfoCSV: false,
+			productInfoCSVData: csvData
+		})
+	}
+
 	generateVariants = async () => {
 		this.setState({ generatingVariants: true })
 		let typesSnapshots = await this.props.firebase.typesSubtypes().get()
@@ -156,10 +195,12 @@ class ProductsHome extends Component {
 		typesSnapshots.forEach(doc => (types[doc.id] = { ...doc.data() }))
 
 		this.setState({ types, loadingTypes: false })
-		let products = this.state.products
+		let products = await this.props.firebase.products().get()
+		products = products.docs
 		// console.log(products)
 		for (let i = 0; i < products.length; i++) {
 			let product = products[i]
+			product = product.data()
 			const type = product.type.sku
 			const subtype = product.subtype.sku
 			const skuOrdering = types[type].subtypes[subtype].skuOrdering
@@ -206,7 +247,9 @@ class ProductsHome extends Component {
 		const {
 			generatingVariants,
 			preparingProductPriceCSV,
+			preparingProductInfoCSV,
 			productPriceCSVData,
+			productInfoCSVData,
 			loading,
 			errors,
 			totalCSVRows,
@@ -249,6 +292,48 @@ class ProductsHome extends Component {
 										Generate Variants
 									</Button>
 								)}
+							</CardBody>
+						</Card>
+						<Card>
+							<CardHeader>Products Info CSV</CardHeader>
+							<CardBody>
+								<Row>
+									<Col>
+										{preparingProductInfoCSV && (
+											<Spinner
+												color='primary'
+												style={{
+													width: '1rem',
+													height: '1rem'
+												}}
+												type='grow'
+											/>
+										)}
+										{!preparingProductInfoCSV && (
+											<Button
+												color='primary'
+												onClick={
+													this.prepareProductInfoCSV
+												}
+											>
+												Generate Product Info CSV
+											</Button>
+										)}
+									</Col>
+									<Col>
+										{productInfoCSVData.length > 0 ? (
+											<CSVLink
+												data={productInfoCSVData}
+												filename='product_info.csv'
+												style={{
+													marginLeft: 5
+												}}
+											>
+												<i className='fa fa-download' />
+											</CSVLink>
+										) : null}
+									</Col>
+								</Row>
 							</CardBody>
 						</Card>
 						<Card>
