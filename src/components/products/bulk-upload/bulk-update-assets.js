@@ -95,6 +95,20 @@ class BulkUpdateAssets extends Component {
 		})
 	}
 
+	updateAssetForProducts = async () => {
+		let { csvProducts } = this.state
+
+		for (let i = 0; i < csvProducts.length; i++) {
+			csvProducts[i]['queued'] = true
+		}
+
+		this.setState({ csvProducts })
+
+		for (let i = 0; i < csvProducts.length; i++) {
+			await this.updateAssetForProduct(i)
+		}
+	}
+
 	updateAssetForProduct = async i => {
 		let { csvProducts } = this.state
 		const csvProduct = csvProducts[i]
@@ -102,6 +116,7 @@ class BulkUpdateAssets extends Component {
 		let { product, newAssets, slug, pid, updating } = csvProduct
 
 		csvProducts[i]['updating'] = true
+		csvProducts[i]['queued'] = false
 		this.setState({ csvProducts })
 
 		if (!updating) {
@@ -182,6 +197,14 @@ class BulkUpdateAssets extends Component {
 		let csvProductRows = []
 		let totalOldAssets = 0
 		let totalNewAssets = 0
+
+		let updatingAny = false
+		for (let i = 0; i < csvProducts.length; i++) {
+			updatingAny =
+				updatingAny ||
+				csvProducts[i]['updating'] === true ||
+				csvProducts[i]['queued'] === true
+		}
 		csvProducts.forEach((csvProduct, index) => {
 			const {
 				product,
@@ -189,7 +212,8 @@ class BulkUpdateAssets extends Component {
 				newAssets,
 				pid,
 				newAssetsUrls,
-				updating
+				updating,
+				queued
 			} = csvProduct
 			if (product) {
 				const oldAssetsCount = Object.keys(product.assets).length
@@ -199,8 +223,11 @@ class BulkUpdateAssets extends Component {
 				csvProductRows.push(
 					<ListGroupItem key={index}>
 						<ListGroupItemHeading>
-							{index + 1 + '.  ' + product.title + '  '}
-							{newAssetsCount > 0 && !updating && (
+							<a target="_blank" href={'https://www.underk.in/p/' + slug}>
+								{index + 1 + '.  ' + product.title + '  '}
+							</a>
+
+							{newAssetsCount > 0 && !updating && !updatingAny && (
 								<Button
 									color='primary'
 									onClick={() =>
@@ -209,6 +236,14 @@ class BulkUpdateAssets extends Component {
 								>
 									Update Assets
 								</Button>
+							)}
+							{newAssetsCount > 0 && queued && (
+								<div
+									className='animated fadeIn pt-3 text-center'
+									style={{ marginLeft: '100px' }}
+								>
+									Queued...
+								</div>
 							)}
 							{newAssetsCount > 0 && updating && (
 								<div
@@ -271,7 +306,13 @@ class BulkUpdateAssets extends Component {
 
 	render () {
 		const { csvProducts, fetchingProducts } = this.state
-		console.log(csvProducts)
+		let updatingAny = false
+		for (let i = 0; i < csvProducts.length; i++) {
+			updatingAny =
+				updatingAny ||
+				csvProducts[i]['updating'] === true ||
+				csvProducts[i]['queued'] === true
+		}
 		return (
 			<Card>
 				<CardHeader>Bulk Update Assets</CardHeader>
@@ -316,10 +357,34 @@ class BulkUpdateAssets extends Component {
 						</Form>
 					)}
 					{!fetchingProducts && (
-						<div style={{ marginTop: '20px' }}>
-							<Label>
-								Total Slugs in CSV : {csvProducts.length}
-							</Label>
+						<div
+							style={{
+								marginTop: '20px',
+								fontSize: '16px',
+								fontWeight: 'bolder'
+							}}
+						>
+							<Row style={{ marginBottom: '30px' }}>
+								<Col>
+									<Label>
+										Total Slugs in CSV :{' '}
+										{csvProducts.length}
+									</Label>
+								</Col>
+								<Col>
+									{csvProducts.length > 0 && !updatingAny && (
+										<Button
+											color='primary'
+											onClick={() =>
+												this.updateAssetForProducts()
+											}
+										>
+											Update Assets
+										</Button>
+									)}
+								</Col>
+							</Row>
+
 							{this.getSummmary()}
 						</div>
 					)}
