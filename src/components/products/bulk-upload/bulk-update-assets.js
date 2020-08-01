@@ -137,9 +137,7 @@ class BulkUpdateAssets extends Component {
 				console.log('New Assets ' + assets)
 				product['assets'] = assets
 
-				await this.props.firebase
-					.product(pid)
-					.set(product, { merge: true })
+				await this.props.firebase.product(pid).set(product)
 				csvProducts[i].product['assets'] = assets
 			} catch (e) {
 				console.error('error here' + JSON.stringify(e))
@@ -223,7 +221,10 @@ class BulkUpdateAssets extends Component {
 				csvProductRows.push(
 					<ListGroupItem key={index}>
 						<ListGroupItemHeading>
-							<a target="_blank" href={'https://www.underk.in/p/' + slug}>
+							<a
+								target='_blank'
+								href={'https://www.underk.in/p/' + slug}
+							>
 								{index + 1 + '.  ' + product.title + '  '}
 							</a>
 
