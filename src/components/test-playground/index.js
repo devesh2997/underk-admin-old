@@ -136,7 +136,7 @@ class TestPlayground extends Component {
 					)}
 					{!loading && (
 						<>
-							<Button
+							<Button disabled
 								color='danger'
 								onClick={this.generateProductsCSV}
 							>

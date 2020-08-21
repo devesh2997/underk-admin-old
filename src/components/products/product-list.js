@@ -54,10 +54,6 @@ class ProductListBase extends Component {
 			})
 	}
 
-	componentWillUnmount () {
-		this.unsubscribe()
-	}
-
 	onChange = event => {
 		if (this.state[event.target.name] !== event.target.value) {
 			if (event.target.name === 'withCategory') {
