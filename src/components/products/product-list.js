@@ -40,7 +40,7 @@ class ProductListBase extends Component {
 		// })
 		this.unsubscribe = this.props.firebase
 			.categories()
-			.onSnapshot(snapshot => {
+			.get().then(snapshot => {
 				let categories = []
 
 				snapshot.forEach(doc =>
@@ -64,17 +64,15 @@ class ProductListBase extends Component {
 				this.setState({
 					[event.target.name]: event.target.value,
 					loading: true
-        })
-        console.log(event.target.value)
+				})
+				console.log(event.target.value)
 				this.unsubscribe = this.props.firebase
 					.productsWithCategory(event.target.value)
-					.onSnapshot(snapshot => {
+					.get().then(snapshot => {
 						let products = []
 						snapshot.forEach(doc =>
 							products.push({ ...doc.data(), pid: doc.id })
-            )
-            console.log(snapshot)
-
+						)
 						this.setState({
 							products,
 							loading: false
@@ -88,7 +86,7 @@ class ProductListBase extends Component {
 		this.setState({ loading: true })
 		this.unsubscribe = this.props.firebase
 			.productsWithCategory(this.state.withCategory)
-			.onSnapshot(snapshot => {
+			.get().then(snapshot => {
 				let products = []
 				snapshot.forEach(doc =>
 					products.push({ ...doc.data(), pid: doc.id })
@@ -120,7 +118,9 @@ class ProductListBase extends Component {
 							<Col>
 								<InputGroup>
 									<InputGroupAddon addonType='prepend'>
-										<InputGroupText>Category</InputGroupText>
+										<InputGroupText>
+											Category
+										</InputGroupText>
 									</InputGroupAddon>
 									<Input
 										type='select'
