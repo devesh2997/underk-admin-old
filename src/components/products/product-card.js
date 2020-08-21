@@ -384,7 +384,9 @@ class ProductCard extends React.Component {
 										key={idx}
 										color={
 											option.stock > 0
-												? 'success'
+												? option.stock === 1
+													? 'warning'
+													: 'success'
 												: 'danger'
 										}
 										style={{ margin: '0 3px' }}
