@@ -217,6 +217,8 @@ class OrderItem extends Component {
 
 	render () {
 		let { order, index, showUid } = this.props
+		const orderDevice = order.device
+		const deviceInfo = `${orderDevice.type} : ${orderDevice.os}`
 		if (utils.isEmpty(showUid)) {
 			showUid = true
 		}
@@ -294,12 +296,12 @@ class OrderItem extends Component {
 						</Col>
 						<Col sm='6'>
 							<Row>
-								<Col>
+								<Col sm='3'>
 									{timeStampToTimeLocaleString(order.time)}
 								</Col>
 								<Col>
 									<Row>
-										<Col>
+										<Col sm='3'>
 											{order.payment.mode ===
 											types.PAYMENT_STATUS_COD ? (
 												<i
@@ -322,16 +324,14 @@ class OrderItem extends Component {
 												></i>
 											)}
 										</Col>
-										<Col>
+										<Col sm='3'>
 											<StatusBadge
 												status={order.status}
 											/>
 										</Col>
 										{order.device && (
 											<Col>
-												<Label>
-													{order.device.type}
-												</Label>
+												<Label>{deviceInfo}</Label>
 											</Col>
 										)}
 										{order.status ===

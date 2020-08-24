@@ -2,7 +2,8 @@ import React from 'react'
 
 const Dashboard = React.lazy(() => import('./views/Dashboard'))
 const OrdersList = React.lazy(() => import('./components/orders'))
-const ReturnsList = React.lazy(() => import('./components/orders/returns'))
+const RTOOrdersList = React.lazy(() => import('./components/orders/rto'))
+const CustomerReturnsList = React.lazy(() => import('./components/orders/customer-returns'))
 const CustomOrders = React.lazy(() =>
 	import('./components/orders/custom-orders')
 )
@@ -166,7 +167,13 @@ const routes = {
 		path: '/returns',
 		exact: true,
 		name: 'Returns',
-		component: ReturnsList
+		component: CustomerReturnsList
+	},
+	RTO_RETURNS: {
+		path: '/rto-returns',
+		exact: true,
+		name: 'RTO Returns',
+		component: RTOOrdersList
 	},
 	CUSTOM_ORDERS: {
 		path: '/custom-orders',

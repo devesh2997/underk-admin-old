@@ -31,7 +31,7 @@ import {
 	Collapse
 } from 'reactstrap'
 
-class ReturnsList extends Component {
+class CustomerReturnsList extends Component {
 	constructor (props) {
 		super(props)
 		this.state = {
@@ -162,4 +162,4 @@ class ReturnsList extends Component {
 	}
 }
 
-export default withFirebase(ReturnsList)
+export default withFirebase(CustomerReturnsList)

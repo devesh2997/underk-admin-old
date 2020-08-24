@@ -163,6 +163,10 @@ class TransactionsList extends React.Component {
 											<Col>
 												{'pid : ' + transaction.pid}
 											</Col>
+											<Col>
+												{'reason : ' +
+													transaction.reason}
+											</Col>
 										</Row>
 									</ListGroupItem>
 								)

@@ -18,8 +18,13 @@ export default {
 					icon: 'fa fa-list-alt',
 				},
 				{
-					name: 'Returns List',
+					name: 'Customer Returns List',
 					url: ROUTES.RETURNS.path,
+					icon: 'fa fa-list-alt',
+				},
+				{
+					name: 'RTO Returns List',
+					url: ROUTES.RTO_RETURNS.path,
 					icon: 'fa fa-list-alt',
 				},
 				{
@@ -35,7 +40,7 @@ export default {
 			icon: 'fa fa-user-secret',
 			children: [
 				{
-					name: 'Invenotry Bulk Upload',
+					name: 'Inventory Bulk Upload',
 					url: ROUTES.INVENTORY_UPDATE_BULK.path,
 					icon: 'fa fa-list-alt',
 				},

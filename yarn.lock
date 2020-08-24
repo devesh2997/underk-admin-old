@@ -12171,7 +12171,7 @@ ua-parser-js@^0.7.18:
 
 "underk-types@github:devesh2997/underk-types#master":
   version "1.0.0"
-  resolved "https://codeload.github.com/devesh2997/underk-types/tar.gz/875bd1ec72d246ea12bc6daf1bf58a2c632fab79"
+  resolved "https://codeload.github.com/devesh2997/underk-types/tar.gz/6a0b6b58383c572e80feae9fe7427acb2812e9ad"
 
 unicode-canonical-property-names-ecmascript@^1.0.4:
   version "1.0.4"
