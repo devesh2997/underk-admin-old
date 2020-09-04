@@ -289,7 +289,7 @@ const routes = {
 		name: 'Supplier Details',
 		component: SupplierItem
 	},
-	PRODUCTS_HOME: {
+	PRODUCTS_MANAGE: {
 		path: '/products',
 		exact: true,
 		name: 'Products',

@@ -233,7 +233,7 @@ class RTOOrdersList extends Component {
 			<Card>
 				<CardHeader>
 					<Row className='align-items-center'>
-						<Col>Orders that containe RTO products</Col>
+						<Col>Orders that contain RTO products</Col>
 						<Col className='text-right'>
 							<Button
 								type='button'

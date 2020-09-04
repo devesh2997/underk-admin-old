@@ -123,8 +123,8 @@ export default {
 			icon: 'fa fa-cubes',
 			children: [
 				{
-					name: 'Home',
-					url: ROUTES.PRODUCTS_HOME.path,
+					name: 'Management',
+					url: ROUTES.PRODUCTS_MANAGE.path,
 					icon: 'fa fa-list-alt',
 				},
 				{

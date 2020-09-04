@@ -13,7 +13,8 @@ import {
 	Col,
 	InputGroup,
 	InputGroupAddon,
-	InputGroupText
+	InputGroupText,
+	Input
 } from 'reactstrap'
 import { CSVLink } from 'react-csv'
 import CSVReader from 'react-csv-reader'
@@ -25,13 +26,70 @@ class ProductsHome extends Component {
 			generatingVariants: false,
 			preparingProductPriceCSV: false,
 			preparingProductInfoCSV: false,
+			preparingProductDescriptionCSV: false,
+			category_id: 'all',
+			loadingCategories: false,
+			categories: [],
 			productPriceCSVData: [],
 			productInfoCSVData: [],
+			productDescriptionCSVData: [],
 			loading: false,
-			products: null,
+			products: [],
 			errors: [],
 			validProducts: []
 		}
+	}
+
+	componentDidMount () {
+		this.setState({ loadingCategories: true })
+
+		this.props.firebase
+			.categories()
+			.get()
+			.then(snapshot => {
+				let categories = []
+				snapshot.forEach(doc =>
+					categories.push({ ...doc.data(), cid: doc.id })
+				)
+				this.setState({ categories, loadingCategories: false })
+			})
+	}
+
+	getProductWithCategory = async () => {
+		this.setState({ loading: true })
+		const { category_id } = this.state
+
+		let snapshots = await this.props.firebase
+			.productsWithCategory(category_id)
+			.get()
+		snapshots = snapshots.docs
+		let products = []
+		snapshots.forEach(snapshot =>
+			products.push({ ...snapshot.data(), pid: snapshot.id })
+		)
+
+		this.setState({ loading: false })
+
+		return products
+	}
+
+	updateProductsDescription = async () => {
+		this.setState({ loading: true })
+		const { validDescriptionProducts } = this.state
+
+		for (let i = 0; i < validDescriptionProducts.length; i++) {
+			const validDescriptionProduct = validDescriptionProducts[i]
+			await this.props.firebase.product(validDescriptionProduct.pid).set(
+				{
+					slug: validDescriptionProduct.slug,
+					title: validDescriptionProduct.title,
+					description: validDescriptionProduct.description
+				},
+				{ merge: true }
+			)
+		}
+
+		this.setState({ loading: false })
 	}
 
 	updateProductsPrice = async () => {
@@ -55,18 +113,77 @@ class ProductsHome extends Component {
 		this.setState({ loading: false })
 	}
 
+	handleDescriptionFileSelection = async csvdata => {
+		let totalDescriptionCSVRows = 0
+		let validDescriptionProducts = []
+		let descriptionErrors = []
+
+		let products = await this.getProductWithCategory(this.state.category_id)
+
+		const titles = csvdata[0]
+
+		const descriptionHeadings = []
+
+		for (let i = 3; i < titles.length; i++) {
+			if (!isEmpty(titles[i])) descriptionHeadings.push(titles[i])
+		}
+
+		for (let i in csvdata) {
+			let row = csvdata[i]
+			if (row[0] === 'pid') continue
+			if (isEmpty(row[0]) || isEmpty(row[1]) || isEmpty(row[2])) continue
+
+			totalDescriptionCSVRows++
+
+			try {
+				let pid = row[0]
+				const product = products.find(p => p.pid === pid)
+				if (typeof product === 'undefined') {
+					throw 'Product with pid ' + pid + ' not found'
+				}
+
+				const slug = row[1]
+				const title = row[2]
+
+				let description = []
+
+				for (let i = 0; i < descriptionHeadings.length; i++) {
+					const column = 3 + i
+					let desc = {}
+
+					const value = row[column]
+
+					const values = value.split(',')
+					desc[descriptionHeadings[i]] = values
+
+					description.push(desc)
+				}
+
+				validDescriptionProducts.push({ pid, slug, title, description })
+			} catch (error) {
+				let errorrow = Number(i) + 1
+				descriptionErrors.push(
+					'Row : ' + errorrow + ', Error : ' + error
+				)
+				console.log('Row : ', errorrow, ', Error : ', error)
+			}
+		}
+
+		console.log(validDescriptionProducts)
+
+		this.setState({
+			totalDescriptionCSVRows,
+			validDescriptionProducts,
+			descriptionErrors
+		})
+	}
+
 	handleFileSelection = async csvdata => {
 		let totalCSVRows = 0
 		let validProducts = []
 		let errors = []
 
-		let snapshots = await this.props.firebase.products().get()
-		snapshots = snapshots.docs
-
-		let products = []
-		snapshots.forEach(snapshot =>
-			products.push({ ...snapshot.data(), pid: snapshot.id })
-		)
+		let products = await this.getProductWithCategory(this.state.category_id)
 
 		for (let i in csvdata) {
 			let row = csvdata[i]
@@ -110,15 +227,33 @@ class ProductsHome extends Component {
 		this.setState({ totalCSVRows, validProducts, errors })
 	}
 
+	prepareProductDescriptionCSV = async () => {
+		this.setState({ preparingProductDescriptionCSV: true })
+
+		let products = await this.getProductWithCategory(this.state.category_id)
+
+		let csvData = products.map(product => {
+			const pid = product.pid
+			const title = product.title
+			const slug = product.slug
+			let desc = product.description
+			let obj = { pid, slug, title }
+			for (let i = 0; i < desc.length; i++) {
+				const d = desc[i]
+				const key = Object.keys(d)[0]
+				obj[key] = d[key]
+			}
+			return obj
+		})
+		this.setState({
+			preparingProductDescriptionCSV: false,
+			productDescriptionCSVData: csvData
+		})
+	}
+
 	prepareProductPriceCSV = async () => {
 		this.setState({ preparingProductPriceCSV: true })
-
-		let snapshots = await this.props.firebase.products().get()
-		snapshots = snapshots.docs
-		let products = []
-		snapshots.forEach(snapshot =>
-			products.push({ ...snapshot.data(), pid: snapshot.id })
-		)
+		let products = await this.getProductWithCategory(this.state.category_id)
 		let csvData = products.map(product => {
 			const pid = product.pid
 			const title = product.title
@@ -143,13 +278,7 @@ class ProductsHome extends Component {
 
 	prepareProductInfoCSV = async () => {
 		this.setState({ preparingProductInfoCSV: true })
-
-		let snapshots = await this.props.firebase.products().get()
-		snapshots = snapshots.docs
-		let products = []
-		snapshots.forEach(snapshot =>
-			products.push({ ...snapshot.data(), pid: snapshot.id })
-		)
+		let products = await this.getProductWithCategory(this.state.category_id)
 		let csvData = products.map(product => {
 			const pid = product.pid
 			const title = product.title
@@ -243,179 +372,338 @@ class ProductsHome extends Component {
 		this.setState({ generatingVariants: false })
 	}
 
+	onChange = event => {
+		this.setState({ [event.target.name]: event.target.value })
+	}
+
 	render () {
 		const {
 			generatingVariants,
 			preparingProductPriceCSV,
 			preparingProductInfoCSV,
+			preparingProductDescriptionCSV,
 			productPriceCSVData,
 			productInfoCSVData,
+			productDescriptionCSVData,
 			loading,
+			loadingCategories,
 			errors,
 			totalCSVRows,
-			validProducts
+			totalDescriptionCSVRows,
+			validDescriptionProducts,
+			descriptionErrors,
+			validProducts,
+			categories,
+			category_id
 		} = this.state
 
 		let errorTexts = []
 		for (let i = 0; i < errors.length; i++) {
 			errorTexts.push(<div key={i}>{errors[i]}</div>)
 		}
+
+		let descriptionErrorTexts = []
+		if (descriptionErrors)
+			for (let i = 0; i < descriptionErrors.length; i++) {
+				errorTexts.push(<div key={i}>{descriptionErrors[i]}</div>)
+			}
 		return (
 			<div>
-				{loading && (
+				{(loading || loadingCategories) && (
 					<Spinner
 						color='primary'
 						style={{ width: '1rem', height: '1rem' }}
 						type='grow'
 					/>
 				)}
-				{!loading && (
-					<div>
-						<Card>
-							<CardHeader>Products</CardHeader>
-							<CardBody>
-								{generatingVariants && (
-									<Spinner
-										color='primary'
-										style={{
-											width: '1rem',
-											height: '1rem'
-										}}
-										type='grow'
-									/>
-								)}
-								{!generatingVariants && (
-									<Button
-										color='primary'
-										onClick={this.generateVariants}
-									>
-										Generate Variants
-									</Button>
-								)}
-							</CardBody>
-						</Card>
-						<Card>
-							<CardHeader>Products Info CSV</CardHeader>
-							<CardBody>
-								<Row>
-									<Col>
-										{preparingProductInfoCSV && (
-											<Spinner
-												color='primary'
-												style={{
-													width: '1rem',
-													height: '1rem'
-												}}
-												type='grow'
-											/>
-										)}
-										{!preparingProductInfoCSV && (
-											<Button
-												color='primary'
-												onClick={
-													this.prepareProductInfoCSV
-												}
-											>
-												Generate Product Info CSV
-											</Button>
-										)}
-									</Col>
-									<Col>
-										{productInfoCSVData.length > 0 ? (
-											<CSVLink
-												data={productInfoCSVData}
-												filename='product_info.csv'
-												style={{
-													marginLeft: 5
-												}}
-											>
-												<i className='fa fa-download' />
-											</CSVLink>
-										) : null}
-									</Col>
-								</Row>
-							</CardBody>
-						</Card>
-						<Card>
-							<CardHeader>Product Pricing</CardHeader>
-							<CardBody>
-								<Row>
-									<Col>
-										{preparingProductPriceCSV && (
-											<Spinner
-												color='primary'
-												style={{
-													width: '1rem',
-													height: '1rem'
-												}}
-												type='grow'
-											/>
-										)}
-										{!preparingProductPriceCSV && (
-											<Button
-												color='primary'
-												onClick={
-													this.prepareProductPriceCSV
-												}
-											>
-												Generate Product Price CSV
-											</Button>
-										)}
-									</Col>
-									<Col>
-										{productPriceCSVData.length > 0 ? (
-											<CSVLink
-												data={productPriceCSVData}
-												filename='product_price_info.csv'
-												style={{
-													marginLeft: 5
-												}}
-											>
-												<i className='fa fa-download' />
-											</CSVLink>
-										) : null}
-									</Col>
-								</Row>
-								<Row style={{ marginTop: '20px' }}>
+				{!(loading || loadingCategories) && (
+					<Card>
+						<CardHeader>Manage Catalogue</CardHeader>
+						<CardBody>
+							<Row>
+								<Col>
 									<InputGroup>
 										<InputGroupAddon addonType='prepend'>
 											<InputGroupText>
-												Choose CSV file
+												Category
 											</InputGroupText>
 										</InputGroupAddon>
-										<CSVReader
-											cssClass='csv-reader-input'
-											label=''
-											onFileLoaded={
-												this.handleFileSelection
-											}
-											onError={
-												this.handleFileSelectionError
-											}
-											inputId='ObiWan'
-											inputStyle={{}}
-										/>
+										<Input
+											type='select'
+											name='category_id'
+											value={category_id}
+											onChange={this.onChange}
+										>
+											<option value='all'>all</option>
+											{categories.map(category => (
+												<option
+													key={category.cid}
+													value={category.cid}
+												>
+													{category.name}
+												</option>
+											))}
+										</Input>
 									</InputGroup>
-									{totalCSVRows > 0 ? (
-										<div>{errorTexts}</div>
-									) : (
-										<div></div>
-									)}
-									{errors.length === 0 &&
-										validProducts.length > 0 && (
+								</Col>
+							</Row>
+							<div style={{ marginTop: '20px' }}>
+								<Card>
+									<CardHeader>Products</CardHeader>
+									<CardBody>
+										{generatingVariants && (
+											<Spinner
+												color='primary'
+												style={{
+													width: '1rem',
+													height: '1rem'
+												}}
+												type='grow'
+											/>
+										)}
+										{!generatingVariants && (
 											<Button
 												color='primary'
-												onClick={
-													this.updateProductsPrice
-												}
+												onClick={this.generateVariants}
 											>
-												Update Products price
+												Generate Variants
 											</Button>
 										)}
-								</Row>
-							</CardBody>
-						</Card>
-					</div>
+									</CardBody>
+								</Card>
+								<Card>
+									<CardHeader>Products Info CSV</CardHeader>
+									<CardBody>
+										<Row>
+											<Col>
+												{preparingProductInfoCSV && (
+													<Spinner
+														color='primary'
+														style={{
+															width: '1rem',
+															height: '1rem'
+														}}
+														type='grow'
+													/>
+												)}
+												{!preparingProductInfoCSV && (
+													<Button
+														color='primary'
+														onClick={
+															this
+																.prepareProductInfoCSV
+														}
+													>
+														Generate Product Info
+														CSV
+													</Button>
+												)}
+											</Col>
+											<Col>
+												{productInfoCSVData.length >
+												0 ? (
+													<CSVLink
+														data={
+															productInfoCSVData
+														}
+														filename='product_info.csv'
+														style={{
+															marginLeft: 5
+														}}
+													>
+														<i className='fa fa-download' />
+													</CSVLink>
+												) : null}
+											</Col>
+										</Row>
+									</CardBody>
+								</Card>
+								<Card>
+									<CardHeader>
+										Products Description CSV
+									</CardHeader>
+									<CardBody>
+										<Row>
+											<Col>
+												{preparingProductDescriptionCSV && (
+													<Spinner
+														color='primary'
+														style={{
+															width: '1rem',
+															height: '1rem'
+														}}
+														type='grow'
+													/>
+												)}
+												{!preparingProductDescriptionCSV && (
+													<Button
+														color='primary'
+														onClick={
+															this
+																.prepareProductDescriptionCSV
+														}
+													>
+														Generate Product
+														Description CSV
+													</Button>
+												)}
+											</Col>
+											<Col>
+												{productDescriptionCSVData.length >
+												0 ? (
+													<CSVLink
+														data={
+															productDescriptionCSVData
+														}
+														filename='product_description.csv'
+														style={{
+															marginLeft: 5
+														}}
+													>
+														<i className='fa fa-download' />
+													</CSVLink>
+												) : null}
+											</Col>
+										</Row>
+										<Row style={{ marginTop: '20px' }}>
+											<InputGroup>
+												<InputGroupAddon addonType='prepend'>
+													<InputGroupText>
+														Choose CSV file
+													</InputGroupText>
+												</InputGroupAddon>
+												<CSVReader
+													cssClass='csv-reader-input'
+													label=''
+													onFileLoaded={
+														this
+															.handleDescriptionFileSelection
+													}
+													onError={
+														this
+															.handleFileSelectionError
+													}
+													inputId='ObiWan'
+													inputStyle={{}}
+												/>
+											</InputGroup>
+											{totalDescriptionCSVRows &&
+											totalDescriptionCSVRows > 0 ? (
+												<div>
+													{descriptionErrorTexts}
+												</div>
+											) : (
+												<div></div>
+											)}
+											{!descriptionErrors ||
+												(descriptionErrors.length ===
+													0 &&
+													validDescriptionProducts.length >
+														0 && (
+														<Button
+															color='primary'
+															onClick={
+																this
+																	.updateProductsDescription
+															}
+														>
+															Update Product
+															Title, Slug and
+															Description
+														</Button>
+													))}
+										</Row>
+									</CardBody>
+								</Card>
+								<Card>
+									<CardHeader>Product Pricing</CardHeader>
+									<CardBody>
+										<Row>
+											<Col>
+												{preparingProductPriceCSV && (
+													<Spinner
+														color='primary'
+														style={{
+															width: '1rem',
+															height: '1rem'
+														}}
+														type='grow'
+													/>
+												)}
+												{!preparingProductPriceCSV && (
+													<Button
+														color='primary'
+														onClick={
+															this
+																.prepareProductPriceCSV
+														}
+													>
+														Generate Product Price
+														CSV
+													</Button>
+												)}
+											</Col>
+											<Col>
+												{productPriceCSVData.length >
+												0 ? (
+													<CSVLink
+														data={
+															productPriceCSVData
+														}
+														filename='product_price_info.csv'
+														style={{
+															marginLeft: 5
+														}}
+													>
+														<i className='fa fa-download' />
+													</CSVLink>
+												) : null}
+											</Col>
+										</Row>
+										<Row style={{ marginTop: '20px' }}>
+											<InputGroup>
+												<InputGroupAddon addonType='prepend'>
+													<InputGroupText>
+														Choose CSV file
+													</InputGroupText>
+												</InputGroupAddon>
+												<CSVReader
+													cssClass='csv-reader-input'
+													label=''
+													onFileLoaded={
+														this.handleFileSelection
+													}
+													onError={
+														this
+															.handleFileSelectionError
+													}
+													inputId='ObiWan'
+													inputStyle={{}}
+												/>
+											</InputGroup>
+											{totalCSVRows > 0 ? (
+												<div>{errorTexts}</div>
+											) : (
+												<div></div>
+											)}
+											{errors.length === 0 &&
+												validProducts.length > 0 && (
+													<Button
+														color='primary'
+														onClick={
+															this
+																.updateProductsPrice
+														}
+													>
+														Update Products price
+													</Button>
+												)}
+										</Row>
+									</CardBody>
+								</Card>
+							</div>
+						</CardBody>
+					</Card>
 				)}
 			</div>
 		)
