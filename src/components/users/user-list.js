@@ -24,6 +24,7 @@ import { Link } from 'react-router-dom'
 import ROUTES from '../../routes'
 import { addDays, timeStampToLocaleString, getAge } from '../../utils'
 import './style.css'
+import { sendProductsInCartSMS } from './utils'
 
 class UserListBase extends Component {
 	constructor (props) {
@@ -147,6 +148,32 @@ class UserListBase extends Component {
 
 	toggleSendingEmail = () => {
 		this.setState({ sendingEmail: !this.state.sendingEmail })
+	}
+
+	sendProductInCartSMSToMultipleUsers = async () => {
+		const { selectedUsers } = this.state
+
+		const usersMobile = []
+
+		for (let i = 0; i < selectedUsers.length; i++) {
+			const uid = selectedUsers[i]
+			const user = this.state.users.find(user => user.uid === uid)
+			if (user) {
+				usersMobile.push(user.mobile)
+			}
+		}
+
+		const flag = window.confirm(
+			'Send sms to ' + selectedUsers.length + ' user/s ?'
+		)
+
+		if (flag) {
+			this.setState({ loading: true })
+			for (let i = 0; i < usersMobile.length; i++) {
+				await sendProductsInCartSMS(usersMobile[i], this.props.firebase)
+			}
+			this.setState({ loading: false })
+		}
 	}
 
 	sendEmail = () => {

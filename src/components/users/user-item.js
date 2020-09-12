@@ -7,6 +7,8 @@ import {
 	Table,
 	ListGroup,
 	ListGroupItem,
+	Row,
+	Col
 } from 'reactstrap'
 import { withFirebase } from '../../firebase'
 import {
@@ -17,6 +19,7 @@ import {
 import './style.css'
 
 import OrdersOnDate from '../orders/orders-by-date'
+import { sendProductsInCartSMS } from './utils'
 
 class UserItemBase extends Component {
 	constructor (props) {
@@ -101,6 +104,18 @@ class UserItemBase extends Component {
 		this.getCart && this.getCart()
 	}
 
+	sendProductInCartSms = async () => {
+		const flag = window.confirm('Send sms to ' + this.state.user.mobile)
+
+		if (flag) {
+			let res = await sendProductsInCartSMS(
+				this.state.user.mobile,
+				this.props.firebase
+			)
+			console.log(res)
+		}
+	}
+
 	render () {
 		const {
 			user,
@@ -114,7 +129,21 @@ class UserItemBase extends Component {
 		return (
 			<Card>
 				<CardHeader>
-					<h4>User ({this.props.match.params.id})</h4>
+					<Row>
+						<Col>
+							<h4>User ({this.props.match.params.id})</h4>
+						</Col>
+						{!loading && (
+							<Col>
+								<Button
+									color='primary'
+									onClick={this.sendProductInCartSms}
+								>
+									Send Products in cart SMS
+								</Button>
+							</Col>
+						)}
+					</Row>
 				</CardHeader>
 				<CardBody>
 					{loading && (

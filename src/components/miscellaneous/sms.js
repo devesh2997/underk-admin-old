@@ -251,7 +251,8 @@ class SmsOnDate extends Component {
 										</Row>
 										<Row>
 											<Col>{s.message}</Col>
-										</Row>{' '}
+										</Row>
+										{s.error && <Row>Error : {JSON.stringify(s.error)}</Row>}
 									</ListGroupItem>
 								)
 							})}
