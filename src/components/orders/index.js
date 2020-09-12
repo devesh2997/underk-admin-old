@@ -49,7 +49,7 @@ class OrdersList extends Component {
 			withPaymentMode: 'all',
 			generatingCsvData: false,
 			csvData: [],
-			activeTab: 'shipments'
+			activeTab: 'orders'
 		}
 	}
 
