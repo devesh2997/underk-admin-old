@@ -288,20 +288,30 @@ class OrdersList extends Component {
 					)}
 					{!loading && (
 						<div>
-							<Row style={{ margin: '20px' }}>
+							<Row style={{ margin: '20px', fontSize: '1.2em' }}>
 								<Col
+									className='text-center'
 									style={{ cursor: 'pointer' }}
 									onClick={() => this.setActiveTab('orders')}
 								>
-									Orders
+									{activeTab === 'orders' ? (
+										<strong>Orders</strong>
+									) : (
+										'Orders'
+									)}
 								</Col>
 								<Col
+									className='text-center'
 									style={{ cursor: 'pointer' }}
 									onClick={() =>
 										this.setActiveTab('shipments')
 									}
 								>
-									Shipments
+									{activeTab === 'shipments' ? (
+										<strong>Shipments</strong>
+									) : (
+										'Shipments'
+									)}
 								</Col>
 							</Row>
 							<Row>

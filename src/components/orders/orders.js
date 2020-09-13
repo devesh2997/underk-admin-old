@@ -10,6 +10,7 @@ import {
 	TabPane,
 	NavItem,
 	NavLink,
+	Badge,
 	TabContent
 } from 'reactstrap'
 
@@ -80,7 +81,10 @@ const Orders = props => {
 							setActiveTab('ALL')
 						}}
 					>
-						All
+						All{' '}
+						<Badge color='primary'>
+							{getOrdersCountFromDateParsedOrders(orders)}
+						</Badge>
 					</NavLink>
 				</NavItem>
 				<NavItem>
@@ -92,7 +96,10 @@ const Orders = props => {
 							setActiveTab(types.ORDER_STATUS_PLACED)
 						}}
 					>
-						Placed
+						Placed{' '}
+						<Badge color='primary'>
+							{getOrdersCountFromDateParsedOrders(placedOrders)}
+						</Badge>
 					</NavLink>
 				</NavItem>
 				<NavItem>
@@ -104,7 +111,10 @@ const Orders = props => {
 							setActiveTab(types.ORDER_STATUS_ACTIVE)
 						}}
 					>
-						Active
+						Active{' '}
+						<Badge color='primary'>
+							{getOrdersCountFromDateParsedOrders(activeOrders)}
+						</Badge>
 					</NavLink>
 				</NavItem>
 				<NavItem>
@@ -116,7 +126,10 @@ const Orders = props => {
 							setActiveTab(types.ORDER_STATUS_DORMANT)
 						}}
 					>
-						Dormant
+						Dormant{' '}
+						<Badge color='primary'>
+							{getOrdersCountFromDateParsedOrders(dormantOrders)}
+						</Badge>
 					</NavLink>
 				</NavItem>
 				<NavItem>
@@ -128,7 +141,10 @@ const Orders = props => {
 							setActiveTab(types.ORDER_STATUS_CLOSED)
 						}}
 					>
-						Closed
+						Closed{' '}
+						<Badge color='primary'>
+							{getOrdersCountFromDateParsedOrders(dormantOrders)}
+						</Badge>
 					</NavLink>
 				</NavItem>
 				<NavItem>
@@ -140,7 +156,10 @@ const Orders = props => {
 							setActiveTab(types.ORDER_STATUS_CREATED)
 						}}
 					>
-						Created
+						Created{' '}
+						<Badge color='primary'>
+							{getOrdersCountFromDateParsedOrders(createdOrders)}
+						</Badge>
 					</NavLink>
 				</NavItem>
 			</Nav>
@@ -232,6 +251,16 @@ const Orders = props => {
 			</TabContent>
 		</div>
 	)
+}
+
+const getOrdersCountFromDateParsedOrders = orders => {
+	let count = 0
+
+	for (let i = 0; i < orders.length; i++) {
+		count += orders[i].orders.length
+	}
+
+	return count
 }
 
 export default Orders

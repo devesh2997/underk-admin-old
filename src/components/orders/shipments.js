@@ -4,18 +4,20 @@ import {
 	isEmpty,
 	beautifyAddress
 } from '../../utils/index'
-import OrdersOnDate from './orders-by-date'
 import types from 'underk-types'
 import classnames from 'classnames'
+import ROUTES from '../../routes'
+import { Link } from 'react-router-dom'
+
 
 import {
 	ListGroup,
-	Nav,
+    Nav,
 	TabPane,
 	NavItem,
 	NavLink,
 	TabContent,
-	ListGroupItem,
+	Badge,
 	Row,
 	Col,
 	CardHeader,
@@ -95,7 +97,10 @@ const Shipments = props => {
 								setActiveTab(shipmentStatus)
 							}}
 						>
-							{capitalizeFirstLetter(shipmentStatus)}
+							{capitalizeFirstLetter(shipmentStatus)}{' '}
+							<Badge color='primary'>
+								{getShipmentsCount(shipments[shipmentStatus])}
+							</Badge>
 						</NavLink>
 					</NavItem>
 				))}
@@ -148,10 +153,27 @@ const OrderWithShipments = ({ order }) => {
 					<Card key={trackingId}>
 						<CardHeader>
 							<Row>
-								<Col sm='2'>{trackingId}</Col>
+								<Col sm='2'>
+									<a
+										href={
+											'https://www.underk.in/track/' +
+											trackingId
+										}
+										target='_blank'
+									>
+										{trackingId}
+									</a>
+								</Col>
 								<Col sm='2'>{order.oid}</Col>
 								<Col>
-									<b>uid:</b> {order.uid}
+									<b>uid:</b>{' '}
+									<Link
+										to={{
+											pathname: `${ROUTES.USER_LIST.path}/${order.uid}`
+										}}
+									>
+										{order.uid}
+									</Link>
 								</Col>
 								<Col>
 									<b>placedOn:</b>{' '}
@@ -236,6 +258,17 @@ const OrderWithShipments = ({ order }) => {
 			})}
 		</ListGroup>
 	)
+}
+
+const getShipmentsCount = shipments => {
+	let count = 0
+	const orders = Object.keys(shipments)
+
+	for (let i = 0; i < orders.length; i++) {
+		count += Object.keys(shipments[orders[i]].shipments).length
+	}
+
+	return count
 }
 
 export default Shipments
