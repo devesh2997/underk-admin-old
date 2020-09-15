@@ -9,18 +9,16 @@ import { to } from '../../services/util.service'
 import ROUTES from '../../routes'
 import { Link } from 'react-router-dom'
 
+import ShiprocketManifest from './shiprocket-manifest'
+
 import {
-	Card,
-	CardHeader,
-	CardBody,
-	CardFooter,
-	Container,
+	Modal,
+	ModalBody,
+	ModalHeader,
 	Label,
 	Button,
 	InputGroup,
 	Input,
-	InputGroupAddon,
-	InputGroupText,
 	Col,
 	Row,
 	ListGroup,
@@ -51,7 +49,8 @@ class OrderItem extends Component {
 			loading: false,
 			errors: [],
 			inventory: {},
-			selectingInventory: false
+			selectingInventory: false,
+			shiprocketManifestOpen: false
 		}
 	}
 
@@ -93,6 +92,12 @@ class OrderItem extends Component {
 		this.setState({ loading: false, selectingInventory: true, inventory })
 	}
 
+	toggleShiprocketManifest = () => {
+		this.setState({
+			shiprocketManifestOpen: !this.state.shiprocketManifestOpen
+		})
+	}
+
 	onManifest = async () => {
 		let selectedSKUs = this.state.selectedSKUs
 		let selectedInventory = this.state.selectedInventory
@@ -110,7 +115,7 @@ class OrderItem extends Component {
 			}
 			skus.push(f)
 		})
-		console.log('prepared skkus', skus)
+		console.log('prepared skus', skus)
 		let err, _r
 		;[err, _r] = await to(initDelivery(order.oid, skus, selectedWarehouse))
 		if (typeof err !== 'undefined' || err !== null) {
@@ -233,7 +238,8 @@ class OrderItem extends Component {
 			errors,
 			inventory,
 			selectingInventory,
-			selectedWarehouse
+			selectedWarehouse,
+			shiprocketManifestOpen
 		} = this.state
 
 		let canSelectInventory = selectedSKUs.length > 0
@@ -262,7 +268,6 @@ class OrderItem extends Component {
 			)
 				canSelectInventory = false
 		}
-
 		return (
 			<ListGroupItem
 				style={{
@@ -272,6 +277,25 @@ class OrderItem extends Component {
 				}}
 			>
 				<div onClick={this.toggle} style={{ cursor: 'pointer' }}>
+					<Modal
+						size='lg'
+						isOpen={shiprocketManifestOpen}
+						toggle={this.toggleShiprocketManifest}
+					>
+						<ModalHeader>Select Courier</ModalHeader>
+						<ModalBody>
+							<ShiprocketManifest
+								isCOD={
+									order.payment.mode ===
+									types.PAYMENT_STATUS_COD
+										? 1
+										: 0
+								}
+								delivery_postcode={address.pincode}
+								pickup_postcode={384151}
+							/>
+						</ModalBody>
+					</Modal>
 					<Row
 						style={{
 							fontWeight: 'bold',
@@ -472,10 +496,23 @@ class OrderItem extends Component {
 									<Col>
 										{canManifest && (
 											<Button
-												color='primary'
+												color='warning'
 												onClick={this.onManifest}
 											>
-												Manifest
+												Manifest in Delhivery
+											</Button>
+										)}
+									</Col>
+									<Col>
+										{canManifest && (
+											<Button
+												color='primary'
+												onClick={
+													this
+														.toggleShiprocketManifest
+												}
+											>
+												Manifest in Shiprocket
 											</Button>
 										)}
 									</Col>

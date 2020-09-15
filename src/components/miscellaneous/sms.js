@@ -76,7 +76,7 @@ class SmsList extends Component {
 		let { withEndDate } = this.state
 
 		this.unsubscribe = this.props.firebase
-			.SmsWithStartAndEndDate(date, withEndDate)
+			.smsWithStartAndEndDate(date, withEndDate)
 			.onSnapshot(snapshot => {
 				let sms = []
 				snapshot.forEach(doc => sms.push({ ...doc.data(), id: doc.id }))
@@ -98,7 +98,7 @@ class SmsList extends Component {
 		let { withStartDate } = this.state
 
 		this.unsubscribe = this.props.firebase
-			.SmsWithStartAndEndDate(withStartDate, date)
+			.smsWithStartAndEndDate(withStartDate, date)
 			.onSnapshot(snapshot => {
 				let sms = []
 				snapshot.forEach(doc => sms.push({ ...doc.data(), id: doc.id }))
