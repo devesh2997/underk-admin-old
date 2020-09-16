@@ -9,10 +9,9 @@ import classnames from 'classnames'
 import ROUTES from '../../routes'
 import { Link } from 'react-router-dom'
 
-
 import {
 	ListGroup,
-    Nav,
+	Nav,
 	TabPane,
 	NavItem,
 	NavLink,
@@ -141,7 +140,8 @@ const OrderWithShipments = ({ order }) => {
 				const time = delivery.time
 				let latestUpdate = null
 				let latestUpdateTime = 0
-				let updates = Object.keys(time)
+				let updates = []
+				if (time) updates = Object.keys(time)
 				for (let i = 0; i < updates.length; i++) {
 					if (updates[i] === 'lastUpdatedOn') continue
 					if (time[updates[i]] > latestUpdateTime) {
