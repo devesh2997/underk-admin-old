@@ -140,8 +140,9 @@ const OrderWithShipments = ({ order }) => {
 				const products = shipment.products
 				const time = delivery.time
 				let latestUpdate = null
-				let latestUpdateTime = 0
-				let updates = Object.keys(time)
+				let latestUpdateTime = 0				
+				let updates = []
+				if (time) updates = Object.keys(time)
 				for (let i = 0; i < updates.length; i++) {
 					if (updates[i] === 'lastUpdatedOn') continue
 					if (time[updates[i]] > latestUpdateTime) {
