@@ -147,6 +147,15 @@ class Firebase {
 		return action.id
 	}
 
+	// ** Index Products API ***
+	createIndexProductsAction = async () => {
+		const action = await this.db
+			.collection('actions')
+			.add({ type: 'ACTION_INDEX_PRODUCTS' })
+
+		return action.id
+	}
+
 	// *** Addresses API */
 	addresses = () => this.db.collection('addresses')
 	address = id => this.db.collection('addresses').doc(id)

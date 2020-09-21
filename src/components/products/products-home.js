@@ -36,7 +36,8 @@ class ProductsHome extends Component {
 			loading: false,
 			products: [],
 			errors: [],
-			validProducts: []
+			validProducts: [],
+			indexingProducts: false
 		}
 	}
 
@@ -376,6 +377,17 @@ class ProductsHome extends Component {
 		this.setState({ [event.target.name]: event.target.value })
 	}
 
+	indexProducts = async () => {
+		this.setState({ indexingProducts: true })
+		let indexingProductsActionId = await this.props.firebase.createIndexProductsAction()
+		this.props.firebase
+			.action(indexingProductsActionId)
+			.onSnapshot(snapshot =>
+				this.setState({ indexingProductsAction: snapshot.data() })
+			)
+		this.setState({ indexingProducts: true })
+	}
+
 	render () {
 		const {
 			generatingVariants,
@@ -394,7 +406,8 @@ class ProductsHome extends Component {
 			descriptionErrors,
 			validProducts,
 			categories,
-			category_id
+			category_id,
+			indexingProductsAction
 		} = this.state
 
 		let errorTexts = []
@@ -451,24 +464,46 @@ class ProductsHome extends Component {
 								<Card>
 									<CardHeader>Products</CardHeader>
 									<CardBody>
-										{generatingVariants && (
-											<Spinner
-												color='primary'
-												style={{
-													width: '1rem',
-													height: '1rem'
-												}}
-												type='grow'
-											/>
-										)}
-										{!generatingVariants && (
-											<Button
-												color='primary'
-												onClick={this.generateVariants}
-											>
-												Generate Variants
-											</Button>
-										)}
+										<Row>
+											<Col>
+												{generatingVariants && (
+													<Spinner
+														color='primary'
+														style={{
+															width: '1rem',
+															height: '1rem'
+														}}
+														type='grow'
+													/>
+												)}
+												{!generatingVariants && (
+													<Button
+														color='primary'
+														onClick={
+															this
+																.generateVariants
+														}
+													>
+														Generate Variants
+													</Button>
+												)}
+											</Col>
+											<Col>
+												{!indexingProductsAction && (
+													<Button
+														color='primary'
+														onClick={
+															this.indexProducts
+														}
+													>
+														Index Products
+													</Button>
+												)}
+												{indexingProductsAction &&
+													indexingProductsAction.status &&
+													indexingProductsAction.status}
+											</Col>
+										</Row>
 									</CardBody>
 								</Card>
 								<Card>

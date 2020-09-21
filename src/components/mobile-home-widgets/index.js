@@ -33,7 +33,7 @@ import {
 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { Link } from 'react-router-dom'
-import ROUTES from '../../routes';
+import ROUTES from '../../routes'
 
 export const WIDGET_TYPES = {
 	IMAGE: 'image',
@@ -107,7 +107,7 @@ class MobileHomeWidgetsManager extends Component {
 		const { source, destination } = result
 		if (destination === null || source.index === destination.index) return
 		let landingWidgets = Array.from(this.state.landingWidgetsLocal)
-		let [ widget ] = landingWidgets.splice(source.index, 1)
+		let [widget] = landingWidgets.splice(source.index, 1)
 		landingWidgets.splice(destination.index, 0, widget)
 		this.setState({ landingWidgetsLocal: landingWidgets })
 	}
@@ -252,14 +252,29 @@ class List extends React.Component {
 }
 
 class LandingWidget extends React.Component {
+	onDelete = () => {
+		const { doc, firebase } = this.props
+		if (window.confirm('Are you sure you want to delete this widget ?')) {
+			this.props.firebase.landingWidget(doc.id).delete()
+		}
+	}
 	render () {
 		const { provided, innerRef, doc, index } = this.props
 		return (
 			<div {...provided.draggableProps} ref={innerRef}>
 				<Card>
 					<CardHeader {...provided.dragHandleProps}>
-						<i className='fa fa-bars'></i>
-						{doc.priority + ') ' + doc.type}
+						<Row>
+							<Col>
+								<i className='fa fa-bars mr-2'></i>
+								{doc.priority + ') ' + doc.type}
+							</Col>
+							<Col className='text-right'>
+								<Button color='danger' className='text-right' onClick={this.onDelete}>
+									Delete
+								</Button>
+							</Col>
+						</Row>
 					</CardHeader>
 					<CardBody>
 						<LandingWidgetView
@@ -321,6 +336,17 @@ class LandingWidgetView extends Component {
 	onChange = event => {
 		let widget = this.state.widget
 		widget.childAspectRatio = event.target.value
+
+		this.setState({ widget })
+	}
+
+	onChangeBackgroundColor = async event => {
+		let widget = this.state.widget
+		if (event.target.value) {
+			widget.backgroundColor = event.target.value
+		} else {
+			widget.backgroundColor = '#ffffff'
+		}
 
 		this.setState({ widget })
 	}
@@ -502,6 +528,36 @@ class LandingWidgetView extends Component {
 									</InputGroup>
 								</Form>
 							</Col>
+							<Col sm='4'>
+								<Form onSubmit={this.onSubmit}>
+									<InputGroup>
+										<InputGroupAddon addonType='prepend'>
+											<InputGroupText>
+												Background Color
+											</InputGroupText>
+										</InputGroupAddon>
+										<Input
+											placeholder=''
+											value={widget.backgroundColor}
+											name='backgroundColor'
+											onChange={
+												this.onChangeBackgroundColor
+											}
+										/>
+										<InputGroupAddon addonType='append'>
+											<Button
+												color='primary'
+												onClick={this.onSubmit}
+											>
+												<i
+													className='fa fa-check'
+													style={{ color: '#ffffff' }}
+												></i>
+											</Button>
+										</InputGroupAddon>
+									</InputGroup>
+								</Form>
+							</Col>
 						</Row>
 					</Container>
 				)}
@@ -637,7 +693,7 @@ class EditChildView extends Component {
 			child = {
 				helm: {
 					destination: '',
-					destinationType: 'category'
+					destinationType: ''
 				},
 				src: '',
 				type: null,
@@ -648,7 +704,7 @@ class EditChildView extends Component {
 			if (!child.helm)
 				child.helm = {
 					destination: '',
-					destinationType: 'category'
+					destinationType: ''
 				}
 			if (!child.src) child.src = ''
 			if (!child.type) child.type = null
@@ -871,6 +927,7 @@ class EditChildView extends Component {
 										value={child.helm.destinationType}
 										onChange={this.onChangeHelm}
 									>
+										<option></option>
 										<option>category</option>
 										<option>collection</option>
 										<option>product</option>
