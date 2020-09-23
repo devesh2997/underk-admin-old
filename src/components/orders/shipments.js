@@ -9,10 +9,11 @@ import classnames from 'classnames'
 import ROUTES from '../../routes'
 import { Link } from 'react-router-dom'
 
+import PackingSlipButton from './packing-slip-button'
 
 import {
 	ListGroup,
-    Nav,
+	Nav,
 	TabPane,
 	NavItem,
 	NavLink,
@@ -140,7 +141,7 @@ const OrderWithShipments = ({ order }) => {
 				const products = shipment.products
 				const time = delivery.time
 				let latestUpdate = null
-				let latestUpdateTime = 0				
+				let latestUpdateTime = 0
 				let updates = []
 				if (time) updates = Object.keys(time)
 				for (let i = 0; i < updates.length; i++) {
@@ -154,6 +155,11 @@ const OrderWithShipments = ({ order }) => {
 					<Card key={trackingId}>
 						<CardHeader>
 							<Row>
+								<Col sm='2'>
+									<PackingSlipButton
+										trackingId={trackingId}
+									/>
+								</Col>
 								<Col sm='2'>
 									<a
 										href={

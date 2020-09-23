@@ -33,7 +33,7 @@ class AddWidget extends React.Component {
 				: '0',
 			childAspectRatio: '1',
 			itemToScreenRatio: '',
-			backgroundColor: '',
+			backgroundColor: '#ffffff',
 			title: '',
 			subtitle: '',
 			alignment: 'start',
@@ -471,17 +471,7 @@ class ChildCard extends React.Component {
 			placeholderFile: props.child ? props.child.placeholderFile : {},
 			destinationType: props.child ? props.child.destinationType : '',
 			destination: props.child ? props.child.destination : '',
-			backgroundColor: props.child ? props.child.backgroundColor : ''
-		}
-
-		this.INITIAL_STATE = {
-			src: '',
-			srcFile: {},
-			placeholder: '',
-			placeholderFile: {},
-			destinationType: '',
-			destination: '',
-			backgroundColor: ''
+			backgroundColor: props.child ? props.child.backgroundColor : '#ffffff'
 		}
 	}
 
@@ -496,13 +486,15 @@ class ChildCard extends React.Component {
 	onFileChange = e => {
 		const targetName = e.target.name
 		const file = e.target.files[0]
-		this.setState({
-			[targetName]: URL.createObjectURL(file),
-			[`${targetName}File`]: file
-		})
+		if (file) {
+			this.setState({
+				[targetName]: URL.createObjectURL(file),
+				[`${targetName}File`]: file
+			})
 
-		if (this.props.action === 'delete') {
-			this.props.onChildDataChange(this.state)
+			if (this.props.action === 'delete') {
+				this.props.onChildDataChange(this.state)
+			}
 		}
 	}
 

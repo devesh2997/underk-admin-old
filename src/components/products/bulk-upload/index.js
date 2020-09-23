@@ -243,7 +243,6 @@ class BulkUpload extends Component {
 					let taxPercent = Number(row[10])
 					let isInclusiveTax = row[11] === 'TRUE'
 					let attributes = JSON.parse(row[12])
-					// console.log('att',attributes)
 					let options = JSON.parse(row[13])
 					let description = JSON.parse(row[14])
 					let keywords = JSON.parse(row[15])

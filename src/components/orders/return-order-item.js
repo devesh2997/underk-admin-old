@@ -186,6 +186,13 @@ class ReturnOrderItem extends Component {
 													)}
 										</Row>
 										<Row>
+											{returnItem.upiDetails &&
+												'UPI Details : ' +
+													JSON.stringify(
+														returnItem.upiDetails
+													)}
+										</Row>
+										<Row>
 											<Col>
 												<Label
 													style={{
