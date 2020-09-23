@@ -815,7 +815,7 @@ class BulkUpload extends Component {
 			let productsRef = this.props.firebase.products()
 			let newProductRef = productsRef.doc()
 			let inventoryRef = this.props.firebase.inventory()
-			let inventoryTransactionsRef = this.props.firebase.inventoryTransactions()
+			let inventoryTransactionsRef = this.props.firebase.db.collection('inventory_transactions')
 			let prevProduct = await prevProductRef.get()
 			if (prevProduct.empty) {
 				let batch = this.props.firebase.db.batch()
