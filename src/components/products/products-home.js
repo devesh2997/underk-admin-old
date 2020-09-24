@@ -317,6 +317,44 @@ class ProductsHome extends Component {
 		})
 	}
 
+	_findVariantsCandidates = (
+		product,
+		products,
+		skuOrdering,
+		variantsBasis
+	) => {
+		const type = product.type.sku
+		const subtype = product.subtype.sku
+		const gender = product.gender
+		const cid = product.category.cid
+
+		let variants = products.filter(
+			p =>
+				p.type.sku === type &&
+				p.gender === gender &&
+				p.category.cid === cid &&
+				p.subtype.sku === subtype
+		)
+
+		console.log(`variant candidates : ${variants.length}`)
+
+		variants = variants.filter(p => {
+			let flag = skuOrdering.length > 0
+			for (let j = 0; j < skuOrdering.length; j++) {
+				// console.log(skuOrdering[j])
+				if (isEmpty(variantsBasis.find(v => v === skuOrdering[j]))) {
+					flag =
+						p.attributes[skuOrdering[j]].sku ===
+						product.attributes[skuOrdering[j]].sku
+				}
+			}
+
+			return flag
+		})
+
+		return variants
+	}
+
 	generateVariants = async () => {
 		this.setState({ generatingVariants: true })
 		let typesSnapshots = await this.props.firebase.typesSubtypes().get()
@@ -326,48 +364,40 @@ class ProductsHome extends Component {
 		this.setState({ types, loadingTypes: false })
 		let products = await this.props.firebase.products().get()
 		products = products.docs
+		for (let i = 0; i < products.length; i++) {
+			const id = products[i].id
+			products[i] = products[i].data()
+			products[i]['pid'] = id
+		}
 		// console.log(products)
 		for (let i = 0; i < products.length; i++) {
 			let product = products[i]
-			product = product.data()
 			const type = product.type.sku
 			const subtype = product.subtype.sku
 			const skuOrdering = types[type].subtypes[subtype].skuOrdering
 			const variantsBasis = types[type].subtypes[subtype].variantsBasis
 
-			console.log('generating for : ', product.pid)
-			let variants = this.props.firebase
-				.products()
-				.where('type.sku', '==', type)
-				.where('gender', '==', product.gender)
-				.where('category.cid', '==', product.category.cid)
-				.where('subtype.sku', '==', subtype)
-
-			for (let j = 0; j < skuOrdering.length; j++) {
-				console.log(skuOrdering[j])
-				if (isEmpty(variantsBasis.find(v => v === skuOrdering[j]))) {
-					console.log('not empty')
-					variants = variants.where(
-						'attributes.' + skuOrdering[j],
-						'==',
-						product.attributes[skuOrdering[j]]
-					)
-				}
+			console.log(
+				'generating for : ',
+				product.title + ' : ' + product.category.name
+			)
+			let variants = this._findVariantsCandidates(
+				product,
+				products,
+				skuOrdering,
+				variantsBasis
+			)
+			for (let j = 0; j < variants.length; j++) {
+				const variant = variants[j]
+				await this.props.firebase.db
+					.doc(`products/${product.pid}/variants/${variant.pid}`)
+					.set({
+						pid: variant.pid,
+						type: 'color',
+						value: variant.attributes.color,
+						slug: variant.slug
+					})
 			}
-			variants = await variants.get()
-			variants.forEach(async variant => {
-				if (variant.exists) {
-					console.log('variant found : ', variant.id)
-					await this.props.firebase.db
-						.doc(`products/${product.pid}/variants/${variant.id}`)
-						.set({
-							pid: variant.id,
-							type: 'color',
-							value: variant.data().attributes.color,
-							slug: variant.data().slug
-						})
-				}
-			})
 		}
 		this.setState({ generatingVariants: false })
 	}
