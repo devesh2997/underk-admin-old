@@ -9,6 +9,8 @@ import classnames from 'classnames'
 import ROUTES from '../../routes'
 import { Link } from 'react-router-dom'
 
+import PackingSlipButton from './packing-slip-button'
+
 import {
 	ListGroup,
 	Nav,
@@ -114,6 +116,10 @@ const Shipments = props => {
 									<OrderWithShipments
 										key={oid}
 										order={orders[oid]}
+										printLabelEnabled={
+											shipmentStatus ===
+											types.DELIVERY_STATUS_MANIFESTED
+										}
 									/>
 								))}
 							</ListGroup>
@@ -128,7 +134,7 @@ const Shipments = props => {
 const capitalizeFirstLetter = string =>
 	string.charAt(0).toUpperCase() + string.slice(1)
 
-const OrderWithShipments = ({ order }) => {
+const OrderWithShipments = ({ order, printLabelEnabled }) => {
 	const trackingIds = Object.keys(order.shipments)
 	const address = order.address
 	return (
@@ -153,6 +159,14 @@ const OrderWithShipments = ({ order }) => {
 					<Card key={trackingId}>
 						<CardHeader>
 							<Row>
+								{printLabelEnabled && (
+									<Col sm='2'>
+										<PackingSlipButton
+											trackingId={trackingId}
+										/>
+									</Col>
+								)}
+
 								<Col sm='2'>
 									<a
 										href={
