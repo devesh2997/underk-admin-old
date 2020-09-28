@@ -221,6 +221,23 @@ export default {
 			],
 		},
 		{
+			name: 'Coupons',
+			url: ROUTES.COUPON_LIST.path,
+			icon: 'fa fa-ticket',
+			children: [
+				{
+					name: 'Coupon List',
+					url: ROUTES.COUPON_LIST.path,
+					icon: 'fa fa-ticket',
+				},
+				{
+					name: 'Add Coupon',
+					url: ROUTES.ADD_COUPON.path,
+					icon: 'fa fa-ticket',
+				},
+			],
+		},
+		{
 			name: 'Blogs',
 			url: ROUTES.BLOG_LIST.path,
 			icon: 'fa fa-rss',
