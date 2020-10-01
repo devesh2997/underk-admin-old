@@ -1,5 +1,5 @@
-import React from 'react'
-import { useState } from 'react'
+import React from "react";
+import { useState } from "react";
 import {
 	Row,
 	Button,
@@ -9,77 +9,80 @@ import {
 	ModalBody,
 	Table,
 	Input,
-	Col
-} from 'reactstrap'
-import { Link } from 'react-router-dom'
-import ROUTES from '../../routes'
-import { withFirebase } from '../../firebase'
-import Switch from 'react-switch'
-import { paiseToRupeeString, useFormInput } from '../../utils'
-import { increaseStock, decreaseStock } from '../inventory/utils'
+	Col,
+	Form,
+	FormGroup,
+	Label,
+} from "reactstrap";
+import { Link } from "react-router-dom";
+import ROUTES from "../../routes";
+import { withFirebase } from "../../firebase";
+import Switch from "react-switch";
+import { paiseToRupeeString, useFormInput } from "../../utils";
+import { increaseStock, decreaseStock } from "../inventory/utils";
 
-const siteURL = 'https://master.dnznxvwoj6gri.amplifyapp.com'
+const siteURL = "https://master.dnznxvwoj6gri.amplifyapp.com";
 
 export const DeleteProduct = ({ pid, firebase, style }) => (
 	<Button
-		type='button'
-		color='danger'
+		type="button"
+		color="danger"
 		style={{ margin: 5, ...style }}
 		onClick={() => {
 			let isConfirmed = window.confirm(
-				'Are you sure you want to delete this product?'
-			)
+				"Are you sure you want to delete this product?"
+			);
 			if (isConfirmed) {
-				firebase.product(pid).delete()
+				firebase.product(pid).delete();
 			}
 		}}
 	>
-		<i className='fa fa-trash' />
+		<i className="fa fa-trash" />
 	</Button>
-)
+);
 
 export class VariantModal extends React.Component {
-	constructor (props) {
-		super(props)
+	constructor(props) {
+		super(props);
 
 		this.state = {
 			variants: [],
-			loadingVariants: false
-		}
+			loadingVariants: false,
+		};
 	}
 
-	componentDidMount () {
-		this.setState({ loadingVariants: true })
+	componentDidMount() {
+		this.setState({ loadingVariants: true });
 
 		this.props.firebase
 			.productVariants(this.props.pid)
 			.get()
-			.then(snapshot => {
-				let variants = []
-				snapshot.forEach(doc => {
-					variants.push(doc.data())
-				})
+			.then((snapshot) => {
+				let variants = [];
+				snapshot.forEach((doc) => {
+					variants.push(doc.data());
+				});
 
 				this.setState({
 					variants,
-					loadingVariants: false
-				})
-			})
+					loadingVariants: false,
+				});
+			});
 	}
 
-	render () {
-		const { variants, loadingVariants } = this.state
+	render() {
+		const { variants, loadingVariants } = this.state;
 
 		return (
 			<Modal
 				isOpen={this.props.isOpen}
 				centered
-				size='lg'
+				size="lg"
 				toggle={this.props.toggle}
 			>
 				<ModalHeader
 					close={
-						<button className='close' onClick={this.props.toggle}>
+						<button className="close" onClick={this.props.toggle}>
 							&times;
 						</button>
 					}
@@ -88,7 +91,7 @@ export class VariantModal extends React.Component {
 				</ModalHeader>
 				<ModalBody>
 					{loadingVariants && (
-						<div className='animated fadeIn pt-3 text-center'>
+						<div className="animated fadeIn pt-3 text-center">
 							Loading...
 						</div>
 					)}
@@ -112,13 +115,13 @@ export class VariantModal extends React.Component {
 									<td
 										dangerouslySetInnerHTML={{
 											__html:
-												'<pre>' +
+												"<pre>" +
 												JSON.stringify(
 													variant.value,
 													null,
 													2
 												) +
-												'</pre>'
+												"</pre>",
 										}}
 									/>
 								</tr>
@@ -127,83 +130,83 @@ export class VariantModal extends React.Component {
 					</Table>
 				</ModalBody>
 			</Modal>
-		)
+		);
 	}
 }
 
-const StockUpdate = props => {
-	const quantity = useFormInput('')
-	const supplierId = props.supplier
-	const pid = props.pid
-	const reason = 'Update inventory from admin panel'
+const StockUpdate = (props) => {
+	const quantity = useFormInput("");
+	const supplierId = props.supplier;
+	const pid = props.pid;
+	const reason = "Update inventory from admin panel";
 
-	const [loading, setLoading] = useState(false)
+	const [loading, setLoading] = useState(false);
 
 	const stockIncrease = {
 		sku: props.sku,
 		increase: {
-			[supplierId]: quantity.value
-		}
-	}
+			[supplierId]: quantity.value,
+		},
+	};
 
 	const stockDecrease = {
 		sku: props.sku,
 		decrease: {
-			[supplierId]: quantity.value
-		}
-	}
+			[supplierId]: quantity.value,
+		},
+	};
 
-	if (loading) return 'Loading'
+	if (loading) return "Loading";
 
 	return (
 		<>
-			<Input type='number' {...quantity} min={0} />
+			<Input type="number" {...quantity} min={0} />
 			<Button
-				type='button'
-				color='primary'
+				type="button"
+				color="primary"
 				style={{ margin: 5 }}
 				onClick={async () => {
-					setLoading(true)
+					setLoading(true);
 					await increaseStock(
 						props.firebase.db,
 						pid,
 						stockIncrease,
 						reason
-					)
-					setLoading(false)
+					);
+					setLoading(false);
 				}}
 			>
-				<i className='fa fa-plus' />
+				<i className="fa fa-plus" />
 			</Button>
 			<Button
-				type='button'
-				color='primary'
+				type="button"
+				color="primary"
 				style={{ margin: 5 }}
 				onClick={async () => {
-					setLoading(true)
+					setLoading(true);
 					await decreaseStock(
 						props.firebase.db,
 						pid,
 						stockDecrease,
 						reason
-					)
-					setLoading(false)
+					);
+					setLoading(false);
 				}}
 			>
-				<i className='fa fa-minus' />
+				<i className="fa fa-minus" />
 			</Button>
 		</>
-	)
-}
+	);
+};
 
-export const InventoryModal = props => {
-	if (props.isOpen) console.log(props)
-	const quantity = useFormInput('')
+export const InventoryModal = (props) => {
+	if (props.isOpen) console.log(props);
+	const quantity = useFormInput("");
 	return (
-		<Modal isOpen={props.isOpen} size='lg' toggle={props.toggle}>
+		<Modal isOpen={props.isOpen} size="lg" toggle={props.toggle}>
 			<ModalHeader
 				close={
-					<button className='close' onClick={props.toggle}>
+					<button className="close" onClick={props.toggle}>
 						&times;
 					</button>
 				}
@@ -224,7 +227,7 @@ export const InventoryModal = props => {
 					</thead>
 					<tbody>
 						{props.inventory.map((option, idx) =>
-							Object.keys(option.inventory).map(i => (
+							Object.keys(option.inventory).map((i) => (
 								<tr key={option.sku}>
 									<td>{idx + 1}</td>
 									<td>{option.sku}</td>
@@ -250,93 +253,199 @@ export const InventoryModal = props => {
 				</Table>
 			</ModalBody>
 		</Modal>
-	)
+	);
+};
+
+export class EditModal extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			loading: false,
+		};
+	}
+
+	onSubmit = (event) => {
+		event.preventDefault();
+		let isConfirmed = window.confirm(
+			"Are you sure you want to update product pricing?"
+		);
+		if (isConfirmed) {
+			this.setState({ loading: true });
+
+			const listPrice = Number(event.target.listPrice.value);
+			const discount = Number(event.target.discount.value);
+
+			this.props.firebase
+				.product(this.props.product.pid)
+				.set(
+					{
+						listPrice,
+						discount,
+						sellingPrice: listPrice - discount,
+					},
+					{ merge: true }
+				)
+				.then(() => {
+					this.props.toggle();
+				})
+				.catch((error) => {
+					console.log(error);
+				})
+				.finally(() => {
+					this.setState({ loading: false });
+				});
+		}
+	};
+
+	render() {
+		const { isOpen, toggle, product } = this.props;
+		const { loading } = this.state;
+
+		return (
+			<Modal isOpen={isOpen} size="md" toggle={toggle}>
+				<ModalHeader
+					close={
+						<button className="close" onClick={toggle}>
+							&times;
+						</button>
+					}
+				>
+					Edit Product Pricing ({product.pid})
+				</ModalHeader>
+				<ModalBody>
+					<Form onSubmit={this.onSubmit}>
+						<FormGroup>
+							<Label>List Price (in paise)</Label>
+							<Input
+								type="number"
+								name="listPrice"
+								defaultValue={product.listPrice}
+								placeholder="Enter listPrice"
+								required
+							/>
+						</FormGroup>
+						<FormGroup>
+							<Label>Discount (in paise)</Label>
+							<Input
+								type="number"
+								name="discount"
+								defaultValue={product.discount}
+								placeholder="Enter discount"
+								required
+							/>
+						</FormGroup>
+						<FormGroup className="text-center">
+							<Button
+								type="submit"
+								color="primary"
+								disabled={loading}
+							>
+								{loading ? (
+									<i className="fa fa-refresh fa-spin" />
+								) : (
+									"Save"
+								)}
+							</Button>
+						</FormGroup>
+					</Form>
+				</ModalBody>
+			</Modal>
+		);
+	}
 }
 
 class ProductCard extends React.Component {
-	constructor (props) {
-		super(props)
+	constructor(props) {
+		super(props);
 
 		this.state = {
 			inventory: [],
 			isVariantModalOpen: false,
-			isInventoryModalOpen: false
-		}
+			isInventoryModalOpen: false,
+			isEditModalOpen: false,
+		};
 	}
 
-	componentDidMount () {
+	componentDidMount() {
 		this.props.firebase
 			.inventoryOfProduct(this.props.product.pid)
-			.onSnapshot(doc => {
+			.onSnapshot((doc) => {
 				if (doc.exists) {
-					let inventory = doc.data()
-					delete inventory.skus
-					inventory = Object.keys(inventory).map(sku => ({
+					let inventory = doc.data();
+					delete inventory.skus;
+					inventory = Object.keys(inventory).map((sku) => ({
 						...inventory[sku],
-						sku
-					}))
-					this.setState({ inventory })
+						sku,
+					}));
+					this.setState({ inventory });
 				}
-			})
+			});
 	}
 
 	toggleVariantModal = () => {
-		this.setState(prevState => ({
-			isVariantModalOpen: !prevState.isVariantModalOpen
-		}))
-	}
+		this.setState((prevState) => ({
+			isVariantModalOpen: !prevState.isVariantModalOpen,
+		}));
+	};
 
 	toggleInventoryModal = () => {
-		this.setState(prevState => ({
-			isInventoryModalOpen: !prevState.isInventoryModalOpen
-		}))
-	}
+		this.setState((prevState) => ({
+			isInventoryModalOpen: !prevState.isInventoryModalOpen,
+		}));
+	};
+
+	toggleEditModal = () => {
+		this.setState((prevState) => ({
+			isEditModalOpen: !prevState.isEditModalOpen,
+		}));
+	};
 
 	toggleProduct = () => {
-		const { firebase, product } = this.props
+		const { firebase, product } = this.props;
 
 		firebase.product(product.pid).set(
 			{
-				isActive: !product.isActive
+				isActive: !product.isActive,
 			},
 			{ merge: true }
-		)
-	}
+		);
+	};
 
-	render () {
-		const { product } = this.props
+	render() {
+		const { product } = this.props;
 		const prdThumb =
 			Object.keys(product.assets).length > 0
 				? product.assets[Object.keys(product.assets)[0]]
-				: {}
+				: {};
 
 		return (
-			<div className='prd-card'>
-				<span className='btn-toggle'>
+			<div className="prd-card">
+				<span className="btn-toggle">
 					<Switch
 						checked={product.isActive}
 						onChange={this.toggleProduct}
-						onColor='#0dac8e'
-						offColor='#c9c9c9'
+						onColor="#0dac8e"
+						offColor="#c9c9c9"
 						height={20}
 						width={40}
 					/>
 				</span>
-				<Row className='align-items-center'>
-					<div className='thumb'>
+				<Row className="align-items-center">
+					<div className="thumb">
 						<img
 							src={prdThumb.downloadURL}
-							className='img-fluid'
+							className="img-fluid"
 							alt={prdThumb.name}
 						/>
 					</div>
-					<div className='content'>
+					<div className="content">
 						<div>
 							<strong>
 								<a
 									href={`${siteURL}/p/${product.slug}`}
-									rel='noopener noreferrer'
-									target='_blank'
+									rel="noopener noreferrer"
+									target="_blank"
 								>
 									{product.title}
 								</a>
@@ -347,8 +456,8 @@ class ProductCard extends React.Component {
 							<strong>
 								<a
 									href={`${siteURL}/${product.category.slug}`}
-									rel='noopener noreferrer'
-									target='_blank'
+									rel="noopener noreferrer"
+									target="_blank"
 								>
 									{product.category.name}
 								</a>
@@ -362,18 +471,18 @@ class ProductCard extends React.Component {
 								Discount: <strong>{product.discount}</strong>
 							</div>
 							<div>
-								Tax Percent:{' '}
+								Tax Percent:{" "}
 								<strong>
 									{product.taxPercent} (
 									{product.isInclusiveTax
-										? 'included'
-										: 'not included'}
+										? "included"
+										: "not included"}
 									)
 								</strong>
 							</div>
 							<div>
 								<Link
-									to='#'
+									to="#"
 									onClick={this.toggleInventoryModal}
 								>
 									<strong>Inventory</strong>
@@ -385,11 +494,11 @@ class ProductCard extends React.Component {
 										color={
 											option.stock > 0
 												? option.stock === 1
-													? 'warning'
-													: 'success'
-												: 'danger'
+													? "warning"
+													: "success"
+												: "danger"
 										}
-										style={{ margin: '0 3px' }}
+										style={{ margin: "0 3px" }}
 									>
 										{option.name}
 									</Badge>
@@ -398,23 +507,21 @@ class ProductCard extends React.Component {
 						</div>
 						<div>
 							<Button
-								type='button'
-								color='primary'
+								type="button"
+								color="primary"
 								style={{ margin: 5 }}
 								onClick={() => this.toggleVariantModal()}
 							>
-								<i className='fa fa-arrows' />
+								<i className="fa fa-arrows" />
 							</Button>
-							{/* <Link
-								to={{
-									pathname: `${ROUTES.PRODUCT_LIST.path}/${product.pid}/edit`,
-									state: { product }
-								}}
+							<Button
+								type="button"
+								color="secondary"
+								style={{ margin: 5 }}
+								onClick={() => this.toggleEditModal()}
 							>
-								<Button type='button' color='secondary' style={{ margin: 5 }}>
-									<i className='fa fa-pencil' />
-								</Button>
-							</Link> */}
+								<i className="fa fa-pencil" />
+							</Button>
 							<DeleteProduct
 								pid={product.pid}
 								firebase={this.props.firebase}
@@ -445,9 +552,15 @@ class ProductCard extends React.Component {
 					inventory={this.state.inventory}
 					firebase={this.props.firebase}
 				/>
+				<EditModal
+					isOpen={this.state.isEditModalOpen}
+					toggle={this.toggleEditModal}
+					product={product}
+					firebase={this.props.firebase}
+				/>
 			</div>
-		)
+		);
 	}
 }
 
-export default withFirebase(ProductCard)
+export default withFirebase(ProductCard);
