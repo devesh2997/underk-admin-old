@@ -214,21 +214,24 @@ class UserListBase extends Component {
 				products.push({ ...doc.data(), pid: doc.id });
 			});
 
-			const { emailFrom, selectedUsers } = this.state;
+			const { emailFrom, selectedUsers, users } = this.state;
 			let carts = [];
-			for (let i = 0; i < selectedUsers.length; i++) {
-				let doc = await this.props.firebase
-					.cart(selectedUsers[i])
-					.get();
-				if (doc.exists) {
-					carts.push({ ...doc.data(), uid: doc.id });
-				}
-			}
+			snapshot = await this.props.firebase.db.collection("carts").get();
+			snapshot.forEach((doc) => {
+				carts.push({ ...doc.data(), uid: doc.id });
+			});
+			carts = carts.filter((cart) => selectedUsers.includes(cart.uid));
 
 			for (let i = 0; i < carts.length; i++) {
 				let data = {
+					name: "",
 					products: [],
 				};
+
+				let user = users.find((user) => user.uid === carts[i].uid);
+				if (user && user.name) {
+					data.name = user.name;
+				}
 
 				let skus = carts[i].products
 					? Object.keys(carts[i].products)
