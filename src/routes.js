@@ -121,6 +121,8 @@ const TestPlayground = React.lazy(() => import('./components/test-playground'))
 const CouponList = React.lazy(() => import('./components/coupons/coupon-list'))
 const CouponForm = React.lazy(() => import('./components/coupons/coupon-form'))
 
+const CreateOrder = React.lazy(() => import('./components/orders/create-order'))
+
 const TempDashboard = () => {
 	return <span>Dashboard</span>
 }
@@ -183,6 +185,12 @@ const routes = {
 		exact: true,
 		name: 'Custom Orders',
 		component: CustomOrders
+	},
+	CREATE_ORDER: {
+		path: '/create-order',
+		exact: true,
+		name: 'Create Order',
+		component: CreateOrder
 	},
 	INVENTORY: {
 		path: '/inventory',

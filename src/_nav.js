@@ -32,6 +32,11 @@ export default {
 					url: ROUTES.CUSTOM_ORDERS.path,
 					icon: 'fa fa-list-alt',
 				},
+				{
+					name: 'Create Order',
+					url: ROUTES.CREATE_ORDER.path,
+					icon: 'fa fa-plus',
+				},
 			],
 		},
 		{
