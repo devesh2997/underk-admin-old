@@ -1,320 +1,239 @@
 import React, { Component } from "react";
 import {
-	Button,
 	Card,
-	CardBody,
 	CardHeader,
+	CardBody,
 	Form,
+	Button,
 	FormGroup,
-	Input,
 	Label,
-	InputGroup,
-	InputGroupAddon,
-	InputGroupButtonDropdown,
-	DropdownToggle,
-	DropdownMenu,
-	DropdownItem,
-	ListGroup,
-	ListGroupItem,
-	Badge,
+	Input,
 } from "reactstrap";
+import axios from "axios";
+import types from "underk-types";
 import { withFirebase } from "../../../firebase";
-
-const USER_SEARCH_KEYS = ["id", "mobile", "email"];
-const PRODUCT_SEARCH_KEYS = ["id", "sku", "slug", "category"];
+import SelectProduct from "./select-product";
+import SelectUser from "./select-user";
+import ROUTES from "../../../routes";
 
 class CreateOrder extends Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			userSearchKey: "id",
-			userSearchValue: "",
-			isUSKDropdownOpen: false,
-
-			users: [],
-			selectedUser: "",
-			loadingUsers: false,
-
-			addresses: [],
-			selectedAddress: "",
-			loadingAddresses: false,
-
-			categories: [],
-			productSearchKey: "id",
-			productSearchValue: "",
-			isPSKDropdownOpen: false,
-
-			products: [],
+			selectedUser: null,
+			selectedAddress: null,
 			selectedProducts: [],
-			loadingProducts: false,
+
+			loadingStrategies: true,
+			delivery_charge: null,
+			online_pay_discount: null,
+
+			paymentMode: types.PAYMENT_MODE_COD,
+
+			creatingOrder: false,
 		};
 	}
 
 	componentDidMount() {
 		this.props.firebase
-			.categories()
+			.strategies()
 			.get()
-			.then((snapshot) => {
-				let categories = [];
-				snapshot.forEach((doc) =>
-					categories.push({ ...doc.data(), cid: doc.id })
-				);
-				this.setState({ categories });
+			.then((doc) => {
+				let delivery_charge = null,
+					online_pay_discount = null;
+				if (doc.exists) {
+					const strategies = doc.data();
+					delivery_charge = strategies.delivery_charge;
+					online_pay_discount = strategies.online_pay_discount;
+				}
+
+				this.setState({
+					loadingStrategies: false,
+					delivery_charge,
+					online_pay_discount,
+				});
 			});
 	}
 
-	toggleUSKDropdown = () => {
-		this.setState((prevState) => ({
-			isUSKDropdownOpen: !prevState.isUSKDropdownOpen,
-		}));
-	};
-
-	togglePSKDropdown = () => {
-		this.setState((prevState) => ({
-			isPSKDropdownOpen: !prevState.isPSKDropdownOpen,
-		}));
-	};
+	componentWillUnmount() {
+		this.unsubscribe && this.unsubscribe();
+	}
 
 	onChange = (event) => {
 		this.setState({ [event.target.name]: event.target.value });
 	};
 
-	getUsers = () => {
-		this.setState({ loadingUsers: true });
-		if (this.state.userSearchKey === "id") {
-			this.props.firebase
-				.user(this.state.userSearchValue)
-				.get()
-				.then((doc) => {
-					if (doc.exists) {
-						let users = [];
-						users.push({ ...doc.data(), id: doc.id });
-						users = users.sort((a, b) => {
-							if (!b.created_at) return -1;
-							if (!a.created_at) return 1;
-							if (a.created_at > b.created_at) {
-								return -1;
-							}
-							if (a.created_at < b.created_at) {
-								return 1;
-							}
-							return 0;
-						});
-						this.setState(
-							{
-								users,
-								selectedUser:
-									users.length > 0 ? users[0].id : "",
-								loadingUsers: false,
-							},
-							this.getAddresses
-						);
-					}
-				});
-		} else {
-			this.props.firebase
-				.users()
-				.where(
-					this.state.userSearchKey,
-					"==",
-					this.state.userSearchValue
-				)
-				.get()
-				.then((snapshot) => {
-					let users = [];
-					snapshot.forEach((doc) => {
-						users.push({ ...doc.data(), id: doc.id });
-					});
-					users = users.sort((a, b) => {
-						if (!b.created_at) return -1;
-						if (!a.created_at) return 1;
-						if (a.created_at > b.created_at) {
-							return -1;
-						}
-						if (a.created_at < b.created_at) {
-							return 1;
-						}
-						return 0;
-					});
-					this.setState(
-						{
-							users,
-							selectedUser: users.length > 0 ? users[0].id : "",
-							loadingUsers: false,
-						},
-						this.getAddresses
-					);
-				});
-		}
-	};
+	onSubmit = (event) => {
+		event.preventDefault();
 
-	getAddresses = () => {
-		this.setState({ loadingAddresses: true });
-		this.props.firebase
-			.addresses()
-			.where("uid", "==", this.state.selectedUser)
-			.get()
-			.then((snapshot) => {
-				let addresses = [];
-				snapshot.forEach((doc) => {
-					addresses.push({ ...doc.data(), id: doc.id });
-				});
-				this.setState({
-					addresses,
-					selectedAddress:
-						addresses.length > 0 ? addresses[0].id : "",
-					loadingAddresses: false,
-				});
+		const {
+			selectedUser,
+			selectedAddress,
+			selectedProducts,
+			loadingStrategies,
+			delivery_charge,
+			online_pay_discount,
+			paymentMode,
+		} = this.state;
+		if (
+			!selectedUser ||
+			!selectedAddress ||
+			selectedProducts.length === 0 ||
+			loadingStrategies
+		)
+			return;
+
+		let cart = {
+				cartId: selectedUser.id,
+				products: {},
+			},
+			mrp = 0,
+			discount = 0,
+			itemsCount = 0;
+
+		selectedProducts.forEach((p) => {
+			mrp += p.quantity * p.product.listPrice;
+			discount += p.quantity * p.product.discount;
+			itemsCount += p.quantity;
+
+			let cartProduct = {};
+			cartProduct["pid"] = p.product.id;
+			cartProduct["title"] = p.product.title;
+			cartProduct["slug"] = p.product.slug;
+			cartProduct["listPrice"] = p.product.listPrice;
+			cartProduct["discount"] = p.product.discount;
+			cartProduct["taxPercent"] = p.product.taxPercent;
+			cartProduct["isInclusiveTax"] = p.product.isInclusiveTax;
+			cartProduct["category"] = {
+				cid: p.product.category.cid,
+				name: p.product.category.name,
+				slug: p.product.category.slug,
+			};
+			cartProduct["gender"] = p.product.gender;
+			let productAsset =
+				Object.keys(p.product.assets).length > 0
+					? p.product.assets[Object.keys(p.product.assets)[0]]
+					: {};
+			cartProduct["asset"] = {
+				url: productAsset.downloadURL,
+				contentType: productAsset.contentType,
+			};
+			cartProduct["option"] = {
+				based_on: p.product.options.based_on,
+				name: p.product.options.skus[p.sku].name,
+			};
+			cartProduct["attributes"] = p.product.attributes;
+
+			cart["products"][p.sku] = {
+				sku: p.sku,
+				quantity: p.quantity,
+				product: cartProduct,
+			};
+		});
+
+		let address = Object.assign({}, selectedAddress);
+		delete address.id;
+		delete address.uid;
+
+		let total = mrp - discount;
+
+		let onlinePaymentDiscount = 0;
+		let onlinePaymentDiscountApplied = false;
+		if (
+			paymentMode === types.PAYMENT_MODE_RAZORPAY &&
+			online_pay_discount &&
+			online_pay_discount.enabled
+		) {
+			if (total >= online_pay_discount.minOrderAmount) {
+				onlinePaymentDiscount =
+					(online_pay_discount.discountPercent * total) / 100;
+				if (onlinePaymentDiscount > online_pay_discount.maxDiscount) {
+					onlinePaymentDiscount = online_pay_discount.maxDiscount;
+				}
+				onlinePaymentDiscountApplied = true;
+			}
+		}
+
+		const deliveryCharge = delivery_charge.charge;
+		let deliveryChargeApplied = false;
+		if (
+			paymentMode === types.PAYMENT_MODE_COD &&
+			!delivery_charge.free_if_cod
+		) {
+			deliveryChargeApplied = true;
+		} else if (
+			paymentMode === types.PAYMENT_MODE_RAZORPAY &&
+			!delivery_charge.free_if_online
+		) {
+			deliveryChargeApplied = true;
+		}
+
+		total =
+			total -
+			(onlinePaymentDiscountApplied ? onlinePaymentDiscount : 0) +
+			(deliveryChargeApplied ? deliveryCharge : 0);
+
+		let summary = {
+			mrp,
+			discount,
+			total,
+			itemsCount,
+		};
+		if (onlinePaymentDiscountApplied) {
+			summary.onlinePaymentDiscount = onlinePaymentDiscount;
+			summary.onlinePaymentDiscountApplied = onlinePaymentDiscountApplied;
+		}
+		if (deliveryChargeApplied) {
+			summary.deliveryCharge = deliveryCharge;
+			summary.deliveryChargeApplied = deliveryChargeApplied;
+		}
+
+		console.log(summary);
+
+		this.setState({ creatingOrder: true });
+
+		axios({
+			method: "post",
+			url:
+				"https://us-central1-underk-firebase.cloudfunctions.net/authUserApp/checkout",
+			data: {
+				cart,
+				uid: selectedUser.id,
+				address,
+				paymentMode,
+				summary,
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.getOrderStatus(response.data.orderId);
+			})
+			.catch((error) => {
+				console.log(error);
 			});
 	};
 
-	getProducts = () => {
-		this.setState({ loadingProducts: true });
-		if (this.state.productSearchKey === "sku") {
-			this.props.firebase
-				.productWithSku(this.state.productSearchValue)
-				.get()
-				.then((snapshot) => {
-					let products = [];
-					snapshot.forEach((doc) =>
-						products.push({ ...doc.data(), id: doc.id })
-					);
-					this.setState({
-						products,
-						loadingProducts: false,
-					});
-				});
-		} else if (this.state.productSearchKey === "category") {
-			this.props.firebase
-				.productsWithCategory(this.state.productSearchValue)
-				.get()
-				.then((snapshot) => {
-					let products = [];
-					snapshot.forEach((doc) =>
-						products.push({ ...doc.data(), id: doc.id })
-					);
-					this.setState({
-						products,
-						loadingProducts: false,
-					});
-				});
-		} else {
-			this.props.firebase
-				.products()
-				.where(
-					this.state.productSearchKey,
-					"==",
-					this.state.productSearchValue
-				)
-				.get()
-				.then((snapshot) => {
-					let products = [];
-					snapshot.forEach((doc) =>
-						products.push({ ...doc.data(), id: doc.id })
-					);
-					this.setState({
-						products,
-						loadingProducts: false,
-					});
-				});
-		}
-	};
-
-	selectProduct = (product, sku, quantity) => {
-		let p = this.state.selectedProducts.find((sp) => sp.sku === sku);
-		if (p) return;
-		// let selectedProduct = {};
-		// selectedProduct["pid"] = product.id;
-		// selectedProduct["title"] = product.title;
-		// selectedProduct["slug"] = product.slug;
-		// selectedProduct["listPrice"] = product.listPrice;
-		// selectedProduct["discount"] = product.discount;
-		// selectedProduct["taxPercent"] = product.taxPercent;
-		// selectedProduct["isInclusiveTax"] = product.isInclusiveTax;
-
-		// selectedProduct["category"] = {
-		// 	cid: product.category.cid,
-		// 	name: product.category.name,
-		// 	slug: product.category.slug,
-		// };
-		// selectedProduct["gender"] = product.gender;
-
-		// let productAsset =
-		// 	Object.keys(product.assets).length > 0
-		// 		? product.assets[Object.keys(product.assets)[0]]
-		// 		: {};
-		// selectedProduct["asset"] = {
-		// 	url: productAsset.downloadURL,
-		// 	contentType: productAsset.contentType,
-		// };
-
-		// selectedProduct["option"] = {
-		// 	based_on: product.options.based_on,
-		// 	name: product.options.skus[sku].name,
-		// };
-
-		// selectedProduct["attributes"] = product.attributes;
-
-		this.setState((prevState) => ({
-			selectedProducts: [
-				...prevState.selectedProducts,
-				{ sku, quantity, product },
-			],
-		}));
-	};
-
-	getQuantityOptions = (product, sku) => {
-		let options = [];
-		for (let i = 1; i <= product.options.skus[sku].lessThanTen; i++) {
-			options.push(
-				<option key={i} value={i}>
-					{i}
-				</option>
-			);
-		}
-		return options;
-	};
-
-	handleQuantityChange = (sku, quantity) => {
-		let sp = this.state.selectedProducts;
-		sp.forEach((p, idx) => {
-			if (p.sku === sku) {
-				sp[idx].quantity = quantity;
-			}
-		});
-		this.setState({ selectedProducts: sp });
-	};
-
-	removeProduct = (sku) => {
-		this.setState((prevState) => ({
-			selectedProducts: prevState.selectedProducts.filter(
-				(p) => p.sku !== sku
-			),
-		}));
-	};
-
-	onSubmit = (event) => {
-		event.preventDefault();
+	getOrderStatus = (orderId) => {
+		this.unsubscribe = this.props.firebase
+			.order(orderId)
+			.onSnapshot((doc) => {
+				if (doc.exists) {
+					const order = { ...doc.data(), id: doc.id };
+					if (order.status === types.ORDER_STATUS_PLACED) {
+						this.props.history.push(ROUTES.ORDERS.path);
+					}
+				}
+			});
 	};
 
 	render() {
 		const {
-			isUSKDropdownOpen,
-			userSearchKey,
-			userSearchValue,
-			loadingUsers,
-			users,
 			selectedUser,
-			addresses,
 			selectedAddress,
-			isPSKDropdownOpen,
-			productSearchKey,
-			productSearchValue,
-			loadingProducts,
-			categories,
-			products,
 			selectedProducts,
+			paymentMode,
+			creatingOrder,
 		} = this.state;
 
 		return (
@@ -324,402 +243,75 @@ class CreateOrder extends Component {
 				</CardHeader>
 				<CardBody>
 					<Form onSubmit={this.onSubmit}>
+						<SelectUser
+							selectedUser={selectedUser}
+							selectUser={(user, cb) =>
+								this.setState({ selectedUser: user }, cb)
+							}
+							selectedAddress={selectedAddress}
+							selectAddress={(address) =>
+								this.setState({ selectedAddress: address })
+							}
+						/>
+						<SelectProduct
+							selectedProducts={selectedProducts}
+							selectProduct={(product) => {
+								if (
+									this.state.selectedProducts.find(
+										(p) => p.sku === product.sku
+									)
+								) {
+									return;
+								}
+								this.setState((prevState) => ({
+									selectedProducts: [
+										...prevState.selectedProducts,
+										product,
+									],
+								}));
+							}}
+							unselectProduct={(sku) =>
+								this.setState((prevState) => ({
+									selectedProducts: prevState.selectedProducts.filter(
+										(p) => p.sku !== sku
+									),
+								}))
+							}
+							changeQuantity={(sku, quantity) => {
+								let sp = Array.from(selectedProducts);
+								sp.forEach((p, idx) => {
+									if (p.sku === sku) {
+										sp[idx].quantity = quantity;
+									}
+								});
+								this.setState({ selectedProducts: sp });
+							}}
+						/>
 						<FormGroup>
-							<Label>Search users</Label>
-							<InputGroup>
-								<InputGroupButtonDropdown
-									addonType="prepend"
-									isOpen={isUSKDropdownOpen}
-									toggle={this.toggleUSKDropdown}
-								>
-									<DropdownToggle caret>
-										{userSearchKey}
-									</DropdownToggle>
-									<DropdownMenu>
-										{USER_SEARCH_KEYS.map(
-											(searchKey, idx) => (
-												<DropdownItem
-													key={idx}
-													onClick={() =>
-														this.setState({
-															userSearchKey: searchKey,
-														})
-													}
-												>
-													{searchKey}
-												</DropdownItem>
-											)
-										)}
-									</DropdownMenu>
-								</InputGroupButtonDropdown>
-								<Input
-									type="text"
-									name="userSearchValue"
-									value={userSearchValue}
-									onChange={this.onChange}
-									placeholder="Enter user id / mobile / email"
-								/>
-								<InputGroupAddon addonType="append">
-									<Button
-										type="button"
-										color="primary"
-										onClick={this.getUsers}
-										disabled={loadingUsers}
-									>
-										{loadingUsers ? (
-											<i className="fa fa-refresh fa-spin fa-fw" />
-										) : (
-											"Get"
-										)}
-									</Button>
-								</InputGroupAddon>
-							</InputGroup>
+							<Label>Payment Mode</Label>
+							<Input
+								type="select"
+								name="paymentMode"
+								value={paymentMode}
+								onChange={this.onChange}
+								required
+							>
+								<option value={types.PAYMENT_MODE_COD}>
+									{types.PAYMENT_MODE_COD}
+								</option>
+								<option value={types.PAYMENT_MODE_RAZORPAY}>
+									{types.PAYMENT_MODE_RAZORPAY}
+								</option>
+							</Input>
 						</FormGroup>
-						<FormGroup>
-							<Label>Select user</Label>
-							<ListGroup>
-								{users.length > 0 ? (
-									users.map((user) => (
-										<ListGroupItem
-											key={user.id}
-											active={user.id === selectedUser}
-											onClick={() =>
-												this.setState(
-													{
-														selectedUser: user.id,
-													},
-													this.getAddresses
-												)
-											}
-											style={{
-												cursor: "pointer",
-											}}
-										>
-											<div>{user.id}</div>
-											{user.name ? (
-												<div>{user.name}</div>
-											) : null}
-											<div>
-												{user.mobile
-													? user.mobile + ", "
-													: ""}
-												{user.email || ""}
-											</div>
-										</ListGroupItem>
-									))
+						<FormGroup className="text-center">
+							<Button type="submit" disabled={creatingOrder}>
+								{creatingOrder ? (
+									<i className="fa fa-refresh fa-spin fa-fw" />
 								) : (
-									<ListGroupItem className="text-center">
-										No user found.
-									</ListGroupItem>
+									"Create Order"
 								)}
-							</ListGroup>
-						</FormGroup>
-						<FormGroup>
-							<Label>Select address</Label>
-							{addresses.length > 0 ? (
-								addresses.map((address) => (
-									<ListGroupItem
-										key={address.id}
-										active={address.id === selectedAddress}
-										onClick={() =>
-											this.setState({
-												selectedAddress: address.id,
-											})
-										}
-										style={{
-											cursor: "pointer",
-										}}
-									>
-										<div>{address.name}</div>
-										<div>
-											{address.locality},{" "}
-											{address.landmark
-												? address.landmark + ", "
-												: ""}
-											{address.city}, {address.state} -{" "}
-											{address.pincode}
-										</div>
-										<div>{address.mobile}</div>
-									</ListGroupItem>
-								))
-							) : (
-								<ListGroupItem className="text-center">
-									No address found.
-								</ListGroupItem>
-							)}
-						</FormGroup>
-						<FormGroup>
-							<Label>Search products</Label>
-							<InputGroup>
-								<InputGroupButtonDropdown
-									addonType="prepend"
-									isOpen={isPSKDropdownOpen}
-									toggle={this.togglePSKDropdown}
-								>
-									<DropdownToggle caret>
-										{productSearchKey}
-									</DropdownToggle>
-									<DropdownMenu>
-										{PRODUCT_SEARCH_KEYS.map(
-											(searchKey, idx) => (
-												<DropdownItem
-													key={idx}
-													onClick={() =>
-														this.setState({
-															productSearchKey: searchKey,
-														})
-													}
-												>
-													{searchKey}
-												</DropdownItem>
-											)
-										)}
-									</DropdownMenu>
-								</InputGroupButtonDropdown>
-								<Input
-									type="text"
-									name="productSearchValue"
-									value={productSearchValue}
-									onChange={this.onChange}
-									placeholder="Enter product id / sku / slug / category"
-									list="categories"
-								/>
-								{productSearchKey === "category" ? (
-									<datalist id="categories">
-										{categories.map((c) => (
-											<option
-												key={c.slug}
-												value={c.slug}
-											/>
-										))}
-									</datalist>
-								) : null}
-								<InputGroupAddon addonType="append">
-									<Button
-										type="button"
-										color="primary"
-										onClick={this.getProducts}
-										disabled={loadingProducts}
-									>
-										{loadingProducts ? (
-											<i className="fa fa-refresh fa-spin fa-fw" />
-										) : (
-											"Get"
-										)}
-									</Button>
-								</InputGroupAddon>
-							</InputGroup>
-						</FormGroup>
-						<FormGroup>
-							<Label>Select products</Label>
-							<ListGroup>
-								{products.length > 0 ? (
-									products.map((product) => {
-										const prdThumb =
-											Object.keys(product.assets).length >
-											0
-												? product.assets[
-														Object.keys(
-															product.assets
-														)[0]
-												  ]
-												: {};
-										return (
-											<ListGroupItem key={product.id}>
-												<img
-													src={prdThumb.downloadURL}
-													alt={prdThumb.name}
-													style={{
-														height: "75px",
-														verticalAlign: "top",
-														marginRight: "1rem",
-													}}
-												/>
-												<div
-													style={{
-														display: "inline-block",
-													}}
-												>
-													<div>
-														{product.title} (
-														{product.category.name})
-													</div>
-													<div>
-														Rs.{" "}
-														{product.sellingPrice /
-															100}{" "}
-														/-
-													</div>
-													<div>
-														{
-															product.options
-																.based_on
-														}{" "}
-														:{" "}
-														{Object.keys(
-															product.options.skus
-														).map((sku) => (
-															<Badge
-																key={sku}
-																color={
-																	product
-																		.options
-																		.skus[
-																		sku
-																	].inStock
-																		? "success"
-																		: "danger"
-																}
-																style={{
-																	margin:
-																		"0 3px",
-																	cursor:
-																		"pointer",
-																	fontSize:
-																		"100%",
-																}}
-																onClick={() =>
-																	this.selectProduct(
-																		product,
-																		sku,
-																		1
-																	)
-																}
-															>
-																{
-																	product
-																		.options
-																		.skus[
-																		sku
-																	].name
-																}
-															</Badge>
-														))}
-													</div>
-												</div>
-											</ListGroupItem>
-										);
-									})
-								) : (
-									<ListGroupItem className="text-center">
-										No products found.
-									</ListGroupItem>
-								)}
-							</ListGroup>
-						</FormGroup>
-						<FormGroup>
-							<Label>Selected products</Label>
-							<ListGroup>
-								{selectedProducts.length > 0 ? (
-									selectedProducts.map((selectedProduct) => {
-										const prdThumb =
-											Object.keys(
-												selectedProduct.product.assets
-											).length > 0
-												? selectedProduct.product
-														.assets[
-														Object.keys(
-															selectedProduct
-																.product.assets
-														)[0]
-												  ]
-												: {};
-										return (
-											<ListGroupItem
-												key={selectedProduct.sku}
-											>
-												<img
-													src={prdThumb.downloadURL}
-													alt={prdThumb.name}
-													style={{
-														height: "75px",
-														verticalAlign: "top",
-														marginRight: "1rem",
-													}}
-												/>
-												<div
-													style={{
-														display: "inline-block",
-													}}
-												>
-													<div>
-														{
-															selectedProduct
-																.product.title
-														}{" "}
-														(
-														{
-															selectedProduct
-																.product
-																.category.name
-														}
-														)
-													</div>
-													<div>
-														Rs.{" "}
-														{selectedProduct.product
-															.sellingPrice /
-															100}{" "}
-														/-
-													</div>
-													<div>
-														{
-															selectedProduct
-																.product.options
-																.based_on
-														}{" "}
-														:{" "}
-														{
-															selectedProduct
-																.product.options
-																.skus[
-																selectedProduct
-																	.sku
-															].name
-														}
-														, qty :{" "}
-														<select
-															name="quantity"
-															value={
-																selectedProduct.quantity
-															}
-															onChange={(e) =>
-																this.handleQuantityChange(
-																	selectedProduct.sku,
-																	Number(
-																		e.target
-																			.value
-																	)
-																)
-															}
-														>
-															{this.getQuantityOptions(
-																selectedProduct.product,
-																selectedProduct.sku
-															)}
-														</select>
-													</div>
-												</div>
-												<Button
-													type="button"
-													color="danger"
-													onClick={() =>
-														this.removeProduct(
-															selectedProduct.sku
-														)
-													}
-												>
-													<i className="fa fa-trash" />
-												</Button>
-											</ListGroupItem>
-										);
-									})
-								) : (
-									<ListGroupItem className="text-center">
-										No products selected.
-									</ListGroupItem>
-								)}
-							</ListGroup>
+							</Button>
 						</FormGroup>
 					</Form>
 				</CardBody>
