@@ -434,6 +434,33 @@ class Firebase {
 			return null
 		}
 	}
+
+	coupon = cid => this.db.collection('coupons').doc(cid)
+	coupons = () => this.db.collection('coupons')
+	couponsWithStartAndEndDate = (startDate, endDate) => {
+		try {
+			startDate = new Date(
+				startDate.getFullYear(),
+				startDate.getMonth(),
+				startDate.getDate()
+			)
+			let startMilliSecondsSinceEpoch = startDate.getTime()
+			endDate = new Date(
+				endDate.getFullYear(),
+				endDate.getMonth(),
+				endDate.getDate() + 1
+			)
+			let endMilliSecondsSinceEpoch = endDate.getTime()
+			let query = this.coupons()
+			query = query
+				.where('startTime', '>=', startMilliSecondsSinceEpoch)
+				.where('startTime', '<=', endMilliSecondsSinceEpoch)
+			return query.orderBy('startTime', 'desc').orderBy('endTime', 'desc')
+		} catch (error) {
+			console.log(error)
+			return null
+		}
+	}
 }
 
 export default Firebase

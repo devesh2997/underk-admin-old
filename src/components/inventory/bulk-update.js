@@ -27,8 +27,6 @@ class BulkUpdateInventory extends Component {
 
 		this.state = {
 			updatingInventory: false,
-			loadingProducts: false,
-			loadingInventory: false,
 			products: null,
 			inventory: null,
 			errors: [],
@@ -44,7 +42,6 @@ class BulkUpdateInventory extends Component {
 			.get()
 			.then(snapshot => {
 				let products = []
-
 				snapshot.forEach(doc =>
 					products.push({ ...doc.data(), pid: doc.id })
 				)
@@ -76,12 +73,23 @@ class BulkUpdateInventory extends Component {
 	}
 
 	handleFileSelection = async csvdata => {
+		this.setState({ updatingInventory: true })
+		let products = []
+		let inventory = []
+		let productsSnapshots = await this.props.firebase.inventory().get()
+		productsSnapshots.forEach(doc =>
+			products.push({ ...doc.data(), pid: doc.id })
+		)
+
+		let inventorySnapshots = await this.props.firebase.inventory().get()
+		inventorySnapshots.forEach(doc =>
+			inventory.push({ ...doc.data(), pid: doc.id })
+		)
+
 		let totalCSVRows = 0
 		let validInventory = []
 		let errors = []
 		console.log(csvdata)
-
-		let { products, inventory } = this.state
 
 		for (let i in csvdata) {
 			let row = csvdata[i]
@@ -143,7 +151,12 @@ class BulkUpdateInventory extends Component {
 			}
 		}
 
-		this.setState({ totalCSVRows, validInventory, errors })
+		this.setState({
+			totalCSVRows,
+			validInventory,
+			errors,
+			updatingInventory: false
+		})
 	}
 
 	updateInventory = async () => {
@@ -164,12 +177,10 @@ class BulkUpdateInventory extends Component {
 			products,
 			errors,
 			validInventory,
-			totalCSVRows,
-			loadingProducts,
-			loadingInventory
+			totalCSVRows
 		} = this.state
 
-		const loading = loadingProducts || loadingInventory || updatingInventory
+		const loading = updatingInventory
 
 		let errorTexts = []
 		for (let i = 0; i < errors.length; i++) {

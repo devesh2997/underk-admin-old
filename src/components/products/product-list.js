@@ -26,19 +26,7 @@ class ProductListBase extends Component {
 	}
 
 	componentDidMount () {
-		this.setState({ loading: true })
-
-		// this.unsubscribe = this.props.firebase.products().onSnapshot(snapshot => {
-		//   let products = []
-
-		//   snapshot.forEach(doc => products.push({ ...doc.data(), pid: doc.id }))
-
-		//   this.setState({
-		//     products,
-		//     loading: false
-		//   })
-		// })
-		this.unsubscribe = this.props.firebase
+		this.props.firebase
 			.categories()
 			.get().then(snapshot => {
 				let categories = []
@@ -47,42 +35,28 @@ class ProductListBase extends Component {
 					categories.push({ ...doc.data(), cid: doc.id })
 				)
 
-				this.setState({
-					categories,
-					loading: false
-				})
+				this.setState({ categories })
 			})
+		this.getProducts()
 	}
 
 	onChange = event => {
 		if (this.state[event.target.name] !== event.target.value) {
 			if (event.target.name === 'withCategory') {
 				this.setState({
-					[event.target.name]: event.target.value,
-					loading: true
-				})
+					[event.target.name]: event.target.value
+				}, this.getProducts)
 				console.log(event.target.value)
-				this.unsubscribe = this.props.firebase
-					.productsWithCategory(event.target.value)
-					.get().then(snapshot => {
-						let products = []
-						snapshot.forEach(doc =>
-							products.push({ ...doc.data(), pid: doc.id })
-						)
-						this.setState({
-							products,
-							loading: false
-						})
-					})
 			}
 		}
 	}
 
 	getProducts = () => {
 		this.setState({ loading: true })
+		this.unsubscribe && this.unsubscribe();
 		this.unsubscribe = this.props.firebase
 			.productsWithCategory(this.state.withCategory)
-			.get().then(snapshot => {
+			.onSnapshot(snapshot => {
 				let products = []
 				snapshot.forEach(doc =>
 					products.push({ ...doc.data(), pid: doc.id })

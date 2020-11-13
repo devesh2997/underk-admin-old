@@ -118,6 +118,11 @@ const EditBlog = React.lazy(() => import('./components/blogs/edit-blog'))
 
 const TestPlayground = React.lazy(() => import('./components/test-playground'))
 
+const CouponList = React.lazy(() => import('./components/coupons/coupon-list'))
+const CouponForm = React.lazy(() => import('./components/coupons/coupon-form'))
+
+const CreateOrder = React.lazy(() => import('./components/orders/create-order'))
+
 const TempDashboard = () => {
 	return <span>Dashboard</span>
 }
@@ -180,6 +185,12 @@ const routes = {
 		exact: true,
 		name: 'Custom Orders',
 		component: CustomOrders
+	},
+	CREATE_ORDER: {
+		path: '/create-order',
+		exact: true,
+		name: 'Create Order',
+		component: CreateOrder
 	},
 	INVENTORY: {
 		path: '/inventory',
@@ -414,7 +425,25 @@ const routes = {
 		exact: true,
 		name: 'Blogs',
 		component: EditBlog
-	}
+	},
+	COUPON_LIST: {
+		path: '/coupons',
+		exact: true,
+		name: 'Coupons',
+		component: CouponList
+	},
+	ADD_COUPON: {
+		path: '/coupons/add',
+		exact: true,
+		name: 'Add Coupon',
+		component: CouponForm
+	},
+	EDIT_COUPON: {
+		path: '/coupons/:cid/edit',
+		exact: true,
+		name: 'Edit Coupon',
+		component: CouponForm
+	},
 }
 
 export default routes

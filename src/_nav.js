@@ -32,6 +32,11 @@ export default {
 					url: ROUTES.CUSTOM_ORDERS.path,
 					icon: 'fa fa-list-alt',
 				},
+				{
+					name: 'Create Order',
+					url: ROUTES.CREATE_ORDER.path,
+					icon: 'fa fa-plus',
+				},
 			],
 		},
 		{
@@ -218,6 +223,23 @@ export default {
 					icon: 'fa fa-compress',
 				},
 
+			],
+		},
+		{
+			name: 'Coupons',
+			url: ROUTES.COUPON_LIST.path,
+			icon: 'fa fa-ticket',
+			children: [
+				{
+					name: 'Coupon List',
+					url: ROUTES.COUPON_LIST.path,
+					icon: 'fa fa-ticket',
+				},
+				{
+					name: 'Add Coupon',
+					url: ROUTES.ADD_COUPON.path,
+					icon: 'fa fa-ticket',
+				},
 			],
 		},
 		{
