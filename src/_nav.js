@@ -226,6 +226,24 @@ export default {
 			],
 		},
 		{
+			name: 'Blogs',
+			url: ROUTES.BLOG_LIST.path,
+			icon: 'fa fa-rss',
+			children: [
+				{
+					name: 'Blog List',
+					url: ROUTES.BLOG_LIST.path,
+					icon: 'fa fa-list-alt',
+				},
+				{
+					name: 'Add Blog',
+					url: ROUTES.ADD_BLOG.path,
+					icon: 'fa fa-plus',
+				},
+
+			],
+		},
+		{
 			name: 'Coupons',
 			url: ROUTES.COUPON_LIST.path,
 			icon: 'fa fa-ticket',
@@ -243,22 +261,9 @@ export default {
 			],
 		},
 		{
-			name: 'Blogs',
-			url: ROUTES.BLOG_LIST.path,
-			icon: 'fa fa-rss',
-			children: [
-				{
-					name: 'Blog List',
-					url: ROUTES.BLOG_LIST.path,
-					icon: 'fa fa-list-alt',
-				},
-				{
-					name: 'Add Blog',
-					url: ROUTES.ADD_BLOG.path,
-					icon: 'fa fa-plus',
-				},
-
-			],
+			name: 'Descriptions',
+			url: ROUTES.DESCRIPTIONS.path,
+			icon: 'fa fa-file-text',
 		},
 		{
 			name: 'Test Playground',
