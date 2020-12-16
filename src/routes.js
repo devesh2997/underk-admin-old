@@ -123,6 +123,8 @@ const CouponForm = React.lazy(() => import('./components/coupons/coupon-form'))
 
 const CreateOrder = React.lazy(() => import('./components/orders/create-order'))
 
+const Descriptions = React.lazy(() => import('./components/descriptions'))
+
 const TempDashboard = () => {
 	return <span>Dashboard</span>
 }
@@ -443,6 +445,12 @@ const routes = {
 		exact: true,
 		name: 'Edit Coupon',
 		component: CouponForm
+	},
+	DESCRIPTIONS: {
+		path: '/descriptions',
+		exact: true,
+		name: 'Descriptions',
+		component: Descriptions
 	},
 }
 

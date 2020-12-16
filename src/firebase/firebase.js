@@ -461,6 +461,9 @@ class Firebase {
 			return null
 		}
 	}
+
+	description = id => this.db.collection('descriptions').doc(id)
+	descriptions = () => this.db.collection('descriptions')
 }
 
 export default Firebase
