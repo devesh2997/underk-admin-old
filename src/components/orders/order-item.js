@@ -98,11 +98,14 @@ class OrderItem extends Component {
 		})
 	}
 
-	onManifest = async () => {
-		let selectedSKUs = this.state.selectedSKUs
+	//extraData is an object that contains info like weight, courier_id (for shiprocket)
+	onManifest = async extraData => {
+		extraData = extraData ? extraData : {}
+		if (this.state.shiprocketManifestOpen) {
+			this.setState({ shiprocketManifestOpen: false })
+		}
 		let selectedInventory = this.state.selectedInventory
 		let selectedWarehouse = this.state.selectedWarehouse
-		let inventory = this.state.inventory
 		let order = this.props.order
 		this.setState({ loading: true, errors: [], selectingInventory: false })
 		let skus = []
@@ -117,7 +120,9 @@ class OrderItem extends Component {
 		})
 		console.log('prepared skus', skus)
 		let err, _r
-		;[err, _r] = await to(initDelivery(order.oid, skus, selectedWarehouse))
+		;[err, _r] = await to(
+			initDelivery(order.oid, skus, selectedWarehouse, extraData)
+		)
 		if (typeof err !== 'undefined' || err !== null) {
 			errors.push(err)
 		} else {
@@ -223,7 +228,10 @@ class OrderItem extends Component {
 	render () {
 		let { order, index, showUid } = this.props
 		const orderDevice = order.device
-		const deviceInfo = `${orderDevice.type} : ${orderDevice.os}`
+		let deviceInfo 
+		if(orderDevice){
+			deviceInfo = `${orderDevice.type} : ${orderDevice.os}`
+		}
 		if (utils.isEmpty(showUid)) {
 			showUid = true
 		}
@@ -293,6 +301,7 @@ class OrderItem extends Component {
 								}
 								delivery_postcode={address.pincode}
 								pickup_postcode={384151}
+								onManifest={this.onManifest}
 							/>
 						</ModalBody>
 					</Modal>

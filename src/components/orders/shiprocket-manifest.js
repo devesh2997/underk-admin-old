@@ -11,12 +11,17 @@ import {
 	Input,
 	FormText,
 	Row,
-    Col,
-    ListGroup,
-    ListGroupItem
+	Col,
+	ListGroup,
+	ListGroupItem
 } from 'reactstrap'
 
-const ShiprocketManifest = ({ isCOD, delivery_postcode, pickup_postcode }) => {
+const ShiprocketManifest = ({
+	isCOD,
+	delivery_postcode,
+	pickup_postcode,
+	onManifest
+}) => {
 	const [loading, setLoading] = useState(false)
 
 	const [weight, setWeight] = useState(0)
