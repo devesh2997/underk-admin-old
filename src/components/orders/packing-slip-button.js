@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import axios from "axios";
-
+import axios from 'axios'
 import {
 	Button
 } from 'reactstrap'
+import { URLS } from '../../constants'
 
 const PackingSlipButton = props => {
 	const { trackingId } = props
@@ -11,12 +11,10 @@ const PackingSlipButton = props => {
 
 	const printDeliverySlip = async () => {
 		setLoading(true)
-		const url =
-			'https://us-central1-underk-firebase.cloudfunctions.net/adminApp/packing-slip'
 		const data = {
 			waybill: trackingId
 		}
-		const response = await axios.post(url, data)
+		const response = await axios.post(URLS.PACKING_SLIP_URL, data)
 		setLoading(false)
 		// console.log(response.data)
 		var newWindow = window.open()

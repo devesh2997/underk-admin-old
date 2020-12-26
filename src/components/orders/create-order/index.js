@@ -15,6 +15,7 @@ import { withFirebase } from "../../../firebase";
 import SelectProduct from "./select-product";
 import SelectUser from "./select-user";
 import ROUTES from "../../../routes";
+import { URLS } from "../../../constants";
 
 class CreateOrder extends Component {
 	constructor(props) {
@@ -195,8 +196,7 @@ class CreateOrder extends Component {
 
 		axios({
 			method: "post",
-			url:
-				"https://us-central1-underk-firebase.cloudfunctions.net/authUserApp/checkout",
+			url: URLS.CHECKOUT_URL,
 			data: {
 				cart,
 				uid: selectedUser.id,

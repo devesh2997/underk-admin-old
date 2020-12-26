@@ -40,6 +40,7 @@ import {
 import types from 'underk-types'
 
 import axios from 'axios'
+import { URLS } from '../../constants'
 
 class ReturnOrderItem extends Component {
 	constructor (props) {
@@ -80,7 +81,7 @@ class ReturnOrderItem extends Component {
 		try {
 			let response = await axios({
 				method: 'POST',
-				url: 'https://us-central1-underk-firebase.cloudfunctions.net/adminApp/manifestReturn',
+				url: URLS.MANIFEST_RETURN_URL,
 				data: {
 					orderId: returnRequest.oid,
 					productSKU: sku,
@@ -100,7 +101,7 @@ class ReturnOrderItem extends Component {
 		try {
 			let response = await axios({
 				method: 'POST',
-				url: 'https://us-central1-underk-firebase.cloudfunctions.net/adminApp/initiateRefund',
+				url: URLS.INITIATE_REFUND_URL,
 				data: {
 					orderId: returnRequest.oid,
 					productSKU: sku

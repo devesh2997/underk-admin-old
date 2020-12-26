@@ -1,31 +1,31 @@
-// TODO  create a second Firebase project on the Firebase website to have one project for your development environment and one project for your production environment
-
 import app from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/firestore'
 import 'firebase/storage'
-import { strictEqual } from 'assert'
 
 import types from 'underk-types'
 
 const config = {
-	apiKey: 'AIzaSyCwZVRP8KffgtY5mEkMwxDiQkWpmiDZd4U',
-	authDomain: 'underk-firebase.firebaseapp.com',
-	databaseURL: 'https://underk-firebase.firebaseio.com',
-	projectId: 'underk-firebase',
-	storageBucket: 'underk-firebase.appspot.com',
-	messagingSenderId: '1009026349608',
-	appId: '1:1009026349608:web:80d6c62a082a28c4'
+	apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+	authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+	databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
+	projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+	storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+	messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+	appId: process.env.REACT_APP_FIREBASE_APP_ID
+}
+if (process.env.REACT_APP_FIREBASE_MEASUREMENT_ID) {
+	config.measurementId = process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 }
 
-const config_old = {
-	apiKey: 'AIzaSyBORS5EyMukyl6xO7MCaG1pJNAXw3J0EFc',
-	authDomain: 'underk-81232.firebaseapp.com',
-	databaseURL: 'https://underk-81232.firebaseio.com',
-	projectId: 'underk-81232',
-	storageBucket: 'underk-81232.appspot.com',
-	messagingSenderId: '462799589288'
-}
+// const config_old = {
+// 	apiKey: 'AIzaSyBORS5EyMukyl6xO7MCaG1pJNAXw3J0EFc',
+// 	authDomain: 'underk-81232.firebaseapp.com',
+// 	databaseURL: 'https://underk-81232.firebaseio.com',
+// 	projectId: 'underk-81232',
+// 	storageBucket: 'underk-81232.appspot.com',
+// 	messagingSenderId: '462799589288'
+// }
 
 class Firebase {
 	constructor () {

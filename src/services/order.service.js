@@ -1,15 +1,10 @@
 import axios from 'axios'
-
-const URL_INIT_DELIVERY =
-	'https://us-central1-underk-firebase.cloudfunctions.net/adminApp/initDelivery'
-
-const URL_CANCEL_PRODUCT =
-	'https://us-central1-underk-firebase.cloudfunctions.net/adminApp/cancelProduct'
+import { URLS } from '../constants'
 
 const initDelivery = async (order_id, orderFulfilments, warehouse) => {
 	let body = { order_id, orderFulfilments, warehouse }
 	try {
-		let res = await axios.post(URL_INIT_DELIVERY, body)
+		let res = await axios.post(URLS.INIT_DELIVERY_URL, body)
 		return res
 	} catch (err) {
 		throw err
@@ -19,7 +14,7 @@ const initDelivery = async (order_id, orderFulfilments, warehouse) => {
 const cancelProduct = async (orderId, productSKU) => {
 	let body = { orderId, productSKU }
 	try {
-		let res = await axios.post(URL_CANCEL_PRODUCT, body)
+		let res = await axios.post(URLS.CANCEL_PRODUCT_URL, body)
 		return res
 	} catch (err) {
 		throw err

@@ -13,9 +13,7 @@ import {
 	Col
 } from 'reactstrap';
 import axios from 'axios';
-
-const EVALUATE_PINCODE_URL = (pincode) => `https://us-central1-underk-firebase.cloudfunctions.net/publicApp/pincode?pincode=${pincode}`;
-const CHECK_PINCODE_URL = (pincode) => `https://us-central1-underk-firebase.cloudfunctions.net/checkPincodeAvailability?pincode=${pincode}`;
+import { URLS } from '../../constants';
 
 const INITIAL_STATE = {
 	city: '',
@@ -47,7 +45,7 @@ export default class CreateInvoice extends Component {
 	onPincodeChange = event => {
 		const pincode = event.target.value;
 		if(pincode.match(/^\d{6}$/)) {
-			axios.get(EVALUATE_PINCODE_URL(pincode))
+			axios.get(URLS.EVALUATE_PINCODE_URL(pincode))
 			.then(response => {
 				// console.log(response);
 				const { city, state } = response.data;
@@ -57,7 +55,7 @@ export default class CreateInvoice extends Component {
 				// console.log(error);
 			});
 
-			axios.get(CHECK_PINCODE_URL(pincode))
+			axios.get(URLS.CHECK_PINCODE_URL(pincode))
 			.then(response => {
 				// console.log(response);
 				if(response.data.invalid_pincode) {
@@ -126,9 +124,7 @@ export default class CreateInvoice extends Component {
 		}
 		console.log(data);
 		try {
-			// const url = 'http://localhost:5001/underk-firebase/us-central1/adminApp/generateInvoiceWithExternalData';
-			const url = 'https://us-central1-underk-firebase.cloudfunctions.net/adminApp/generateInvoiceWithExternalData';
-			const response = await axios.post(url, data);
+			const response = await axios.post(URLS.GENERATE_INVOICE_URL, data);
 			if(!response.data.success) {
 				throw new Error(response.data.message);
 			}
